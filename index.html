@@ -1198,7 +1198,8 @@ window.addPost=async function(kind){
 window.delPost=async function(id){ if(!confirm('حذف هذا المنشور؟')) return; const isNote=S.notes.some(n=>n.id===id);
   try{ await fdb.doc((isNote?'notes/':'posts/')+id).delete(); toast('حُذف') }catch(e){toast('تعذّر الحذف')} };
 /* ---- portal ---- */
-const _rp0=window.renderPortal; const XTABS=[['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
+const _rp0=window.renderPortal; const XTABS=[['results','نتائج الطلبة'],['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
+const tabsFor=()=>role()==='owner'?XTABS:XTABS.filter(t=>t[0]==='results');
 window.renderPortal=function(){
   if(!S.authUser){
     $('#view').innerHTML=`<h1 style="margin-bottom:12px">بوابة المُلهِمات</h1>
@@ -1210,15 +1211,15 @@ window.renderPortal=function(){
     return; }
   if(role()==='viewer'){ $('#view').innerHTML=`<h1 style="margin-bottom:12px">بوابة المُلهِمات</h1><div class="empty">هذا الحساب لا يملك صلاحية في البوابة.<br><button class="btn" style="margin-top:10px" onclick="fbLogout()">تسجيل الخروج</button></div>`; return; }
   if(S.ptab==='roles') S.ptab=null;
-  const want=role()==='owner'&&XTABS.find(t=>t[0]===S.ptab)?S.ptab:null; if(want) S.ptab='teacher';
+  const want=tabsFor().find(t=>t[0]===S.ptab)?S.ptab:null; if(want) S.ptab='teacher';
   _rp0(); if(want) S.ptab=want;
   const tabs=document.querySelector('.ptabs');
   if(tabs){ [...tabs.querySelectorAll('.chip')].forEach(b=>{ if(b.textContent.trim()==='الصلاحيات') b.remove(); else if(want) b.setAttribute('aria-pressed','false') });
-    if(role()==='owner') XTABS.forEach(([k,t])=>tabs.insertAdjacentHTML('beforeend',`<button class="chip" aria-pressed="${S.ptab===k}" onclick="S.ptab='${k}';render()">${t}</button>`));
+    tabsFor().forEach(([k,t])=>tabs.insertAdjacentHTML('beforeend',`<button class="chip" aria-pressed="${S.ptab===k}" onclick="S.ptab='${k}';render()">${t}</button>`));
     tabs.insertAdjacentHTML('beforeend',`<span style="flex:1"></span><span class="muted" style="font-weight:700">${esc(S.email)}</span><button class="btn sm ghost" onclick="fbLogout()">تسجيل الخروج</button>`);
     tabs.style.display='flex'; tabs.style.flexWrap='wrap'; tabs.style.gap='8px'; tabs.style.alignItems='center'; }
   if(want){ const head=`<h1 style="margin-bottom:6px">بوابة المُلهِمات</h1>`+document.querySelector('.ptabs').outerHTML;
-    if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
+    if(want==='results') renderResults(head); else if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
 };
 window.fbLogin=async function(){ const e=$('#lgE').value.trim(), p=$('#lgP').value; const er=$('#lgErr');
   if(!e||!p){er.textContent='اكتبي البريد وكلمة المرور';return} er.textContent='جارٍ الدخول…';
@@ -1226,6 +1227,53 @@ window.fbLogin=async function(){ const e=$('#lgE').value.trim(), p=$('#lgP').val
 window.fbReset=async function(){ const e=$('#lgE').value.trim(); if(!e){$('#lgErr').textContent='اكتبي بريدك أولًا ثم اضغطي «نسيتُ كلمة المرور»';return}
   try{ await fauth.sendPasswordResetEmail(e); $('#lgErr').textContent='أُرسل رابط تغيير كلمة المرور إلى بريدك ✉️' }catch(x){ $('#lgErr').textContent='تعذّر الإرسال، تأكدي من البريد' } };
 window.fbLogout=async function(){ await fauth.signOut(); S.ptab=null; toast('تم تسجيل الخروج'); location.hash='home'; };
+
+/* ---- student results ---- */
+S.rf={gid:'',type:'',title:'',q:'',view:'list'};
+window.renderResults=async function(head){
+  $('#view').innerHTML=head+`<section class="block"><p class="muted">جارٍ تحميل النتائج…</p></section>`;
+  try{ const q=await fdb.collection('results').get(); S._res=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); }
+  catch(e){ $('#view').innerHTML=head+`<section class="block"><p class="muted">تعذّر تحميل النتائج. تأكدي من تحديث قواعد الحماية.</p></section>`; return; }
+  S._resHead=head; drawResults();
+};
+const RG=[['','كل الفئات'],['g1','الصف الأول'],['g2','الصف الثاني'],['g3','الصف الثالث'],['g4','الصف الرابع'],['tch','المعلمات'],['vis','زوار'],['staff','تجربة المعلمة']];
+function resFiltered(){ const f=S.rf, q=f.q.trim(); return (S._res||[]).filter(r=>(!f.gid||r.gid===f.gid)&&(!f.type||r.type===f.type)&&(!f.title||r.title===f.title)&&(!q||(r.name||'').includes(q)||(r.cls||'').includes(q))); }
+const fmtD=t=>t?new Date(t).toLocaleDateString('ar-OM',{day:'numeric',month:'short'})+' '+new Date(t).toLocaleTimeString('ar-OM',{hour:'2-digit',minute:'2-digit'}):'';
+const pctColor=p=>p>=90?'#2F8A57':p>=60?'#B07A2A':'#C8443B';
+function drawResults(){
+  const head=S._resHead, all=S._res||[], f=S.rf, rows=resFiltered();
+  const titles=[...new Set(all.filter(r=>(!f.gid||r.gid===f.gid)&&(!f.type||r.type===f.type)).map(r=>r.title))].sort();
+  const avg=rows.length?Math.round(rows.reduce((a,r)=>a+(r.pct||0),0)/rows.length):0;
+  const students=new Set(rows.map(r=>(r.name||'')+'|'+(r.cls||'')+'|'+r.gid)).size;
+  let body='';
+  if(f.view==='list'){
+    body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>النجوم</th><th>الوقت</th>${role()==='owner'?'<th></th>':''}</tr></thead><tbody>
+    ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(r.cls||'—')}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
+  } else {
+    const m={}; rows.forEach(r=>{const k=(r.name||'')+'|'+(r.cls||'')+'|'+r.gid; (m[k]=m[k]||{name:r.name,cls:r.cls,group:r.group,n:0,sum:0,best:0,last:0,acts:new Set()}); const x=m[k]; x.n++; x.sum+=(r.pct||0); x.best=Math.max(x.best,r.pct||0); x.last=Math.max(x.last,r.at||0); x.acts.add(r.title)});
+    const list=Object.values(m).sort((a,b)=>b.sum/b.n-a.sum/a.n);
+    body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>عدد المحاولات</th><th>الأنشطة المختلفة</th><th>المتوسط</th><th>أعلى نتيجة</th><th>آخر نشاط</th></tr></thead><tbody>
+    ${list.map(x=>{const a=Math.round(x.sum/x.n); return `<tr><td><b>${esc(x.name||'')}</b></td><td>${esc(x.cls||'—')}</td><td>${esc(x.group||'')}</td><td>${x.n}</td><td>${x.acts.size}</td><td style="color:${pctColor(a)};font-weight:900">${a}%</td><td>${x.best}%</td><td style="white-space:nowrap">${fmtD(x.last)}</td></tr>`}).join('')||`<tr><td colspan="8" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
+  }
+  $('#view').innerHTML=head+`
+  <section class="block"><h2>نتائج الطلبة</h2>
+   <div class="kpis"><div class="kpi"><b>${rows.length}</b>محاولة</div><div class="kpi"><b>${students}</b>طالب/ة</div><div class="kpi"><b style="color:${pctColor(avg)}">${avg}%</b>متوسط النتائج</div></div>
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0">
+    <select class="in" onchange="S.rf.gid=this.value;S.rf.title='';drawResults()">${RG.map(([k,t])=>`<option value="${k}" ${f.gid===k?'selected':''}>${t}</option>`).join('')}</select>
+    <select class="in" onchange="S.rf.type=this.value;S.rf.title='';drawResults()">${[['','كل الأنواع'],['واجب','الواجبات'],['حصاد','الحصاد']].map(([k,t])=>`<option value="${k}" ${f.type===k?'selected':''}>${t}</option>`).join('')}</select>
+    <select class="in" onchange="S.rf.title=this.value;drawResults()"><option value="">كل الأنشطة</option>${titles.map(t=>`<option ${f.title===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
+    <input class="in" placeholder="ابحثي باسم الطالب أو الشعبة" value="${esc(f.q)}" oninput="S.rf.q=this.value;clearTimeout(S._rq);S._rq=setTimeout(()=>{drawResults();const i=document.querySelector('[data-rq]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)" data-rq>
+   </div>
+   <div class="chips" style="margin-bottom:8px"><button class="chip" aria-pressed="${f.view==='list'}" onclick="S.rf.view='list';drawResults()">كل المحاولات</button><button class="chip" aria-pressed="${f.view==='student'}" onclick="S.rf.view='student';drawResults()">حسب الطالب</button>
+    <span style="flex:1"></span><button class="btn sm ghost" onclick="renderResults(S._resHead)">🔄 تحديث</button><button class="btn sm" onclick="exportResults()">⬇️ تصدير إلى Excel</button></div>
+   ${body}</section>`;
+}
+window.drawResults=drawResults;
+window.delResult=async function(id){ if(!confirm('حذف هذه النتيجة؟')) return; try{ await fdb.doc('results/'+id).delete(); S._res=S._res.filter(r=>r.id!==id); drawResults(); toast('حُذفت') }catch(e){toast('تعذّر الحذف')} };
+window.exportResults=function(){ const rows=resFiltered();
+  const lines=[['الاسم','الشعبة','الفئة','النوع','النشاط','الدرجة','من','النسبة %','النجوم','التاريخ'],...rows.map(r=>[r.name||'',r.cls||'',r.group||'',r.type||'',r.title||'',r.score,r.total,r.pct||0,r.stars||0,r.at?new Date(r.at).toLocaleString('ar-OM'):''])];
+  const csv='\ufeff'+lines.map(l=>l.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='نتائج-الطلبة.csv'; document.body.appendChild(a); a.click(); a.remove(); };
 /* ---- section manager ---- */
 const ICONKEYS=Object.keys(ICONS||{});
 window.renderSecMgr=function(head){

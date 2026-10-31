@@ -88,7 +88,8 @@ function intro(key){ const u=DATA[key]; clearInterval(timerH);
   <div class="stats"><div class="stat"><b>${Math.min(15,u.qs.length)}</b>سؤالًا</div><div class="stat"><b>${u.time} ث</b>لكل سؤال</div><div class="stat"><b>${Math.min(15,u.qs.length)*100}</b>أعلى نقاط</div></div>
   <ul class="rules"><li>⏱ كل سؤال يبدأ بـ <b>100 نقطة</b>، وتقلّ كلما تأخّرت (ولا تقل عن 20 للإجابة الصحيحة).</li><li>📖 بعد كل إجابة يظهر <b>الشرح</b> لتتعلّم أكثر.</li>${u.speak?'<li>🔊 اضغط زر الصوت لتسمع السؤال.</li>':''}<li>🏅 في النهاية اكتب اسمك لتحصل على <b>شهادة إنجاز</b>.</li></ul>
   <div class="acts"><button class="btn gold" onclick="start('${key}')">ابدأ التحدي ⏱</button><button class="btn ghost" onclick="location.hash=''">مسابقة أخرى</button></div>`; }
-function start(key){ const u=DATA[key]; S={key,u,qs:shuffle(u.qs).slice(0,15).map(q=>({q:q[0],o:shuffle(q[1]),e:q[2]})),i:0,score:0,right:0}; ask(); }
+function start(){ S&&(S._sent=0); return start0.apply(this,arguments) }
+function start0(key){ const u=DATA[key]; S={key,u,qs:shuffle(u.qs).slice(0,15).map(q=>({q:q[0],o:shuffle(q[1]),e:q[2]})),i:0,score:0,right:0}; ask(); }
 function ask(){ const {u,qs,i}=S, q=qs[i]; S.left=u.time; S.locked=false;
   $('#app').innerHTML=`<div class="hud"><span class="pill">السؤال ${i+1} من ${qs.length}</span><span class="pill">⭐ ${S.score}</span><span class="sp"></span>${u.speak?'<button class="say" onclick="readQ()">🔊 اسمع</button>':''}<div class="timer"><svg viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="27"/><circle class="fg" id="tf" cx="32" cy="32" r="27" stroke-dasharray="169.6" stroke-dashoffset="0"/></svg><span id="tn">${u.time}</span></div></div>
   <div class="bar"><i style="width:${i/qs.length*100}%"></i></div>
@@ -112,13 +113,34 @@ function end(){ const st=starsOf(); sfx.win(); if(st>=2) confetti();
   $('#app').innerHTML=`<div class="end"><h1>انتهى التحدي!</h1><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div>
   <p style="font-size:1.2rem;font-weight:900;margin:0">${msg}</p>
   <div class="stats"><div class="stat"><b>${S.right}/${S.qs.length}</b>إجابات صحيحة</div><div class="stat"><b>${S.score}</b>نقطة</div><div class="stat"><b>${st}</b>نجوم</div></div>
-  <div class="noprint"><label style="font-weight:800">اكتب اسمك لتحصل على الشهادة:</label><br><input class="in" id="nm" placeholder="اسمك هنا" maxlength="40"><div class="acts" style="justify-content:center"><button class="btn gold" onclick="cert()">احصل على الشهادة 🏅</button><button class="btn ghost" onclick="start(S.key)">أعد المحاولة</button><button class="btn ghost" onclick="location.hash=''">مسابقة أخرى</button></div></div>
+  <div class="noprint"><label style="font-weight:800">اكتب اسمك لتحصل على الشهادة:</label><br><input class="in" id="nm" placeholder="اسمك هنا" maxlength="40" value="${esc(localStorage.getItem('abeer.name')||'')}"><br><input class="in" id="cls" placeholder="الشعبة (مثل: 1/2) — اختياري" maxlength="10" style="margin-top:8px" value="${esc(localStorage.getItem('abeer.cls')||'')}"><div class="acts" style="justify-content:center"><button class="btn gold" onclick="cert()">احصل على الشهادة 🏅</button><button class="btn ghost" onclick="start(S.key)">أعد المحاولة</button><button class="btn ghost" onclick="location.hash=''">مسابقة أخرى</button></div></div>
   <div id="cert"></div></div>`; }
 function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();return} sfx.win(); confetti();
+  const cls=(($('#cls')||{}).value||'').trim(); try{localStorage.setItem('abeer.name',n);localStorage.setItem('abeer.cls',cls)}catch(e){}
+  if(!S._sent){ S._sent=1; saveResult({name:n,cls,type:'حصاد',key:S.key,title:'حصاد '+S.u.unit,grade:S.u.grade,score:S.right,total:S.qs.length,points:S.score,pct:Math.round(S.right/S.qs.length*100),stars:starsOf()}).then(ok=>{ const m=document.getElementById('sendmsg'); if(m) m.innerHTML=ok?'✅ وصلت نتيجتك إلى معلمتك':'' }); }
   const d=new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'});
   $('#cert').innerHTML=`<div class="cert"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt=""><h2>شهادة حصاد الوحدة</h2><div>تُمنح هذه الشهادة للبطل/ة</div><div class="nm">${esc(n)}</div><div>لإتمامه/ا حصاد <b>${esc(S.u.unit)}</b> — ${esc(S.u.grade)}</div><div style="margin-top:6px">بنتيجة <b>${S.score}</b> نقطة و ${'⭐'.repeat(starsOf())||'—'}</div><div class="muted" style="color:#5E7079;margin-top:6px">${d}</div><div class="by">إعداد الأستاذة عبير صالح اليحمدية</div></div>
-  <div class="acts noprint" style="justify-content:center"><button class="btn" onclick="print()">🖨️ طباعة / حفظ PDF</button></div>`;
+  <div class="acts noprint" style="justify-content:center"><button class="btn" onclick="print()">🖨️ طباعة / حفظ PDF</button></div><p id="sendmsg" class="noprint" style="font-weight:800;color:#2F8A57;text-align:center"></p>`;
   $('#cert').scrollIntoView({behavior:'smooth'}); }
 function route(){ const k=location.hash.slice(1); if(DATA[k]) intro(k); else home(); }
 addEventListener('hashchange',route); route();
-</script></body></html>
+</script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  window.saveResult=async()=>false;
+  if(!window.firebase) return;
+  firebase.initializeApp({apiKey:"AIzaSyAaHsbkUOcYi1cAI2A1UG46XS38sdoOdz0",authDomain:"abeer-platform-cf812.firebaseapp.com",projectId:"abeer-platform-cf812",storageBucket:"abeer-platform-cf812.firebasestorage.app",messagingSenderId:"941687915468",appId:"1:941687915468:web:90eb0930af29e5adf79369"});
+  const db=firebase.firestore(), au=firebase.auth(); let U=null, M=null;
+  const ready=new Promise(res=>{ au.onAuthStateChanged(async u=>{ if(!u){ try{await au.signInAnonymously()}catch(e){res()} return }
+    U=u; try{ const d=await db.doc('members/'+u.uid).get(); M=d.exists?d.data():null }catch(e){} res(); }); });
+  window.saveResult=async function(r){
+    await Promise.race([ready,new Promise(r=>setTimeout(r,6000))]); if(!U) return false;
+    const staff=!U.isAnonymous;
+    const doc={...r,gid:staff?'staff':(M&&M.gid||'vis'),group:staff?'تجربة المعلمة':(M&&M.group||'زائر'),at:Date.now()};
+    try{ await db.collection('results').add(doc); return true }catch(e){ console.warn(e); return false }
+  };
+})();
+</script>
+</body></html>
