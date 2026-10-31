@@ -326,8 +326,8 @@ dialog.wide .db{padding:0;max-height:none;height:calc(92vh - 58px);overflow:hidd
 .fclose{position:absolute;top:0;left:0;width:170px;height:64px;border:0;border-radius:0 0 16px 0;background:var(--gold);color:#2A1C05;font:inherit;font-weight:900;font-size:1rem;cursor:pointer;z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .fhint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(23,63,85,.9);color:#fff;font-size:.8rem;padding:4px 12px;border-radius:99px;z-index:2;pointer-events:none}
 .pvwrap{display:grid;grid-template-columns:minmax(200px,340px) 1fr;gap:18px;align-items:center;background:var(--bg);border-radius:16px;padding:14px;margin-bottom:14px}
-.pvimg{border-radius:12px;overflow:hidden;background:var(--chip);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
-.pvimg img{width:100%;height:100%;object-fit:cover;display:block}.pvimg svg{width:60px;height:60px;color:var(--brand-2)}
+.pvimg{border-radius:12px;overflow:hidden;background:var(--chip);display:flex;align-items:center;justify-content:center;min-height:160px}
+.pvimg img{width:100%;height:auto;max-height:75vh;object-fit:contain;display:block;cursor:zoom-in}.pvimg svg{width:60px;height:60px;color:var(--brand-2)}
 .pvtxt h3{font-size:1.25rem;color:var(--brand-2);margin-bottom:6px}.pvtxt p{margin:0 0 10px;line-height:1.8}
 @media (max-width:640px){.pvwrap{grid-template-columns:1fr}}
 /* dialog */
@@ -1053,6 +1053,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('.links a'); if(a
 /* ---------- v13: PDF preview card ---------- */
 const PVCHEER={lessons:'افتح الدرس وابدأ رحلتك ★',homework:'اختر درسك من الأزرار وابدأ التحدي ★',harvest:'راجع الوحدة واجمع النجوم ★',assessments:'أرِنا ما تعلّمت ★',presentations:'شاهد العرض أو نزّله ★',assistive:'استكشف الأداة ★'};
 function pdfCard(i){ const L=(i.links||[]).length;
+  if(i.section==='images'&&i.coverData) return `<div class="pvwrap" style="grid-template-columns:1fr"><div class="pvimg"><img src="${i.coverData}" alt="${esc(i.title||'')}" onclick="window.open(this.src)"></div><div class="pvtxt"><h3>${esc(i.title)}</h3><p>${esc(introOf(i))}</p></div></div>`;
   const hint=L?(i.section==='homework'?'اختر الدرس من الأزرار في الأسفل لتبدأ الواجب.':'اضغط الزر في الأسفل لتبدأ.'):(i.assetId?'نزّل الملف لتطّلع عليه كاملًا.':'');
   return `<div class="pvwrap"><div class="pvimg">${coverHtml(i)}</div><div class="pvtxt"><h3>${esc(i.title)}</h3><p>${esc(introOf(i))}</p>${hint?`<p class="muted" style="font-size:.9rem">${hint}</p>`:''}${PVCHEER[i.section]?`<span class="cheer">${PVCHEER[i.section]}</span>`:''}</div></div>`; }
 /* ---------- v10: viewer-level contributors ---------- */
