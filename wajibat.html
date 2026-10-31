@@ -159,12 +159,17 @@ function end(){ const st=starsOf(); sfx.win(); if(st>=2) confetti();
   $('#app').innerHTML=`<div class="end"><h1>أنجزت الواجب!</h1><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><p style="font-size:1.2rem;font-weight:900;margin:0">${msg}</p>
   <div class="stats"><div class="stat"><b>${S.score}/${S.qs.length}</b>إجابات صحيحة</div><div class="stat"><b>${Math.round(S.score/S.qs.length*100)}%</b>النتيجة</div><div class="stat"><b>${st}</b>نجوم</div></div>
   <div class="noprint"><label style="font-weight:800">اكتب اسمك لتحصل على شهادة إتمام الواجب:</label><br><input class="in" id="nm" placeholder="اسمك هنا" maxlength="40" value="${esc(localStorage.getItem('abeer.name')||'')}"><br><input class="in" id="cls" placeholder="الشعبة (مثل: 1/2) — اختياري" maxlength="10" style="margin-top:8px" value="${esc(localStorage.getItem('abeer.cls')||'')}"><div class="acts" style="justify-content:center"><button class="btn gold" onclick="cert()">احصل على الشهادة 🏅</button><button class="btn ghost" onclick="start(S.k)">أعد الواجب</button><button class="btn ghost" onclick="location.hash=''">واجب آخر</button></div></div><div id="cert"></div></div>`; }
+
+function sendRes(){ const m=document.getElementById('sendmsg'); if(m){m.style.color='#5E7079'; m.innerHTML='⏳ جارٍ إرسال نتيجتك إلى معلمتك…'}
+  saveResult(S._rec).then(r=>{ const m=document.getElementById('sendmsg'); if(!m) return;
+    if(r===true){ m.style.color='#2F8A57'; m.innerHTML='✅ وصلت نتيجتك إلى معلمتك'; }
+    else { m.style.color='#C8443B'; m.innerHTML=`⚠️ لم تصل النتيجة بعد. تأكد من اتصال الإنترنت ثم <button class="btn sm" onclick="sendRes()">أعد الإرسال</button><br><small style="color:#5E7079">(${r})</small>`; } }); }
 function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();return} sfx.win(); confetti();
   const cls=(($('#cls')||{}).value||'').trim(); try{localStorage.setItem('abeer.name',n);localStorage.setItem('abeer.cls',cls)}catch(e){}
-  if(!S._sent){ S._sent=1; saveResult({name:n,cls,type:'واجب',key:S.k,title:S.l.t,grade:S.l.g,score:S.score,total:S.qs.length,pct:Math.round(S.score/S.qs.length*100),stars:starsOf()}).then(ok=>{ const m=document.getElementById('sendmsg'); if(m) m.innerHTML=ok?'✅ وصلت نتيجتك إلى معلمتك':'' }); }
+  if(!S._sent){ S._sent=1; S._rec={name:n,cls,type:'واجب',key:S.k,title:S.l.t,grade:S.l.g,score:S.score,total:S.qs.length,pct:Math.round(S.score/S.qs.length*100),stars:starsOf()}; sendRes(); }
   const d=new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'});
   $('#cert').innerHTML=`<div class="cert"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt=""><h2>شهادة إتمام الواجب</h2><div>تُمنح هذه الشهادة للبطل/ة</div><div class="nm">${esc(n)}</div><div>لإتمامه/ا واجب <b>${esc(S.l.t)}</b> — ${esc(S.l.g)}</div><div style="margin-top:6px">النتيجة: <b>${S.score} من ${S.qs.length}</b> ${'⭐'.repeat(starsOf())}</div><div style="color:#5E7079;margin-top:6px">${d}</div><div class="by">إعداد الأستاذة عبير صالح اليحمدية</div></div>
-  <div class="acts noprint" style="justify-content:center"><button class="btn" onclick="print()">🖨️ طباعة / حفظ PDF</button></div><p id="sendmsg" class="noprint" style="font-weight:800;color:#2F8A57;text-align:center"></p><p class="noprint muted" style="font-weight:700">📸 صوّر الشهادة وأرسلها لأستاذتك.</p>`;
+  <div class="acts noprint" style="justify-content:center"><button class="btn" onclick="print()">🖨️ طباعة / حفظ PDF</button></div><p id="sendmsg" class="noprint" style="font-weight:800;color:#2F8A57;text-align:center"></p>`;
   $('#cert').scrollIntoView({behavior:'smooth'}); }
 function route(){ const k=location.hash.slice(1); if(DATA[k]) intro(k); else home(); try{speechSynthesis.cancel()}catch(e){} }
 addEventListener('hashchange',route); route();
@@ -173,17 +178,17 @@ addEventListener('hashchange',route); route();
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 (function(){
-  window.saveResult=async()=>false;
+  window.saveResult=async()=>'no-firebase';
   if(!window.firebase) return;
   firebase.initializeApp({apiKey:"AIzaSyAaHsbkUOcYi1cAI2A1UG46XS38sdoOdz0",authDomain:"abeer-platform-cf812.firebaseapp.com",projectId:"abeer-platform-cf812",storageBucket:"abeer-platform-cf812.firebasestorage.app",messagingSenderId:"941687915468",appId:"1:941687915468:web:90eb0930af29e5adf79369"});
   const db=firebase.firestore(), au=firebase.auth(); let U=null, M=null;
   const ready=new Promise(res=>{ au.onAuthStateChanged(async u=>{ if(!u){ try{await au.signInAnonymously()}catch(e){res()} return }
     U=u; try{ const d=await db.doc('members/'+u.uid).get(); M=d.exists?d.data():null }catch(e){} res(); }); });
   window.saveResult=async function(r){
-    await Promise.race([ready,new Promise(r=>setTimeout(r,6000))]); if(!U) return false;
+    await Promise.race([ready,new Promise(r=>setTimeout(r,6000))]); if(!U) return 'no-auth';
     const staff=!U.isAnonymous;
     const doc={...r,gid:staff?'staff':(M&&M.gid||'vis'),group:staff?'تجربة المعلمة':(M&&M.group||'زائر'),at:Date.now()};
-    try{ await db.collection('results').add(doc); return true }catch(e){ console.warn(e); return false }
+    try{ await db.collection('results').add(doc); return true }catch(e){ console.warn(e); return (e&&e.code)||'error' }
   };
 })();
 </script>
