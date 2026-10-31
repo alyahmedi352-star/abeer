@@ -316,8 +316,8 @@ h1,h2,h3{font-weight:800}
 .fbk{background:color-mix(in srgb,var(--gold) 85%,#fff);color:#2A1C05;text-decoration:none}.fbk.big{padding:8px 16px;font-size:.9rem}
 
 /* static build */
-button[onclick*=",true)"]{display:none!important}
-#cmts,#clist,dialog .note{display:none!important}
+body:not(.staff) button[onclick*=",true)"]{display:none!important}
+body:not(.staff) #cmts,body:not(.staff) #clist,body:not(.staff) dialog .note{display:none!important}
 .supb{background:linear-gradient(120deg,var(--brand-2),var(--brand-3));color:#fff;border-radius:18px;padding:18px 22px;margin-bottom:14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}.supb h2{color:#fff!important;font-size:1.15rem}.supb p{margin:4px 0 0;opacity:.9}.supb .sp{flex:1;min-width:200px}.supb a{background:var(--gold);color:#2A1C05;text-decoration:none;font-weight:900;padding:10px 18px;border-radius:12px;white-space:nowrap}.supb.alt{background:var(--chip);color:var(--text)}.supb.alt h2{color:var(--brand-2)!important}.supb.alt a{background:var(--brand);color:#fff}
 dialog.wide{width:min(1200px,96vw);height:92vh;max-height:92vh}
 dialog.wide .db{padding:0;max-height:none;height:calc(92vh - 58px);overflow:hidden}
@@ -370,7 +370,7 @@ textarea.in{min-height:96px;resize:vertical}
   <svg class="cloud" style="top:40px;width:180px" viewBox="0 0 200 80" aria-hidden="true"><path d="M40 70h120a30 30 0 0 0 0-60 40 40 0 0 0-75-5A32 32 0 0 0 40 70z"/></svg>
   <svg class="cloud" style="top:90px;width:140px;animation-delay:-45s" viewBox="0 0 200 80" aria-hidden="true"><path d="M40 70h120a30 30 0 0 0 0-60 40 40 0 0 0-75-5A32 32 0 0 0 40 70z"/></svg><svg class="cloud" style="top:150px;width:120px;animation-delay:-28s" viewBox="0 0 200 80" aria-hidden="true"><path d="M40 70h120a30 30 0 0 0 0-60 40 40 0 0 0-75-5A32 32 0 0 0 40 70z"/></svg>
   <div class="wrap" style="position:relative">
-    <div class="topline"><span>تقنية المعلومات</span><i></i><span>الصفوف ١–٤</span><i></i><span>مدرسة مزن المعرفة</span><span class="sp"></span><a class="portal-btn" href="https://claude.ai/artifact/UKnQR2Pu7TyBkJGksCredG#portal" target="_blank" rel="noopener">بوابة المُلهِمات</a></div>
+    <div class="topline"><span>تقنية المعلومات</span><i></i><span>الصفوف ١–٤</span><i></i><span>مدرسة مزن المعرفة</span><span class="sp"></span><a class="portal-btn" href="#portal">بوابة المُلهِمات</a></div>
     <div class="hrow">
       <div class="logo-ring"><span class="orbit" aria-hidden="true"><i></i></span><span class="orbit o2" aria-hidden="true"><i></i></span><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt="شعار مدرسة مزن المعرفة"></div>
       <div class="htxt">
@@ -567,7 +567,7 @@ function renderWho(){}
 function render(){
   renderGrades(); renderWho();
   const v=location.hash.slice(1)||'home';
-  if(v==='portal'){location.hash='home';return}
+  if(v==='portal') return renderPortal();
   if(v==='search') return renderSearch();
   const sec=SECTIONS.find(s=>s.id===v);
   if(sec){renderSection(sec); if(typeof bannerBubbles==='function') bannerBubbles(); return}
@@ -584,6 +584,7 @@ function renderHome(){
   </section>`;
 }
 function coverHtml(i){
+  if(i.coverData) return `<img src="${i.coverData}" alt="" loading="lazy">`;
   if(i.design) return `<div class="dcov"><span class="di">${svg(i.design.i||'clip')}</span><b>${esc(i.design.t)}</b><small>${esc(i.design.s||'')}</small></div>`;
   if(i.thumb&&THUMBS[i.thumb]) return `<img src="${THUMBS[i.thumb]}" alt="" loading="lazy">`;
   if(i.cover) return `<img src="${blobUrl(i.cover)}" alt="" loading="lazy">`;
@@ -887,9 +888,9 @@ async function saveItem(id){
   const f=$('#fFile').files[0], cv=$('#fCover').files[0];
   const btn=$('#fSave'); btn.disabled=true; btn.textContent='جارٍ الحفظ…';
   try{
-    if(f){await putFile(f,data)}
-    if(cv){const r=await upload(cv); data.cover=r.id; data.thumb=''}
-    if(!id && !data.assetId && !data.pp && !links.length){err.textContent='أرفقي ملفًا أو ضعي رابطًا واحدًا على الأقل.';btn.disabled=false;btn.textContent='إضافة الملف';return}
+    if(f){ if(S.assets) await putFile(f,data); else if(/^image\//.test(f.type)){data.coverData=await shrink(f); data.thumb=''} else {err.textContent='رفع هذا النوع من الملفات غير متاح هنا. ضعي رابط الملف (Drive أو يوتيوب) في خانة الروابط.';btn.disabled=false;btn.textContent=id?'حفظ التعديلات':'إضافة الملف';return} }
+    if(cv){ if(S.assets){const r=await upload(cv); data.cover=r.id} else data.coverData=await shrink(cv); data.thumb='' }
+    if(!id && !data.assetId && !data.pp && !data.coverData && !links.length){err.textContent='أرفقي ملفًا أو ضعي رابطًا واحدًا على الأقل.';btn.disabled=false;btn.textContent='إضافة الملف';return}
     if(id) await S.db.doc('items/'+id).update(data);
     else await S.db.collection('items').add({...data,createdAt:Date.now(),createdBy:S.uid,order:Date.now()});
     dlg.close(); sfx.ok(); toast(id?'حُفظت التعديلات':'أُضيف الملف');
@@ -1054,6 +1055,12 @@ const PVCHEER={lessons:'افتح الدرس وابدأ رحلتك ★',homework:
 function pdfCard(i){ const L=(i.links||[]).length;
   const hint=L?(i.section==='homework'?'اختر الدرس من الأزرار في الأسفل لتبدأ الواجب.':'اضغط الزر في الأسفل لتبدأ.'):(i.assetId?'نزّل الملف لتطّلع عليه كاملًا.':'');
   return `<div class="pvwrap"><div class="pvimg">${coverHtml(i)}</div><div class="pvtxt"><h3>${esc(i.title)}</h3><p>${esc(introOf(i))}</p>${hint?`<p class="muted" style="font-size:.9rem">${hint}</p>`:''}${PVCHEER[i.section]?`<span class="cheer">${PVCHEER[i.section]}</span>`:''}</div></div>`; }
+/* ---------- v10: viewer-level contributors ---------- */
+function shrink(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file); const im=new Image(); im.onload=()=>{let w=im.naturalWidth,h=im.naturalHeight,max=1000,q=.82,out='';
+  for(let k=0;k<8;k++){const sc=Math.min(1,max/Math.max(w,h)); const c=document.createElement('canvas'); c.width=Math.round(w*sc); c.height=Math.round(h*sc); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); out=c.toDataURL('image/jpeg',q); if(out.length<220000) break; max=Math.round(max*.8); q=Math.max(.55,q-.06)}
+  URL.revokeObjectURL(u); out.length<240000?res(out):rej(new Error('big'))}; im.onerror=rej; im.src=u})}
+const _editItemV10=editItem; editItem=function(a,b){_editItemV10(a,b); if(!S.assets){const n=document.querySelector('#dlgB .note'); if(n) n.textContent='يمكنك رفع صورة مباشرة (تُضغط تلقائيًا). أما ملفات PDF والعروض والفيديو فضعي رابطها من Drive أو يوتيوب في خانة الروابط.'}};
+
 /* ---------- boot ---------- */
 window.addEventListener('hashchange',()=>{S.unit=0;if(location.hash.slice(1)!=='search'){S.q='';$('#q').value=''} sfx.nav(); render(); flyIn(); const v=location.hash.slice(1); if(v&&v!=='home') document.querySelector('.gbar').scrollIntoView({behavior:'smooth'}); else scrollTo(0,0)});
 render(); flyIn();
@@ -1075,6 +1082,130 @@ render(); flyIn();
 })();
 const _openItem=openItem; openItem=function(id,tc){S._openId=id;sfx.click();_openItem(id,tc);earn('i:'+id); const it=S.items.find(x=>x.id===id); if(it&&['lessons','homework','harvest','assessments','videos'].includes(it.section)) starBurst()};
 dlg.addEventListener('close',()=>{S._openId=null});
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ================= Firebase layer (GitHub edition) ================= */
+(function(){
+if(!window.firebase){console.warn('firebase not loaded');return}
+const CFG={apiKey:"AIzaSyAaHsbkUOcYi1cAI2A1UG46XS38sdoOdz0",authDomain:"abeer-platform-cf812.firebaseapp.com",projectId:"abeer-platform-cf812",storageBucket:"abeer-platform-cf812.firebasestorage.app",messagingSenderId:"941687915468",appId:"1:941687915468:web:90eb0930af29e5adf79369"};
+const OWNER='alyahmedi.352@gmail.com', SUP='muniraalharasi567@gmail.com';
+firebase.initializeApp(CFG);
+const fdb=firebase.firestore(), fauth=firebase.auth();
+window.FDB=fdb;
+S.db=fdb; S.live=true; S.roles={teachers:[],supervisors:[]}; S.names=S.names||{}; S.sections=[]; S.notes=[]; S.pubPosts=[];
+const BASE=SECTIONS.map(x=>({...x}));
+const busy=()=>{const a=document.activeElement; return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.id!=='q'};
+const rerender=()=>{ if(!busy()) render(); };
+window.role=function(){ const e=(S.email||'').toLowerCase(); if(e===OWNER) return 'owner'; if(e===SUP) return 'supervisor'; return 'viewer'; };
+function mergePosts(){ S.posts=[...S.pubPosts,...S.notes.map(n=>({...n,kind:'supervisor',_note:1}))]; }
+function rebuildSections(){
+  const ov={}; S.sections.forEach(d=>ov[d.id]=d);
+  const out=[];
+  BASE.forEach((b,k)=>{const o=ov[b.id]||{}; out.push({...b,...pick(o),_base:1,_order:o.order!=null?o.order:k})});
+  S.sections.filter(d=>!BASE.find(b=>b.id===d.id)).forEach(d=>out.push({id:d.id,t:d.t||'قسم جديد',d:d.d||'',c:d.c||'#225C78',i:d.i||'star',hidden:!!d.hidden,_order:d.order!=null?d.order:100}));
+  out.sort((a,b)=>a._order-b._order);
+  window.ALLSECTIONS=out;
+  SECTIONS.length=0; out.filter(x=>!x.hidden).forEach(x=>SECTIONS.push(x));
+}
+function pick(o){const r={}; ['t','d','c','i','hidden'].forEach(k=>{if(o[k]!==undefined&&o[k]!=='') r[k]=o[k]}); return r}
+fdb.collection('items').onSnapshot(s=>{ S._itemsEmpty=s.empty; S.items=s.empty?(seed.items||[]):s.docs.map(d=>({id:d.id,...d.data()})); maybeSeed(); rerender(); },e=>console.warn(e));
+fdb.collection('sections').onSnapshot(s=>{ S.sections=s.docs.map(d=>({id:d.id,...d.data()})); rebuildSections(); rerender(); },e=>console.warn(e));
+fdb.collection('posts').onSnapshot(s=>{ S.pubPosts=s.docs.map(d=>({id:d.id,...d.data()})); mergePosts(); rerender(); },e=>console.warn(e));
+fdb.doc('settings/feedback').onSnapshot(s=>{ if(s.exists&&s.data().url!==undefined) S.fb=s.data().url; rerender(); },()=>{});
+fdb.doc('settings/units').onSnapshot(s=>{ S.units=s.exists?s.data():{}; rerender(); },()=>{});
+let staffSubs=[];
+function staffOn(){
+  staffOff();
+  staffSubs.push(fdb.collection('comments').onSnapshot(s=>{S.comments=s.docs.map(d=>({id:d.id,...d.data()})); rerender(); if(dlg.open&&S._openId&&$('#clist')) renderComments(S._openId)},e=>console.warn(e)));
+  staffSubs.push(fdb.collection('notes').onSnapshot(s=>{S.notes=s.docs.map(d=>({id:d.id,...d.data()})); mergePosts(); rerender()},e=>console.warn(e)));
+  staffSubs.push(fdb.collection('people').onSnapshot(s=>{s.docs.forEach(d=>S.names[d.id]=d.data().name||'مستخدم'); rerender()},()=>{}));
+}
+function staffOff(){ staffSubs.forEach(u=>{try{u()}catch(e){}}); staffSubs=[]; S.comments=[]; S.notes=[]; mergePosts(); }
+let seeding=false;
+async function maybeSeed(){
+  if(seeding||!S.owner||!S._itemsEmpty||!(seed.items||[]).length) return; seeding=true;
+  try{ const b=fdb.batch(); seed.items.forEach(it=>{const {id,...d}=it; b.set(fdb.collection('items').doc(id),d)}); await b.commit(); toast('جُهّز محتوى المنصة للتعديل ✅') }catch(e){console.warn(e); seeding=false}
+}
+fauth.onAuthStateChanged(async u=>{
+  S.authUser=u||null; S.email=u?(u.email||'').toLowerCase():''; S.uid=u?u.uid:null; S.owner=S.email===OWNER;
+  const r=role(); document.body.classList.toggle('staff',r!=='viewer');
+  if(r!=='viewer'){ S.names[S.uid]=r==='owner'?'أ. عبير اليحمدية':'المشرفة';
+    try{await fdb.doc('people/'+S.uid).set({name:S.names[S.uid],role:r,email:S.email})}catch(e){}
+    staffOn(); maybeSeed(); } else staffOff();
+  render();
+});
+/* --- posts: supervisor notes live in 'notes' --- */
+window.addPost=async function(kind){
+  const title=$('#pT').value.trim(), text=$('#pX').value.trim(); if(!text) return toast('اكتبي النص أولًا');
+  try{ await fdb.collection(kind==='supervisor'?'notes':'posts').add({kind,title,text,by:S.uid,createdAt:Date.now()}); sfx.ok(); toast('تم النشر') }catch(e){toast('تعذّر النشر: تحقّقي من صلاحية الكتابة')}
+};
+window.delPost=async function(id){ if(!confirm('حذف هذا المنشور؟')) return; const isNote=S.notes.some(n=>n.id===id);
+  try{ await fdb.doc((isNote?'notes/':'posts/')+id).delete(); toast('حُذف') }catch(e){toast('تعذّر الحذف')} };
+/* --- portal: login + section manager --- */
+const _rp0=window.renderPortal;
+window.renderPortal=function(){
+  if(!S.authUser){
+    $('#view').innerHTML=`<h1 style="margin-bottom:12px">بوابة المُلهِمات</h1>
+    <section class="block" style="max-width:520px"><h2>تسجيل الدخول</h2><p class="muted" style="margin:0">للأستاذة عبير والمشرفة فقط.</p>
+      <label class="f" for="lgE">البريد الإلكتروني</label><input class="in" id="lgE" type="email" dir="ltr" autocomplete="username">
+      <label class="f" for="lgP">كلمة المرور</label><input class="in" id="lgP" type="password" dir="ltr" autocomplete="current-password" onkeydown="if(event.key==='Enter')fbLogin()">
+      <p class="err" id="lgErr" style="color:#C8443B;font-weight:700;min-height:1.2em;margin:8px 0"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="fbLogin()">دخول</button><button class="btn ghost" onclick="fbReset()">نسيتُ كلمة المرور</button></div></section>`;
+    return; }
+  if(role()==='viewer'){ $('#view').innerHTML=`<h1 style="margin-bottom:12px">بوابة المُلهِمات</h1><div class="empty">هذا الحساب لا يملك صلاحية في البوابة.<br><button class="btn" style="margin-top:10px" onclick="fbLogout()">تسجيل الخروج</button></div>`; return; }
+  if(S.ptab==='roles') S.ptab=null;
+  const wantSec=S.ptab==='sections'&&role()==='owner'; if(wantSec) S.ptab='teacher';
+  _rp0(); if(wantSec) S.ptab='sections';
+  const tabs=document.querySelector('.ptabs');
+  if(tabs){ [...tabs.querySelectorAll('.chip')].forEach(b=>{ if(b.textContent.trim()==='الصلاحيات') b.remove() });
+    if(role()==='owner') tabs.insertAdjacentHTML('beforeend',`<button class="chip" aria-pressed="${S.ptab==='sections'}" onclick="S.ptab='sections';render()">إدارة الأقسام</button>`);
+    tabs.insertAdjacentHTML('beforeend',`<span style="flex:1"></span><span class="muted" style="font-weight:700">${esc(S.email)}</span><button class="btn sm ghost" onclick="fbLogout()">تسجيل الخروج</button>`);
+    tabs.style.display='flex'; tabs.style.flexWrap='wrap'; tabs.style.gap='8px'; tabs.style.alignItems='center'; }
+  if(wantSec) renderSecMgr();
+};
+window.fbLogin=async function(){ const e=$('#lgE').value.trim(), p=$('#lgP').value; const er=$('#lgErr');
+  if(!e||!p){er.textContent='اكتبي البريد وكلمة المرور';return} er.textContent='جارٍ الدخول…';
+  try{ await fauth.signInWithEmailAndPassword(e,p); sfx.ok(); toast('مرحبًا بك 🌷') }catch(x){ er.textContent=/password|credential|user-not-found|invalid/.test(x.code||'')?'البريد أو كلمة المرور غير صحيحة':'تعذّر الدخول، حاولي مرة أخرى' } };
+window.fbReset=async function(){ const e=$('#lgE').value.trim(); if(!e){$('#lgErr').textContent='اكتبي بريدك أولًا ثم اضغطي «نسيتُ كلمة المرور»';return}
+  try{ await fauth.sendPasswordResetEmail(e); $('#lgErr').textContent='أُرسل رابط تغيير كلمة المرور إلى بريدك ✉️' }catch(x){ $('#lgErr').textContent='تعذّر الإرسال، تأكدي من البريد' } };
+window.fbLogout=async function(){ await fauth.signOut(); S.ptab=null; toast('تم تسجيل الخروج'); location.hash='home'; };
+/* --- section manager --- */
+const ICONKEYS=Object.keys(ICONS||{}); document.head.insertAdjacentHTML('beforeend','<style>.chip svg{width:20px;height:20px;display:block}</style>');
+window.renderSecMgr=function(){
+  const all=(window.ALLSECTIONS||SECTIONS);
+  const tb=document.querySelector('.ptabs'); [...tb.querySelectorAll('.chip')].forEach(b=>b.setAttribute('aria-pressed',b.textContent.trim()==='إدارة الأقسام')); const head=tb.outerHTML;
+  $('#view').innerHTML=`<h1 style="margin-bottom:6px">بوابة المُلهِمات</h1>`+head+`
+  <section class="block"><h2>إضافة قسم جديد</h2><p class="muted" style="margin:0">يظهر القسم فورًا بطاقةً في الصفحة الرئيسية، ثم أضيفي إليه البطاقات.</p>
+   ${secForm('new',{t:'',d:'',c:'#225C78',i:'star'})}
+   <div style="margin-top:8px"><button class="btn" onclick="saveSec('new')">إضافة القسم</button></div></section>
+  <section class="block"><h2>الأقسام الحالية</h2>${all.map((x,k)=>`<details class="secrow" style="border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:8px 0">
+    <summary style="cursor:pointer;font-weight:800;display:flex;align-items:center;gap:8px"><span style="display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:${x.c};color:#fff">${svg(x.i)}</span>${esc(x.t)} ${x.hidden?'<span class="badge">مخفي</span>':''} <span class="muted" style="font-weight:600">(${S.items.filter(i=>i.section===x.id).length} بطاقة)</span></summary>
+    ${secForm(x.id,x)}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn sm" onclick="saveSec('${x.id}')">حفظ</button>
+      <button class="btn sm ghost" onclick="moveSec('${x.id}',-1)">↑ أعلى</button><button class="btn sm ghost" onclick="moveSec('${x.id}',1)">↓ أسفل</button>
+      <button class="btn sm ghost" onclick="toggleSec('${x.id}')">${x.hidden?'إظهار':'إخفاء'}</button>
+      ${x._base?'':`<button class="btn sm ghost" style="color:#C8443B" onclick="delSec('${x.id}')">حذف القسم</button>`}
+      <button class="btn sm ghost" onclick="location.hash='${x.id}'">فتح القسم</button></div></details>`).join('')}</section>`;
+};
+function secForm(id,x){ return `<div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div><label class="f">اسم القسم</label><input class="in" id="sT_${id}" value="${esc(x.t||'')}" placeholder="مثل: قصص تفاعلية"></div>
+  <div><label class="f">وصف قصير</label><input class="in" id="sD_${id}" value="${esc(x.d||'')}" placeholder="جملة تظهر تحت اسم القسم"></div>
+  <div><label class="f">لون القسم</label><input type="color" id="sC_${id}" value="${x.c||'#225C78'}" style="width:100%;height:42px;border:0;background:none"></div>
+  <div><label class="f">الأيقونة</label><div style="display:flex;flex-wrap:wrap;gap:6px" id="sI_${id}" data-v="${x.i||'star'}">${ICONKEYS.map(k=>`<button type="button" class="chip" aria-pressed="${(x.i||'star')===k}" style="padding:4px 8px" onclick="this.parentNode.dataset.v='${k}';[...this.parentNode.children].forEach(b=>b.setAttribute('aria-pressed',b===this))">${svg(k)}</button>`).join('')}</div></div></div>`; }
+window.saveSec=async function(id){ const t=$('#sT_'+id).value.trim(); if(!t) return toast('اكتبي اسم القسم');
+  const data={t,d:$('#sD_'+id).value.trim(),c:$('#sC_'+id).value,i:$('#sI_'+id).dataset.v};
+  try{ if(id==='new'){ data.order=(window.ALLSECTIONS||SECTIONS).length+1; data.hidden=false; await fdb.collection('sections').doc('sec_'+Date.now()).set(data); toast('أُضيف القسم ✅') }
+       else { await fdb.doc('sections/'+id).set(data,{merge:true}); toast('حُفظ ✅') } sfx.ok(); }catch(e){toast('تعذّر الحفظ: تحقّقي من الصلاحيات')} };
+window.toggleSec=async function(id){ const x=(window.ALLSECTIONS||[]).find(s=>s.id===id); try{ await fdb.doc('sections/'+id).set({hidden:!(x&&x.hidden)},{merge:true}) }catch(e){toast('تعذّر التعديل')} };
+window.moveSec=async function(id,dir){ const all=(window.ALLSECTIONS||[]).slice(); const k=all.findIndex(s=>s.id===id), j=k+dir; if(j<0||j>=all.length) return;
+  [all[k],all[j]]=[all[j],all[k]]; try{ const b=fdb.batch(); all.forEach((s,n)=>b.set(fdb.doc('sections/'+s.id),{order:n},{merge:true})); await b.commit() }catch(e){toast('تعذّر الترتيب')} };
+window.delSec=async function(id){ const n=S.items.filter(i=>i.section===id).length; if(!confirm(n?`في هذا القسم ${n} بطاقة. هل تريدين حذفه مع بطاقاته؟`:'حذف هذا القسم؟')) return;
+  try{ const b=fdb.batch(); S.items.filter(i=>i.section===id).forEach(i=>b.delete(fdb.doc('items/'+i.id))); b.delete(fdb.doc('sections/'+id)); await b.commit(); toast('حُذف القسم') }catch(e){toast('تعذّر الحذف')} };
+})();
 </script>
 </body>
 </html>
