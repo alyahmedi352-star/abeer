@@ -1110,6 +1110,7 @@ function rebuildSections(){
   out.sort((a,b)=>a._order-b._order);
   window.ALLSECTIONS=out;
   SECTIONS.length=0; out.filter(x=>!x.hidden).forEach(x=>SECTIONS.push(x));
+  const fl=document.getElementById('flinks'); if(fl) fl.innerHTML=SECTIONS.map(x=>`<a class="chip" href="#${x.id}">${x.t}</a>`).join('');
 }
 function pick(o){const r={}; ['t','d','c','i','hidden'].forEach(k=>{if(o[k]!==undefined&&o[k]!=='') r[k]=o[k]}); return r}
 fdb.collection('items').onSnapshot(s=>{ S._itemsEmpty=s.empty; S.items=s.empty?(seed.items||[]):s.docs.map(d=>({id:d.id,...d.data()})); maybeSeed(); rerender(); },e=>console.warn(e));
