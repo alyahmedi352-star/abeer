@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة المعلم · منصة أ. عبير اليحمدية</title>
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
+<style>
+:root{--brand:#173F55;--brand2:#225C78;--brand3:#0F2C3C;--gold:#D9A64E;--gold2:#F2CF8A;--ok:#2F8A57;--no:#C8443B;--late:#D08A1E;--exc:#2F6FB3;--bg:#EEF3F4;--paper:#fff;--text:#1C2A31;--muted:#5E7079;--line:#D6E2E4;--chip:#E4EDEE;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1A21;--paper:#16262F;--text:#E3EDF0;--muted:#9DB3BB;--line:#27404B;--chip:#1F3540;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1A21;--paper:#16262F;--text:#E3EDF0;--muted:#9DB3BB;--line:#27404B;--chip:#1F3540;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--text);font-family:"Tajawal",Tahoma,sans-serif;line-height:1.6}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+.top{background:radial-gradient(120% 140% at 85% 10%,var(--brand2),var(--brand) 45%,var(--brand3));color:#fff;padding:12px 16px 34px}
+.top .row{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top img{width:46px;height:46px;border-radius:50%;background:#fff;padding:3px}
+.top b{font-weight:900;font-size:1.2rem;display:block}.top small{color:var(--gold2);font-weight:700}
+.top .sp{flex:1}
+.lnk{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:12px;padding:6px 12px;font-weight:800;text-decoration:none;font-size:.9rem}
+.wrap{max-width:1100px;margin:-22px auto 30px;padding:0 12px}
+.panel{background:var(--paper);border-radius:20px;box-shadow:0 10px 30px rgba(23,63,85,.1);padding:16px;margin-bottom:14px}
+h2{margin:0 0 8px;font-weight:900;font-size:1.25rem;color:var(--brand2)}
+:root[data-theme="dark"] h2{color:var(--gold2)}
+.muted{color:var(--muted)}
+.classes{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.classes .lbl{font-weight:900;margin-inline-start:6px}
+.chip{border:2px solid var(--line);background:var(--paper);border-radius:99px;padding:5px 14px;font-weight:800}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tab{border:0;background:var(--chip);border-radius:12px;padding:8px 16px;font-weight:900}
+.tab[aria-pressed="true"]{background:var(--gold);color:#2A1C05}
+.btn{border:0;border-radius:12px;padding:9px 16px;font-weight:900;background:var(--brand);color:#fff}
+.btn.gold{background:var(--gold);color:#2A1C05}.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--text)}
+.btn.sm{padding:5px 10px;font-size:.88rem}.btn.danger{background:var(--no)}
+.in{border:2px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg);width:100%}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.bar .sp{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.kpi{background:var(--chip);border-radius:14px;padding:8px;text-align:center;font-weight:700}.kpi b{display:block;font-size:1.5rem;font-weight:900}
+.list{display:grid;gap:6px}
+.srow{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:14px;padding:8px 10px;flex-wrap:wrap}
+.srow .n{width:28px;height:28px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-weight:900;font-size:.85rem;flex:0 0 auto}
+.srow .nm{flex:1;font-weight:800;min-width:120px}
+.att{display:flex;gap:4px}
+.att button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:5px 10px;font-weight:900;min-width:58px}
+.att button.on[data-v="p"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.att button.on[data-v="a"]{background:var(--no);border-color:var(--no);color:#fff}
+.att button.on[data-v="l"]{background:var(--late);border-color:var(--late);color:#fff}
+.att button.on[data-v="e"]{background:var(--exc);border-color:var(--exc);color:#fff}
+.pct{font-weight:900;font-size:.85rem;min-width:52px;text-align:center}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.pcard{background:var(--bg);border-radius:16px;padding:10px;text-align:center;border:2px solid transparent;position:relative}
+.pcard.sel{border-color:var(--gold)}
+.pcard .nm{font-weight:900;font-size:.98rem;min-height:2.6em;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pcard .pt{font-size:1.6rem;font-weight:900;color:var(--brand2)}
+.pcard .rk{position:absolute;top:6px;inset-inline-start:8px;font-size:1.1rem}
+.pbtns{display:flex;gap:6px;justify-content:center;margin-top:4px}
+.pbtns button{border:0;border-radius:10px;width:42px;height:36px;font-weight:900;font-size:1.1rem}
+.plus{background:var(--ok);color:#fff}.minus{background:var(--chip)}
+.reasons{display:flex;gap:6px;flex-wrap:wrap}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--brand3);color:#fff;padding:9px 18px;border-radius:12px;font-weight:800;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+.ro .edit{display:none!important}
+textarea.in{min-height:140px}
+.hist{overflow-x:auto}.hist table{border-collapse:collapse;font-size:.85rem;width:100%}.hist th,.hist td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:center;white-space:nowrap}.hist td:first-child,.hist th:first-child{text-align:right;position:sticky;right:0;background:var(--paper)}
+.dot{display:inline-block;width:18px;height:18px;border-radius:5px;line-height:18px;color:#fff;font-size:.7rem;font-weight:900}
+.dp{background:var(--ok)}.da{background:var(--no)}.dl{background:var(--late)}.de{background:var(--exc)}
+.login{max-width:440px;margin:30px auto}
+@media (max-width:600px){.att button{min-width:44px;padding:5px 6px}.srow .nm{min-width:100%}}
+</style></head><body>
+<header class="top"><div class="row"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt="شعار المدرسة"><div><b>لوحة المعلم 📋</b><small>منصة أ. عبير اليحمدية</small></div><span class="sp"></span><span id="who" style="font-weight:700"></span><a class="lnk" href="index.html#portal">← بوابة المُلهِمات</a></div></header>
+<main class="wrap" id="app"><div class="panel"><p class="muted">جارٍ التحميل…</p></div></main>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const OWNER='alyahmedi.352@gmail.com', SUP='muniraalharasi567@gmail.com';
+const DEFAULT_CLASSES=[['أول/1','الصف الأول'],['أول/2','الصف الأول'],['أول/3','الصف الأول'],['أول/4','الصف الأول'],['أول/5','الصف الأول'],['ثالث/1','الصف الثالث'],['ثالث/2','الصف الثالث'],['ثالث/3','الصف الثالث'],['ثالث/4','الصف الثالث'],['ثالث/5','الصف الثالث']];
+const REASONS=[['مشاركة','🙋'],['تعاون','🤝'],['نظام','✅'],['واجب','📝'],['إبداع','💡'],['قراءة','📖']];
+const ATT=[['p','حاضر'],['a','غائب'],['l','متأخر'],['e','مستأذن']];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toLocaleDateString('en-CA');
+let AC=null;function tone(f,d=.12,t='sine',v=.07,dl=0){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const s=AC.currentTime+dl,o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.setValueAtTime(f,s);g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(v,s+.01);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g).connect(AC.destination);o.start(s);o.stop(s+d+.02)}catch(e){}}
+const sfx={plus:()=>{tone(660,.1);tone(880,.15,'sine',.07,.08)},minus:()=>tone(260,.18,'triangle',.06),tick:()=>tone(900,.03,'square',.02)};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1800)}
+const T={user:null,role:'',classes:[],students:[],cls:null,tab:'att',date:today(),att:{},attHist:null,sel:new Set(),undo:[],sort:'name'};
+let db,auth,unsub=[];
+if(window.firebase){
+  firebase.initializeApp({apiKey:"AIzaSyAaHsbkUOcYi1cAI2A1UG46XS38sdoOdz0",authDomain:"abeer-platform-cf812.firebaseapp.com",projectId:"abeer-platform-cf812",storageBucket:"abeer-platform-cf812.firebasestorage.app",messagingSenderId:"941687915468",appId:"1:941687915468:web:90eb0930af29e5adf79369"});
+  db=firebase.firestore(); auth=firebase.auth();
+  auth.onAuthStateChanged(u=>{ T.user=u; const e=u&&!u.isAnonymous?(u.email||'').toLowerCase():''; T.role=e===OWNER?'owner':e===SUP?'supervisor':''; $('#who').textContent=T.role?(T.role==='owner'?'أ. عبير':'المشرفة'):''; document.body.classList.toggle('ro',T.role!=='owner'); if(T.role) start(); else loginView(); });
+} else $('#app').innerHTML='<div class="panel">تعذّر الاتصال. تأكدي من الإنترنت.</div>';
+function loginView(){ unsub.forEach(u=>u());unsub=[];
+  $('#app').innerHTML=`<div class="panel login"><h2>تسجيل الدخول</h2><p class="muted" style="margin:0">لوحة المعلم للأستاذة عبير والمشرفة فقط.</p>
+  <label>البريد الإلكتروني</label><input class="in" id="e" type="email" dir="ltr"><label>كلمة المرور</label><input class="in" id="p" type="password" dir="ltr" onkeydown="if(event.key==='Enter')login()">
+  <p id="er" style="color:var(--no);font-weight:700;min-height:1.2em"></p><button class="btn" onclick="login()">دخول</button></div>`; }
+async function login(){ try{ await auth.signInWithEmailAndPassword($('#e').value.trim(),$('#p').value) }catch(x){ $('#er').textContent='البريد أو كلمة المرور غير صحيحة' } }
+function start(){ unsub.forEach(u=>u());unsub=[];
+  unsub.push(db.collection('t_classes').onSnapshot(async s=>{ T.classes=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||0)-(b.order||0));
+    if(!T.classes.length&&T.role==='owner'){ const b=db.batch(); DEFAULT_CLASSES.forEach(([n,g],k)=>b.set(db.collection('t_classes').doc('c'+(k+1)),{name:n,grade:g,order:k})); await b.commit(); return; }
+    if(!T.cls||!T.classes.find(c=>c.id===T.cls)) T.cls=(localStorage.getItem('lw.cls')&&T.classes.find(c=>c.id===localStorage.getItem('lw.cls')))?localStorage.getItem('lw.cls'):(T.classes[0]||{}).id;
+    subClass(); render(); },e=>{ $('#app').innerHTML='<div class="panel">لا توجد صلاحية. تأكدي من تحديث قواعد الحماية في Firebase.</div>' }));
+}
+let cunsub=[];
+function subClass(){ cunsub.forEach(u=>u()); cunsub=[]; T.attHist=null; if(!T.cls) return;
+  cunsub.push(db.collection('t_students').where('classId','==',T.cls).onSnapshot(s=>{ T.students=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>!x.removed); render(); }));
+  subAtt(); }
+function subAtt(){ if(T._attU) T._attU(); T._attU=db.doc('t_att/'+T.cls+'_'+T.date).onSnapshot(s=>{ T.att=s.exists?(s.data().marks||{}):{}; if(T.tab==='att') render(); }); }
+const sorted=()=>T.students.slice().sort(T.sort==='pts'?(a,b)=>(b.pts||0)-(a.pts||0)||a.name.localeCompare(b.name,'ar'):(a,b)=>a.name.localeCompare(b.name,'ar'));
+function render(){
+  const c=T.classes.find(x=>x.id===T.cls); if(!c){ $('#app').innerHTML='<div class="panel">لا توجد صفوف بعد.</div>'; return; }
+  const grades=[...new Set(T.classes.map(x=>x.grade))];
+  let h=`<div class="panel"><div class="classes">${grades.map(g=>`<span class="lbl">${esc(g)}:</span>${T.classes.filter(x=>x.grade===g).map(x=>`<button class="chip" aria-pressed="${x.id===T.cls}" onclick="pickClass('${x.id}')">${esc(x.name)}</button>`).join('')}`).join('<span style="flex-basis:100%"></span>')}</div>
+  <div class="tabs">${[['att','✅ الحضور'],['pts','⭐ النقاط'],['stu','👩‍🎓 الطلاب']].map(([k,t])=>`<button class="tab" aria-pressed="${T.tab===k}" onclick="T.tab='${k}';render()">${t}</button>`).join('')}</div></div>`;
+  if(T.tab==='stu') h+=stuView(c); else if(T.tab==='att') h+=attView(c); else h+=ptsView(c);
+  $('#app').innerHTML=h;
+}
+function pickClass(id){ T.cls=id; localStorage.setItem('lw.cls',id); T.sel.clear(); subClass(); render(); }
+/* ---------- students ---------- */
+function stuView(c){ const L=sorted();
+  return `<div class="panel"><h2>طلاب ${esc(c.name)} <span class="muted" style="font-size:1rem">(${L.length})</span></h2>
+  <div class="edit"><div class="bar"><input class="in" id="nn" placeholder="اسم الطالب" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')addStu()"><button class="btn" onclick="addStu()">إضافة طالب</button><button class="btn ghost" onclick="T.bulk=!T.bulk;render()">📋 لصق قائمة أسماء</button></div>
+  ${T.bulk?`<textarea class="in" id="bulk" placeholder="الصقي الأسماء هنا: كل اسم في سطر (من Excel أو واتساب)"></textarea><div class="bar"><button class="btn gold" onclick="addBulk()">إضافة الأسماء</button></div>`:''}</div>
+  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span><span class="nm">${esc(s.name)}</span><span class="muted">⭐ ${s.pts||0}</span>
+   <span class="edit"><button class="btn sm ghost" onclick="renStu('${s.id}')">تعديل</button> <button class="btn sm ghost" onclick="moveStu('${s.id}')">نقل</button> <button class="btn sm ghost" style="color:var(--no)" onclick="delStu('${s.id}')">حذف</button></span></div>`).join('')||'<p class="muted">لا يوجد طلاب في هذا الصف بعد. أضيفيهم من الأعلى.</p>'}</div></div>`; }
+async function addStu(){ const n=$('#nn').value.trim(); if(!n) return; await db.collection('t_students').add({name:n,classId:T.cls,pts:0,at:Date.now()}); $('#nn').value=''; $('#nn').focus(); toast('أُضيف '+n); }
+async function addBulk(){ const names=[...new Set($('#bulk').value.split(/\r?\n/).map(x=>x.replace(/^\s*\d+[\.\-\)]\s*/,'').replace(/\t.*/,'').trim()).filter(Boolean))];
+  const have=new Set(T.students.map(s=>s.name)); const add=names.filter(n=>!have.has(n)); if(!add.length) return toast('لا أسماء جديدة');
+  for(let i=0;i<add.length;i+=400){ const b=db.batch(); add.slice(i,i+400).forEach(n=>b.set(db.collection('t_students').doc(),{name:n,classId:T.cls,pts:0,at:Date.now()})); await b.commit(); }
+  T.bulk=false; toast('أُضيف '+add.length+' طالبًا ✅'); }
+async function renStu(id){ const s=T.students.find(x=>x.id===id); const n=prompt('اسم الطالب:',s.name); if(n&&n.trim()) await db.doc('t_students/'+id).update({name:n.trim()}); }
+async function moveStu(id){ const opts=T.classes.filter(c=>c.id!==T.cls).map((c,k)=>(k+1)+'. '+c.name).join('\n'); const k=parseInt(prompt('انقل الطالب إلى أي صف؟ اكتبي الرقم:\n'+opts),10); const to=T.classes.filter(c=>c.id!==T.cls)[k-1]; if(to){ await db.doc('t_students/'+id).update({classId:to.id}); toast('نُقل إلى '+to.name) } }
+async function delStu(id){ const s=T.students.find(x=>x.id===id); if(!confirm('حذف '+s.name+' من الصف؟')) return; await db.doc('t_students/'+id).update({removed:true}); toast('حُذف'); }
+/* ---------- attendance ---------- */
+function attView(c){ const L=sorted(); const m=T.att; const cnt=k=>L.filter(s=>m[s.id]===k).length; const none=L.filter(s=>!m[s.id]).length;
+  return `<div class="panel"><h2>حضور ${esc(c.name)}</h2>
+  <div class="bar"><input type="date" class="in" style="width:auto" value="${T.date}" onchange="T.date=this.value;subAtt();render()"><button class="btn sm ghost" onclick="T.date=today();subAtt();render()">اليوم</button><span class="sp"></span>
+   <span class="edit"><button class="btn gold" onclick="allPresent()">✅ الكل حاضر</button></span><button class="btn ghost" onclick="T.showHist=!T.showHist;render()">📅 سجل الحضور</button></div>
+  <div class="kpis"><div class="kpi"><b style="color:var(--ok)">${cnt('p')}</b>حاضر</div><div class="kpi"><b style="color:var(--no)">${cnt('a')}</b>غائب</div><div class="kpi"><b style="color:var(--late)">${cnt('l')}</b>متأخر</div><div class="kpi"><b style="color:var(--exc)">${cnt('e')}</b>مستأذن</div><div class="kpi"><b>${none}</b>لم يُسجَّل</div></div>
+  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span><span class="nm">${esc(s.name)}</span><span class="att">${ATT.map(([v,t])=>`<button data-v="${v}" class="${m[s.id]===v?'on':''}" ${T.role!=='owner'?'disabled':''} onclick="mark('${s.id}','${v}')">${t}</button>`).join('')}</span></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا من تبويب «الطلاب».</p>'}</div></div>`+(T.showHist?histView():''); }
+async function mark(id,v){ if(T.role!=='owner') return; const ref=db.doc('t_att/'+T.cls+'_'+T.date); const nv=T.att[id]===v?firebase.firestore.FieldValue.delete():v; T.att[id]=T.att[id]===v?undefined:v; render(); sfx.tick();
+  try{ await ref.set({classId:T.cls,date:T.date,marks:{[id]:nv},at:Date.now()},{merge:true}); T.attHist=null }catch(e){ toast('تعذّر الحفظ') } }
+async function allPresent(){ const marks={}; T.students.forEach(s=>{ if(!T.att[s.id]) marks[s.id]='p' }); if(!Object.keys(marks).length) return toast('كل الطلاب مسجَّلون');
+  await db.doc('t_att/'+T.cls+'_'+T.date).set({classId:T.cls,date:T.date,marks,at:Date.now()},{merge:true}); T.attHist=null; toast('سُجّل الحضور للباقين ✅'); }
+function histView(){ if(!T.attHist){ db.collection('t_att').where('classId','==',T.cls).get().then(q=>{ T.attHist=q.docs.map(d=>d.data()).sort((a,b)=>a.date<b.date?-1:1); render() }); return '<div class="panel"><p class="muted">جارٍ تحميل السجل…</p></div>'; }
+  const days=T.attHist.filter(d=>Object.values(d.marks||{}).some(Boolean)); const L=sorted();
+  const rate=s=>{ const ms=days.map(d=>(d.marks||{})[s.id]).filter(Boolean); if(!ms.length) return '—'; return Math.round(ms.filter(x=>x==='p'||x==='l'||x==='e').length/ms.length*100)+'%' };
+  const cls={p:'dp',a:'da',l:'dl',e:'de'}, lt={p:'ح',a:'غ',l:'م',e:'س'};
+  return `<div class="panel"><h2>سجل الحضور (${days.length} يومًا)</h2><p class="muted" style="margin:0 0 6px">ح حاضر · غ غائب · م متأخر · س مستأذن. النسبة تحسب الحضور والتأخر والاستئذان.</p>
+  <div class="hist"><table><thead><tr><th>الطالب</th><th>النسبة</th><th>الغياب</th>${days.map(d=>`<th>${d.date.slice(5).replace('-','/')}</th>`).join('')}</tr></thead><tbody>
+  ${L.map(s=>`<tr><td><b>${esc(s.name)}</b></td><td><b>${rate(s)}</b></td><td>${days.filter(d=>(d.marks||{})[s.id]==='a').length}</td>${days.map(d=>{const v=(d.marks||{})[s.id];return `<td>${v?`<span class="dot ${cls[v]}">${lt[v]}</span>`:''}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>
+  <div class="bar"><button class="btn sm" onclick="exportAtt()">⬇️ تصدير إلى Excel</button></div></div>`; }
+function exportAtt(){ const c=T.classes.find(x=>x.id===T.cls); const days=(T.attHist||[]).filter(d=>Object.values(d.marks||{}).some(Boolean)); const lt={p:'حاضر',a:'غائب',l:'متأخر',e:'مستأذن'};
+  const lines=[['الطالب',...days.map(d=>d.date)],...sorted().map(s=>[s.name,...days.map(d=>lt[(d.marks||{})[s.id]]||'')])];
+  dl(lines,'حضور-'+c.name.replace('/','-')+'.csv'); }
+function dl(lines,name){ const csv='\ufeff'+lines.map(l=>l.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+/* ---------- points ---------- */
+T.reason=REASONS[0][0];
+function ptsView(c){ const L=sorted(); const tot=L.reduce((a,s)=>a+(s.pts||0),0); const top=L.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)); const medal={}; top.slice(0,3).forEach((s,k)=>{ if(s.pts>0) medal[s.id]=['🥇','🥈','🥉'][k] });
+  return `<div class="panel"><h2>نقاط ${esc(c.name)}</h2>
+  <div class="kpis"><div class="kpi"><b>${tot}</b>مجموع نقاط الصف</div><div class="kpi"><b>${top[0]&&top[0].pts>0?esc(top[0].name.split(' ')[0]):'—'}</b>المتصدّر</div></div>
+  <div class="edit"><div class="bar"><span style="font-weight:900">السبب:</span><span class="reasons">${REASONS.map(([r,e])=>`<button class="chip" aria-pressed="${T.reason===r}" onclick="T.reason='${r}';render()">${e} ${r}</button>`).join('')}</span></div>
+  <div class="bar"><button class="btn sm ghost" onclick="T.sort=T.sort==='name'?'pts':'name';render()">ترتيب: ${T.sort==='name'?'أبجدي':'الأعلى نقاطًا'}</button><button class="btn sm ghost" onclick="selAll()">${T.sel.size?'إلغاء التحديد':'تحديد الكل'}</button>
+   ${T.sel.size?`<button class="btn sm" onclick="give([...T.sel],1)">+1 للمحددين (${T.sel.size})</button><button class="btn sm ghost" onclick="give([...T.sel],-1)">−1 للمحددين</button>`:''}
+   <button class="btn sm gold" onclick="givePresent()">+1 لكل الحاضرين اليوم</button><span class="sp"></span><button class="btn sm ghost" ${T.undo.length?'':'disabled'} onclick="undo()">↶ تراجع</button></div></div>
+  <div class="pgrid">${L.map(s=>`<div class="pcard ${T.sel.has(s.id)?'sel':''}">${medal[s.id]?`<span class="rk">${medal[s.id]}</span>`:''}<div class="nm" onclick="toggleSel('${s.id}')">${esc(s.name)}</div><div class="pt">${s.pts||0}</div>
+   <div class="pbtns edit"><button class="minus" onclick="give(['${s.id}'],-1)" aria-label="خصم نقطة">−</button><button class="plus" onclick="give(['${s.id}'],1)" aria-label="إضافة نقطة">+</button></div></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا.</p>'}</div>
+  <p class="muted edit" style="font-size:.85rem">اضغطي على اسم الطالب لتحديده، لتعطي عدة طلاب نقطة واحدة معًا.</p></div>`; }
+function toggleSel(id){ if(T.role!=='owner') return; T.sel.has(id)?T.sel.delete(id):T.sel.add(id); render(); }
+function selAll(){ if(T.sel.size) T.sel.clear(); else T.students.forEach(s=>T.sel.add(s.id)); render(); }
+async function give(ids,d){ if(T.role!=='owner'||!ids.length) return; const b=db.batch(), refs=[];
+  ids.forEach(id=>{ const r=db.collection('t_points').doc(); refs.push(r.id); b.set(r,{studentId:id,classId:T.cls,delta:d,reason:T.reason,at:Date.now(),date:today()}); b.update(db.doc('t_students/'+id),{pts:firebase.firestore.FieldValue.increment(d)}); });
+  try{ await b.commit(); T.undo.push({refs,ids,d}); if(T.undo.length>20) T.undo.shift(); d>0?sfx.plus():sfx.minus(); T.sel.clear(); toast((d>0?'+':'')+d+' '+T.reason+(ids.length>1?' لـ '+ids.length+' طلاب':'')); }catch(e){ toast('تعذّر الحفظ') } }
+async function givePresent(){ const m=T.att||{}; let ids=T.students.filter(s=>['p','l'].includes(m[s.id])).map(s=>s.id);
+  if(T.date!==today()){ T.date=today(); subAtt(); }
+  if(!ids.length) return toast('سجّلي حضور اليوم أولًا'); give(ids,1); }
+async function undo(){ const u=T.undo.pop(); if(!u) return; const b=db.batch(); u.refs.forEach(r=>b.delete(db.doc('t_points/'+r))); u.ids.forEach(id=>b.update(db.doc('t_students/'+id),{pts:firebase.firestore.FieldValue.increment(-u.d)}));
+  try{ await b.commit(); toast('تم التراجع ↶') }catch(e){ toast('تعذّر التراجع') } }
+</script></body></html>
