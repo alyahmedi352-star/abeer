@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>لوحة المعلم · منصة أ. عبير اليحمدية</title>
+<title>صفوفي · منصة أ. عبير اليحمدية</title>
 <link rel="icon" href="icon-192.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap">
 <style>
@@ -66,9 +66,36 @@ textarea.in{min-height:140px}
 .dot{display:inline-block;width:18px;height:18px;border-radius:5px;line-height:18px;color:#fff;font-size:.7rem;font-weight:900}
 .dp{background:var(--ok)}.da{background:var(--no)}.dl{background:var(--late)}.de{background:var(--exc)}
 .login{max-width:440px;margin:30px auto}
+
+.av{width:34px;height:34px;flex:0 0 auto;display:inline-block;vertical-align:middle}
+.pcard .av{width:54px;height:54px;display:block;margin:2px auto 0}
+.gbtn{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:2px 6px;line-height:0}
+.gbtn[aria-pressed="true"]{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 20%,var(--paper))}
+.gbtn .av{width:26px;height:26px}
+.drawbox{background:linear-gradient(135deg,var(--brand2),var(--brand3));color:#fff;border-radius:22px;padding:24px;text-align:center;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.drawbox .av{width:120px;height:120px}
+.drawbox .dn{font-size:clamp(2rem,6vw,3.4rem);font-weight:900;line-height:1.2}
+.drawbox .ds{color:var(--gold2);font-weight:800}
+.drawbox.spin .dn{opacity:.85}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.grp{background:var(--bg);border-radius:16px;padding:10px;border-top:5px solid var(--gc,#225C78)}
+.grp h3{margin:0 0 6px;font-size:1.1rem;font-weight:900}
+.grp div{display:flex;align-items:center;gap:6px;font-weight:700;margin:3px 0}
+.grp .av{width:28px;height:28px}
+.rep{background:#fff;color:#1C2A31;border-radius:16px;padding:20px;border:1px solid var(--line)}
+.rep h1{margin:0;font-size:1.5rem;color:#173F55}
+.rep .rh{display:flex;align-items:center;gap:12px;border-bottom:3px double #D9A64E;padding-bottom:10px;margin-bottom:12px}
+.rep .rh img{width:64px;height:64px}.rep .rh .av{width:64px;height:64px}
+.rep table{width:100%;border-collapse:collapse;font-size:.92rem;margin:6px 0 12px}.rep th,.rep td{border:1px solid #D6E2E4;padding:6px 8px;text-align:center}.rep th{background:#EEF3F4}
+.rep td:first-child,.rep th:first-child{text-align:right}
+.rep .rk{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0}.rep .rk div{background:#EEF3F4;border-radius:12px;padding:8px;text-align:center;font-weight:700}.rep .rk b{display:block;font-size:1.4rem;color:#173F55}
+.rep h3{color:#225C78;margin:12px 0 4px}
+.rep .sig{display:flex;justify-content:space-between;margin-top:26px;font-weight:800}
+@media print{ body{background:#fff} .top,.noprint,.toast,.tabs,.classes,.panel>.bar{display:none!important} .wrap{margin:0;max-width:none;padding:0} .panel{box-shadow:none;padding:0;margin:0} .rep{border:0;padding:0} .rep{page-break-after:always} .rep:last-child{page-break-after:auto} }
+.confetti{position:fixed;width:8px;height:12px;z-index:60;pointer-events:none;border-radius:2px}
 @media (max-width:600px){.att button{min-width:44px;padding:5px 6px}.srow .nm{min-width:100%}}
 </style></head><body>
-<header class="top"><div class="row"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt="شعار المدرسة"><div><b>لوحة المعلم 📋</b><small>منصة أ. عبير اليحمدية</small></div><span class="sp"></span><span id="who" style="font-weight:700"></span><a class="lnk" href="index.html#portal">← بوابة المُلهِمات</a></div></header>
+<header class="top"><div class="row"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt="شعار المدرسة"><div><b>صفوفي 🏫</b><small>منصة أ. عبير اليحمدية</small></div><span class="sp"></span><span id="who" style="font-weight:700"></span><a class="lnk" href="index.html#portal">← بوابة المُلهِمات</a></div></header>
 <main class="wrap" id="app"><div class="panel"><p class="muted">جارٍ التحميل…</p></div></main>
 <div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -79,6 +106,14 @@ const OWNER='alyahmedi.352@gmail.com', SUP='muniraalharasi567@gmail.com';
 const DEFAULT_CLASSES=[['أول/1','الصف الأول'],['أول/2','الصف الأول'],['أول/3','الصف الأول'],['أول/4','الصف الأول'],['أول/5','الصف الأول'],['ثالث/1','الصف الثالث'],['ثالث/2','الصف الثالث'],['ثالث/3','الصف الثالث'],['ثالث/4','الصف الثالث'],['ثالث/5','الصف الثالث']];
 const REASONS=[['مشاركة','🙋'],['تعاون','🤝'],['نظام','✅'],['واجب','📝'],['إبداع','💡'],['قراءة','📖']];
 const ATT=[['p','حاضر'],['a','غائب'],['l','متأخر'],['e','مستأذن']];
+
+const AV={
+f:`<svg class="av" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#F6E7D8"/><path d="M8 64c2-14 11-21 24-21s22 7 24 21z" fill="#8E2A45"/><path d="M14 30c0-12 8-20 18-20s18 8 18 20c0 8-2 14-6 19H20c-4-5-6-11-6-19z" fill="#fff" stroke="#E2E7EA" stroke-width="1.5"/><ellipse cx="32" cy="31" rx="10.5" ry="12" fill="#E9B58C"/><path d="M21 26c1.5-6.5 6-10 11-10s9.5 3.5 11 10c-3.5-2.5-7-3.5-11-3.5s-7.5 1-11 3.5z" fill="#fff" stroke="#E2E7EA" stroke-width="1"/><circle cx="28" cy="31" r="1.6" fill="#2A1C14"/><circle cx="36" cy="31" r="1.6" fill="#2A1C14"/><path d="M28.5 36.5c2 1.8 5 1.8 7 0" stroke="#B5523B" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="25.5" cy="34.5" r="1.8" fill="#F2A5A0" opacity=".6"/><circle cx="38.5" cy="34.5" r="1.8" fill="#F2A5A0" opacity=".6"/></svg>`,
+m:`<svg class="av" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#E3F0F6"/><path d="M8 64c2-14 11-20 24-20s22 6 24 20z" fill="#fff" stroke="#E2E7EA" stroke-width="1.5"/><path d="M32 46v12" stroke="#C9D3D8" stroke-width="1.5"/><ellipse cx="32" cy="32" rx="11" ry="12.5" fill="#E2AC82"/><path d="M20 26c0-8 5.5-13 12-13s12 5 12 13z" fill="#fff" stroke="#D9A64E" stroke-width="1.4"/><path d="M21 22.5h22M21.6 19.5h20.8" stroke="#D9A64E" stroke-width="1.2"/><path d="M24 25.5l2-2 2 2 2-2 2 2 2-2 2 2 2-2 2 2" stroke="#8E2A45" stroke-width="1" fill="none"/><circle cx="28" cy="32" r="1.6" fill="#2A1C14"/><circle cx="36" cy="32" r="1.6" fill="#2A1C14"/><path d="M28.5 37.5c2 1.8 5 1.8 7 0" stroke="#9C4A33" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`,
+n:`<svg class="av" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#E4EDEE"/><circle cx="32" cy="26" r="11" fill="#9DB3BB"/><path d="M12 58c3-11 11-16 20-16s17 5 20 16z" fill="#9DB3BB"/></svg>`};
+const av=s=>AV[(s&&s.g)||'n'];
+function confetti(n=50){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; const cols=['#D9A64E','#F2CF8A','#2F8A57','#2F6FB3','#C8443B','#fff']; for(let k=0;k<n;k++){const c=document.createElement('i');c.className='confetti';c.style.background=cols[k%6];c.style.left=(25+Math.random()*50)+'vw';c.style.top='35vh';document.body.appendChild(c);const dx=(Math.random()-.5)*800,dy=-220-Math.random()*300;c.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${dx}px,${dy}px) rotate(${Math.random()*720}deg)`,opacity:1,offset:.5},{transform:`translate(${dx*1.2}px,${dy+700}px) rotate(1080deg)`,opacity:0}],{duration:1900+Math.random()*600}).onfinish=()=>c.remove()} }
+const normN=s=>String(s||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toLocaleDateString('en-CA');
@@ -93,7 +128,7 @@ if(window.firebase){
   auth.onAuthStateChanged(u=>{ T.user=u; const e=u&&!u.isAnonymous?(u.email||'').toLowerCase():''; T.role=e===OWNER?'owner':e===SUP?'supervisor':''; $('#who').textContent=T.role?(T.role==='owner'?'أ. عبير':'المشرفة'):''; document.body.classList.toggle('ro',T.role!=='owner'); if(T.role) start(); else loginView(); });
 } else $('#app').innerHTML='<div class="panel">تعذّر الاتصال. تأكدي من الإنترنت.</div>';
 function loginView(){ unsub.forEach(u=>u());unsub=[];
-  $('#app').innerHTML=`<div class="panel login"><h2>تسجيل الدخول</h2><p class="muted" style="margin:0">لوحة المعلم للأستاذة عبير والمشرفة فقط.</p>
+  $('#app').innerHTML=`<div class="panel login"><h2>تسجيل الدخول</h2><p class="muted" style="margin:0">صفوفي: للأستاذة عبير والمشرفة فقط.</p>
   <label>البريد الإلكتروني</label><input class="in" id="e" type="email" dir="ltr"><label>كلمة المرور</label><input class="in" id="p" type="password" dir="ltr" onkeydown="if(event.key==='Enter')login()">
   <p id="er" style="color:var(--no);font-weight:700;min-height:1.2em"></p><button class="btn" onclick="login()">دخول</button></div>`; }
 async function login(){ try{ await auth.signInWithEmailAndPassword($('#e').value.trim(),$('#p').value) }catch(x){ $('#er').textContent='البريد أو كلمة المرور غير صحيحة' } }
@@ -113,8 +148,8 @@ function render(){
   const c=T.classes.find(x=>x.id===T.cls); if(!c){ $('#app').innerHTML='<div class="panel">لا توجد صفوف بعد.</div>'; return; }
   const grades=[...new Set(T.classes.map(x=>x.grade))];
   let h=`<div class="panel"><div class="classes">${grades.map(g=>`<span class="lbl">${esc(g)}:</span>${T.classes.filter(x=>x.grade===g).map(x=>`<button class="chip" aria-pressed="${x.id===T.cls}" onclick="pickClass('${x.id}')">${esc(x.name)}</button>`).join('')}`).join('<span style="flex-basis:100%"></span>')}</div>
-  <div class="tabs">${[['att','✅ الحضور'],['pts','⭐ النقاط'],['stu','👩‍🎓 الطلاب']].map(([k,t])=>`<button class="tab" aria-pressed="${T.tab===k}" onclick="T.tab='${k}';render()">${t}</button>`).join('')}</div></div>`;
-  if(T.tab==='stu') h+=stuView(c); else if(T.tab==='att') h+=attView(c); else h+=ptsView(c);
+  <div class="tabs">${[['att','✅ الحضور'],['pts','⭐ النقاط'],['draw','🎲 القرعة والمجموعات'],['rep','📄 التقارير'],['stu','👩‍🎓 الطلاب'],['set','⚙️ النسخ الاحتياطي']].map(([k,t])=>`<button class="tab" aria-pressed="${T.tab===k}" onclick="T.tab='${k}';render()">${t}</button>`).join('')}</div></div>`;
+  if(T.tab==='stu') h+=stuView(c); else if(T.tab==='att') h+=attView(c); else if(T.tab==='draw') h+=drawView(c); else if(T.tab==='rep') h+=repView(c); else if(T.tab==='set') h+=setView(c); else h+=ptsView(c);
   $('#app').innerHTML=h;
 }
 function pickClass(id){ T.cls=id; localStorage.setItem('lw.cls',id); T.sel.clear(); subClass(); render(); }
@@ -122,13 +157,13 @@ function pickClass(id){ T.cls=id; localStorage.setItem('lw.cls',id); T.sel.clear
 function stuView(c){ const L=sorted();
   return `<div class="panel"><h2>طلاب ${esc(c.name)} <span class="muted" style="font-size:1rem">(${L.length})</span></h2>
   <div class="edit"><div class="bar"><input class="in" id="nn" placeholder="اسم الطالب" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')addStu()"><button class="btn" onclick="addStu()">إضافة طالب</button><button class="btn ghost" onclick="T.bulk=!T.bulk;render()">📋 لصق قائمة أسماء</button></div>
-  ${T.bulk?`<textarea class="in" id="bulk" placeholder="الصقي الأسماء هنا: كل اسم في سطر (من Excel أو واتساب)"></textarea><div class="bar"><button class="btn gold" onclick="addBulk()">إضافة الأسماء</button></div>`:''}</div>
-  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span><span class="nm">${esc(s.name)}</span><span class="muted">⭐ ${s.pts||0}</span>
+  ${T.bulk?`<textarea class="in" id="bulk" placeholder="الصقي الأسماء هنا: كل اسم في سطر (من Excel أو واتساب)"></textarea><div class="bar"><span style="font-weight:800">هذه القائمة:</span><select class="in" id="bulkG" style="width:auto"><option value="">مختلطة (أحدّد لاحقًا)</option><option value="f">كلها طالبات</option><option value="m">كلها طلاب</option></select><button class="btn gold" onclick="addBulk()">إضافة الأسماء</button></div>`:''}</div>
+  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span>${av(s)}<span class="nm">${esc(s.name)}</span><span class="edit">${[["f","طالبة"],["m","طالب"]].map(([g,t])=>`<button class="gbtn" title="${t}" aria-pressed="${s.g===g}" onclick="setG('${s.id}','${g}')">${AV[g]}</button>`).join(" ")}</span><span class="muted">⭐ ${s.pts||0}</span>
    <span class="edit"><button class="btn sm ghost" onclick="renStu('${s.id}')">تعديل</button> <button class="btn sm ghost" onclick="moveStu('${s.id}')">نقل</button> <button class="btn sm ghost" style="color:var(--no)" onclick="delStu('${s.id}')">حذف</button></span></div>`).join('')||'<p class="muted">لا يوجد طلاب في هذا الصف بعد. أضيفيهم من الأعلى.</p>'}</div></div>`; }
 async function addStu(){ const n=$('#nn').value.trim(); if(!n) return; await db.collection('t_students').add({name:n,classId:T.cls,pts:0,at:Date.now()}); $('#nn').value=''; $('#nn').focus(); toast('أُضيف '+n); }
 async function addBulk(){ const names=[...new Set($('#bulk').value.split(/\r?\n/).map(x=>x.replace(/^\s*\d+[\.\-\)]\s*/,'').replace(/\t.*/,'').trim()).filter(Boolean))];
   const have=new Set(T.students.map(s=>s.name)); const add=names.filter(n=>!have.has(n)); if(!add.length) return toast('لا أسماء جديدة');
-  for(let i=0;i<add.length;i+=400){ const b=db.batch(); add.slice(i,i+400).forEach(n=>b.set(db.collection('t_students').doc(),{name:n,classId:T.cls,pts:0,at:Date.now()})); await b.commit(); }
+  for(let i=0;i<add.length;i+=400){ const b=db.batch(); const G=($('#bulkG')||{}).value||''; add.slice(i,i+400).forEach(n=>b.set(db.collection('t_students').doc(),{name:n,classId:T.cls,pts:0,at:Date.now(),...(G?{g:G}:{})})); await b.commit(); }
   T.bulk=false; toast('أُضيف '+add.length+' طالبًا ✅'); }
 async function renStu(id){ const s=T.students.find(x=>x.id===id); const n=prompt('اسم الطالب:',s.name); if(n&&n.trim()) await db.doc('t_students/'+id).update({name:n.trim()}); }
 async function moveStu(id){ const opts=T.classes.filter(c=>c.id!==T.cls).map((c,k)=>(k+1)+'. '+c.name).join('\n'); const k=parseInt(prompt('انقل الطالب إلى أي صف؟ اكتبي الرقم:\n'+opts),10); const to=T.classes.filter(c=>c.id!==T.cls)[k-1]; if(to){ await db.doc('t_students/'+id).update({classId:to.id}); toast('نُقل إلى '+to.name) } }
@@ -139,7 +174,7 @@ function attView(c){ const L=sorted(); const m=T.att; const cnt=k=>L.filter(s=>m
   <div class="bar"><input type="date" class="in" style="width:auto" value="${T.date}" onchange="T.date=this.value;subAtt();render()"><button class="btn sm ghost" onclick="T.date=today();subAtt();render()">اليوم</button><span class="sp"></span>
    <span class="edit"><button class="btn gold" onclick="allPresent()">✅ الكل حاضر</button></span><button class="btn ghost" onclick="T.showHist=!T.showHist;render()">📅 سجل الحضور</button></div>
   <div class="kpis"><div class="kpi"><b style="color:var(--ok)">${cnt('p')}</b>حاضر</div><div class="kpi"><b style="color:var(--no)">${cnt('a')}</b>غائب</div><div class="kpi"><b style="color:var(--late)">${cnt('l')}</b>متأخر</div><div class="kpi"><b style="color:var(--exc)">${cnt('e')}</b>مستأذن</div><div class="kpi"><b>${none}</b>لم يُسجَّل</div></div>
-  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span><span class="nm">${esc(s.name)}</span><span class="att">${ATT.map(([v,t])=>`<button data-v="${v}" class="${m[s.id]===v?'on':''}" ${T.role!=='owner'?'disabled':''} onclick="mark('${s.id}','${v}')">${t}</button>`).join('')}</span></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا من تبويب «الطلاب».</p>'}</div></div>`+(T.showHist?histView():''); }
+  <div class="list">${L.map((s,k)=>`<div class="srow"><span class="n">${k+1}</span>${av(s)}<span class="nm">${esc(s.name)}</span><span class="att">${ATT.map(([v,t])=>`<button data-v="${v}" class="${m[s.id]===v?'on':''}" ${T.role!=='owner'?'disabled':''} onclick="mark('${s.id}','${v}')">${t}</button>`).join('')}</span></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا من تبويب «الطلاب».</p>'}</div></div>`+(T.showHist?histView():''); }
 async function mark(id,v){ if(T.role!=='owner') return; const ref=db.doc('t_att/'+T.cls+'_'+T.date); const nv=T.att[id]===v?firebase.firestore.FieldValue.delete():v; T.att[id]=T.att[id]===v?undefined:v; render(); sfx.tick();
   try{ await ref.set({classId:T.cls,date:T.date,marks:{[id]:nv},at:Date.now()},{merge:true}); T.attHist=null }catch(e){ toast('تعذّر الحفظ') } }
 async function allPresent(){ const marks={}; T.students.forEach(s=>{ if(!T.att[s.id]) marks[s.id]='p' }); if(!Object.keys(marks).length) return toast('كل الطلاب مسجَّلون');
@@ -156,6 +191,79 @@ function exportAtt(){ const c=T.classes.find(x=>x.id===T.cls); const days=(T.att
   const lines=[['الطالب',...days.map(d=>d.date)],...sorted().map(s=>[s.name,...days.map(d=>lt[(d.marks||{})[s.id]]||'')])];
   dl(lines,'حضور-'+c.name.replace('/','-')+'.csv'); }
 function dl(lines,name){ const csv='\ufeff'+lines.map(l=>l.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+
+async function setG(id,g){ if(T.role!=='owner') return; await db.doc('t_students/'+id).update({g}); }
+/* ---------- draw & groups ---------- */
+T.dSrc='all'; T.noRep=true; T.drawn={}; T.gN=4; T.gMode='rand'; T.groups=null;
+function pool(){ let L=T.students.slice(); if(T.dSrc==='present'){ const m=T.att||{}; L=L.filter(s=>['p','l'].includes(m[s.id])) } return L; }
+function drawView(c){ const used=T.drawn[T.cls]||[]; const P=pool(); const left=T.noRep?P.filter(s=>!used.includes(s.id)):P; const last=T.lastDraw&&T.students.find(s=>s.id===T.lastDraw);
+  return `<div class="panel"><h2>🎲 القرعة · ${esc(c.name)}</h2>
+  <div class="bar noprint"><select class="in" style="width:auto" onchange="T.dSrc=this.value;render()"><option value="all" ${T.dSrc==='all'?'selected':''}>من كل الطلاب</option><option value="present" ${T.dSrc==='present'?'selected':''}>من الحاضرين اليوم</option></select>
+   <label style="font-weight:800"><input type="checkbox" ${T.noRep?'checked':''} onchange="T.noRep=this.checked;render()"> دون تكرار</label>
+   <span class="muted">${T.noRep?`المتبقي: ${left.length} من ${P.length}`:''}</span><span class="sp"></span>${used.length?`<button class="btn sm ghost" onclick="T.drawn[T.cls]=[];T.lastDraw=null;render()">🔄 بدء دورة جديدة</button>`:''}</div>
+  <div class="drawbox" id="dbox">${last?`${av(last)}<div class="dn">${esc(last.name)}</div><div class="ds">⭐ ${last.pts||0} نقطة</div>`:`<div style="font-size:4rem">🎲</div><div class="dn" style="font-size:1.8rem">اضغطي «اسحبي اسمًا»</div>`}</div>
+  <div class="bar" style="justify-content:center"><button class="btn gold" style="font-size:1.2rem;padding:12px 30px" onclick="spin()">🎲 اسحبي اسمًا</button>${last&&T.role==='owner'?`<button class="btn" onclick="give(['${last.id}'],1)">+1 نقطة لـ ${esc(last.name.split(' ')[0])}</button>`:''}</div></div>
+  <div class="panel"><h2>👥 تقسيم المجموعات</h2>
+  <div class="bar"><span style="font-weight:800">عدد المجموعات:</span>${[2,3,4,5,6].map(n=>`<button class="chip" aria-pressed="${T.gN===n}" onclick="T.gN=${n};render()">${n}</button>`).join('')}
+   <select class="in" style="width:auto" onchange="T.gMode=this.value"><option value="rand" ${T.gMode==='rand'?'selected':''}>عشوائي</option><option value="bal" ${T.gMode==='bal'?'selected':''}>متوازن حسب النقاط</option></select>
+   <button class="btn" onclick="makeGroups()">وزّعي الآن</button></div>
+  ${T.groups&&T.groups.cls===T.cls?`<div class="groups">${T.groups.list.map((g,k)=>`<div class="grp" style="--gc:${['#D9A64E','#2F6FB3','#2F8A57','#8E2A45','#7A5BA8','#C8443B'][k]}"><h3>${['⭐','🌙','☀️','🌈','🚀','🌴'][k]} المجموعة ${k+1}</h3>${g.map(s=>`<div>${av(s)}${esc(s.name)}</div>`).join('')}</div>`).join('')}</div>`:''}</div>`; }
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function spin(){ const used=T.drawn[T.cls]||(T.drawn[T.cls]=[]); const P=pool(); let left=T.noRep?P.filter(s=>!used.includes(s.id)):P;
+  if(!P.length) return toast(T.dSrc==='present'?'سجّلي حضور اليوم أولًا':'أضيفي الطلاب أولًا');
+  if(!left.length){ toast('سُحبت كل الأسماء، تبدأ دورة جديدة'); T.drawn[T.cls]=[]; left=P; }
+  const pick=left[Math.floor(Math.random()*left.length)]; const box=$('#dbox'); box.classList.add('spin'); let k=0; const n=18+Math.floor(Math.random()*6);
+  const step=()=>{ const s=P[Math.floor(Math.random()*P.length)]; box.innerHTML=`${av(s)}<div class="dn">${esc(s.name)}</div>`; sfx.tick(); k++;
+    if(k<n) setTimeout(step,40+k*k*0.9); else { box.classList.remove('spin'); T.lastDraw=pick.id; if(T.noRep) T.drawn[T.cls].push(pick.id); render(); tone(523,.12);tone(784,.25,'sine',.08,.12); confetti(); } };
+  step(); }
+function makeGroups(){ const P=pool(); if(!P.length) return toast('لا يوجد طلاب'); const n=Math.min(T.gN,P.length); const list=Array.from({length:n},()=>[]);
+  if(T.gMode==='bal'){ const s=P.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)); s.forEach((x,i)=>{ const r=Math.floor(i/n); const j=r%2?n-1-(i%n):i%n; list[j].push(x) }); }
+  else shuffle(P).forEach((x,i)=>list[i%n].push(x));
+  T.groups={cls:T.cls,list}; render(); tone(660,.12);tone(880,.18,'sine',.07,.1); }
+/* ---------- reports ---------- */
+T.repSel='class';
+async function loadRepData(){ if(T._repCls===T.cls&&T._rep) return T._rep;
+  const [att,pts,res]=await Promise.all([db.collection('t_att').where('classId','==',T.cls).get(),db.collection('t_points').where('classId','==',T.cls).get(),db.collection('results').get().catch(()=>({docs:[]}))]);
+  T._rep={att:att.docs.map(d=>d.data()),pts:pts.docs.map(d=>d.data()),res:res.docs.map(d=>d.data())}; T._repCls=T.cls; return T._rep; }
+function stuStats(s,R,c){ const days=R.att.filter(d=>(d.marks||{})[s.id]); const cnt=k=>days.filter(d=>d.marks[s.id]===k).length;
+  const ap=days.length?Math.round((days.length-cnt('a'))/days.length*100):null;
+  const P=R.pts.filter(p=>p.studentId===s.id); const byR={}; P.forEach(p=>{byR[p.reason||'أخرى']=(byR[p.reason||'أخرى']||0)+p.delta});
+  const nn=normN(s.name); const res=R.res.filter(r=>r.grade===c.grade&&(normN(r.name)===nn||(nn.length>4&&normN(r.name).startsWith(nn.split(' ')[0]+' ')&&nn.startsWith(normN(r.name).split(' ')[0]))&&normN(r.name)===nn)).sort((a,b)=>(a.at||0)-(b.at||0));
+  const avg=res.length?Math.round(res.reduce((a,r)=>a+(r.pct||0),0)/res.length):null;
+  return {days:days.length,p:cnt('p'),a:cnt('a'),l:cnt('l'),e:cnt('e'),ap,pts:s.pts||0,byR,res,avg}; }
+function repView(c){ const L=sorted();
+  if(!T._rep||T._repCls!==T.cls){ loadRepData().then(()=>render()); return `<div class="panel"><p class="muted">جارٍ تجهيز التقارير…</p></div>`; }
+  const R=T._rep; const d=new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'});
+  const head=(t,s)=>`<div class="rh"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt="">${s?av(s):''}<div style="flex:1"><h1>${t}</h1><div style="color:#5E7079;font-weight:700">مدرسة مزن المعرفة (1-4) · تقنية المعلومات · ${esc(c.name)}</div></div><div style="text-align:left;color:#5E7079;font-weight:700">${d}</div></div>`;
+  let body='';
+  const one=s=>{ const x=stuStats(s,R,c); return `<div class="rep">${head('تقرير الطالب/ة: '+esc(s.name),s)}
+    <div class="rk"><div><b>${x.ap==null?'—':x.ap+'%'}</b>نسبة الحضور</div><div><b>${x.a}</b>أيام الغياب</div><div><b>${x.l}</b>التأخر</div><div><b>${x.pts}</b>النقاط</div><div><b>${x.avg==null?'—':x.avg+'%'}</b>متوسط الواجبات والحصاد</div></div>
+    <h3>⭐ النقاط حسب السبب</h3>${Object.keys(x.byR).length?`<table><tr>${Object.keys(x.byR).map(k=>`<th>${esc(k)}</th>`).join('')}</tr><tr>${Object.values(x.byR).map(v=>`<td>${v}</td>`).join('')}</tr></table>`:'<p>لا توجد نقاط مسجلة بعد.</p>'}
+    <h3>📝 نتائج الواجبات والحصاد في المنصة</h3>${x.res.length?`<table><tr><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>التاريخ</th></tr>${x.res.map(r=>`<tr><td>${esc(r.type)}: ${esc(r.title)}</td><td>${r.score} / ${r.total}</td><td>${r.pct}%</td><td>${new Date(r.at).toLocaleDateString('ar-OM')}</td></tr>`).join('')}</table>`:'<p>لا توجد نتائج مسجلة بهذا الاسم بعد.</p>'}
+    <h3>✅ الحضور</h3><p>حاضر: <b>${x.p}</b> · غائب: <b>${x.a}</b> · متأخر: <b>${x.l}</b> · مستأذن: <b>${x.e}</b> · من أصل <b>${x.days}</b> يومًا مسجلًا</p>
+    <div class="sig"><span>المعلمة: أ. عبير صالح اليحمدية</span><span>التوقيع: ..................</span></div></div>`; };
+  if(T.repSel==='class'){ body=`<div class="rep">${head('تقرير صف '+esc(c.name))}<table><tr><th>#</th><th>الطالب/ة</th><th>نسبة الحضور</th><th>الغياب</th><th>التأخر</th><th>النقاط</th><th>متوسط الواجبات</th></tr>
+    ${L.map((s,k)=>{const x=stuStats(s,R,c);return `<tr><td>${k+1}</td><td>${esc(s.name)}</td><td>${x.ap==null?'—':x.ap+'%'}</td><td>${x.a}</td><td>${x.l}</td><td>${x.pts}</td><td>${x.avg==null?'—':x.avg+'%'}</td></tr>`}).join('')}</table>
+    <div class="sig"><span>المعلمة: أ. عبير صالح اليحمدية</span><span>التوقيع: ..................</span></div></div>`; }
+  else if(T.repSel==='all') body=L.map(one).join('');
+  else { const s=T.students.find(x=>x.id===T.repSel); body=s?one(s):''; }
+  return `<div class="panel"><div class="bar noprint"><h2 style="margin:0">📄 التقارير</h2><select class="in" style="width:auto" onchange="T.repSel=this.value;render()"><option value="class" ${T.repSel==='class'?'selected':''}>تقرير الصف كاملًا</option><option value="all" ${T.repSel==='all'?'selected':''}>تقارير كل الطلاب (للطباعة)</option>${L.map(s=>`<option value="${s.id}" ${T.repSel===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
+   <span class="sp"></span><button class="btn ghost sm" onclick="T._rep=null;render()">🔄 تحديث</button><button class="btn gold" onclick="print()">🖨️ طباعة / حفظ PDF</button></div>${body}</div>`; }
+/* ---------- backup ---------- */
+function setView(c){ return `<div class="panel"><h2>⚙️ النسخ الاحتياطي</h2>
+  <p>بياناتك محفوظة في <b>قاعدة بيانات Firebase</b>، و<b>تتزامن تلقائيًا</b> بين كل أجهزتك: ما تسجّلينه في الحاسوب يظهر فورًا في الجوال، ولا تحتاجين إلى رمز مزامنة.</p>
+  <p>ومع ذلك، احفظي <b>نسخة احتياطية</b> على جهازك مرة كل شهر تقريبًا، للحماية من الحذف بالخطأ.</p>
+  <div class="bar"><button class="btn" onclick="backup()">⬇️ تنزيل نسخة احتياطية</button>${T.role==='owner'?`<label class="btn ghost" style="cursor:pointer">⬆️ استرجاع من نسخة<input type="file" accept=".json" hidden onchange="restore(this.files[0])"></label>`:''}</div>
+  <p class="muted" id="bkmsg">${localStorage.getItem('lw.bk')?'آخر نسخة احتياطية: '+new Date(+localStorage.getItem('lw.bk')).toLocaleDateString('ar-OM'):'لم تُحفظ نسخة احتياطية من هذا الجهاز بعد.'}</p></div>`; }
+async function backup(){ toast('جارٍ تجهيز النسخة…'); const out={app:'abeer-sufufi',v:1,at:Date.now()};
+  for(const col of ['t_classes','t_students','t_att','t_points']){ const q=await db.collection(col).get(); out[col]=q.docs.map(d=>({id:d.id,...d.data()})); }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'})); a.download='نسخة-صفوفي-'+today()+'.json'; document.body.appendChild(a); a.click(); a.remove();
+  localStorage.setItem('lw.bk',Date.now()); toast('حُفظت النسخة ✅'); render(); }
+async function restore(f){ if(!f) return; let d; try{ d=JSON.parse(await f.text()) }catch(e){ return toast('الملف غير صالح') } if(d.app!=='abeer-sufufi') return toast('هذا ليس ملف نسخة احتياطية لصفوفي');
+  if(!confirm('سيُستعاد ما في النسخة: '+(d.t_students||[]).length+' طالبًا، وتُحدَّث السجلات الموجودة بنفس المعرّف. هل تريدين المتابعة؟')) return;
+  let ops=[]; for(const col of ['t_classes','t_students','t_att','t_points']) (d[col]||[]).forEach(({id,...x})=>ops.push([col,id,x]));
+  for(let i=0;i<ops.length;i+=400){ const b=db.batch(); ops.slice(i,i+400).forEach(([c,id,x])=>b.set(db.collection(c).doc(id),x)); await b.commit(); }
+  toast('اكتمل الاسترجاع ✅'); }
 /* ---------- points ---------- */
 T.reason=REASONS[0][0];
 function ptsView(c){ const L=sorted(); const tot=L.reduce((a,s)=>a+(s.pts||0),0); const top=L.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)); const medal={}; top.slice(0,3).forEach((s,k)=>{ if(s.pts>0) medal[s.id]=['🥇','🥈','🥉'][k] });
@@ -165,7 +273,7 @@ function ptsView(c){ const L=sorted(); const tot=L.reduce((a,s)=>a+(s.pts||0),0)
   <div class="bar"><button class="btn sm ghost" onclick="T.sort=T.sort==='name'?'pts':'name';render()">ترتيب: ${T.sort==='name'?'أبجدي':'الأعلى نقاطًا'}</button><button class="btn sm ghost" onclick="selAll()">${T.sel.size?'إلغاء التحديد':'تحديد الكل'}</button>
    ${T.sel.size?`<button class="btn sm" onclick="give([...T.sel],1)">+1 للمحددين (${T.sel.size})</button><button class="btn sm ghost" onclick="give([...T.sel],-1)">−1 للمحددين</button>`:''}
    <button class="btn sm gold" onclick="givePresent()">+1 لكل الحاضرين اليوم</button><span class="sp"></span><button class="btn sm ghost" ${T.undo.length?'':'disabled'} onclick="undo()">↶ تراجع</button></div></div>
-  <div class="pgrid">${L.map(s=>`<div class="pcard ${T.sel.has(s.id)?'sel':''}">${medal[s.id]?`<span class="rk">${medal[s.id]}</span>`:''}<div class="nm" onclick="toggleSel('${s.id}')">${esc(s.name)}</div><div class="pt">${s.pts||0}</div>
+  <div class="pgrid">${L.map(s=>`<div class="pcard ${T.sel.has(s.id)?'sel':''}">${medal[s.id]?`<span class="rk">${medal[s.id]}</span>`:''}${av(s)}<div class="nm" onclick="toggleSel('${s.id}')">${esc(s.name)}</div><div class="pt">${s.pts||0}</div>
    <div class="pbtns edit"><button class="minus" onclick="give(['${s.id}'],-1)" aria-label="خصم نقطة">−</button><button class="plus" onclick="give(['${s.id}'],1)" aria-label="إضافة نقطة">+</button></div></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا.</p>'}</div>
   <p class="muted edit" style="font-size:.85rem">اضغطي على اسم الطالب لتحديده، لتعطي عدة طلاب نقطة واحدة معًا.</p></div>`; }
 function toggleSel(id){ if(T.role!=='owner') return; T.sel.has(id)?T.sel.delete(id):T.sel.add(id); render(); }

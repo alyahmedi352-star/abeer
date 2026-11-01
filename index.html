@@ -1216,7 +1216,7 @@ window.renderPortal=function(){
   _rp0(); if(want) S.ptab=want;
   const tabs=document.querySelector('.ptabs');
   if(tabs){ [...tabs.querySelectorAll('.chip')].forEach(b=>{ if(b.textContent.trim()==='الصلاحيات') b.remove(); else if(want) b.setAttribute('aria-pressed','false') });
-    tabs.insertAdjacentHTML('afterbegin',`<a class="chip" href="lawha.html" style="background:var(--gold);color:#2A1C05;border-color:var(--gold);text-decoration:none;font-weight:900">📋 لوحة المعلم</a>`);
+    tabs.insertAdjacentHTML('afterbegin',`<a class="chip" href="lawha.html" style="background:var(--gold);color:#2A1C05;border-color:var(--gold);text-decoration:none;font-weight:900">🏫 صفوفي</a>`);
     tabsFor().forEach(([k,t])=>tabs.insertAdjacentHTML('beforeend',`<button class="chip" aria-pressed="${S.ptab===k}" onclick="S.ptab='${k}';render()">${t}</button>`));
     tabs.insertAdjacentHTML('beforeend',`<span style="flex:1"></span><span class="muted" style="font-weight:700">${esc(S.email)}</span><button class="btn sm ghost" onclick="fbLogout()">تسجيل الخروج</button>`);
     tabs.style.display='flex'; tabs.style.flexWrap='wrap'; tabs.style.gap='8px'; tabs.style.alignItems='center'; }
