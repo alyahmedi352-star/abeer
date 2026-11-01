@@ -97,6 +97,25 @@ textarea.in{min-height:140px}
 .rep h3{color:#225C78;margin:12px 0 4px}
 .rep .sig{display:flex;justify-content:space-between;margin-top:26px;font-weight:800}
 @media print{ body{background:#fff} .top,.noprint,.toast,.tabs,.classes,.panel>.bar{display:none!important} .wrap{margin:0;max-width:none;padding:0} .panel{box-shadow:none;padding:0;margin:0} .rep{border:0;padding:0} .rep{page-break-after:always} .rep:last-child{page-break-after:auto} }
+
+.show{position:fixed;inset:0;z-index:80;background:radial-gradient(120% 140% at 85% 0%,var(--brand2),var(--brand) 45%,var(--brand3));color:#fff;display:flex;flex-direction:column;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.show .sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.show .sh h1{margin:0;font-size:clamp(1.3rem,2.6vw,2.2rem);font-weight:900}
+.show .sh .sp{flex:1}
+.show .rs{display:flex;gap:6px;flex-wrap:wrap}
+.show .rs button{border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:99px;padding:4px 12px;font-weight:800}
+.show .rs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#2A1C05}
+.show .x{border:0;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;padding:6px 14px;font-weight:900;font-size:1rem}
+.sgrid{flex:1;display:grid;gap:var(--g,10px);align-content:center;min-height:0}
+.scard{background:rgba(255,255,255,.96);color:#1C2A31;border-radius:calc(var(--cs)*.12);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--cs)*.05);position:relative;cursor:pointer;user-select:none;transition:transform .15s;min-height:0;overflow:hidden}
+.scard:active{transform:scale(.96)}
+.scard .av{width:calc(var(--cs)*.42);height:calc(var(--cs)*.42);border:3px solid var(--gold)}
+.scard .snm{font-weight:900;font-size:calc(var(--cs)*.11);line-height:1.15;text-align:center;margin-top:calc(var(--cs)*.03);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scard .spt{font-weight:900;font-size:calc(var(--cs)*.2);color:var(--brand2);line-height:1}
+.scard .smd{position:absolute;top:4px;inset-inline-start:6px;font-size:calc(var(--cs)*.13)}
+.scard.abs{opacity:.45}
+.fly{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-weight:900;font-size:calc(var(--cs)*.28);color:var(--ok);pointer-events:none;text-shadow:0 2px 8px rgba(255,255,255,.9)}
+.fly.neg{color:var(--no)}
 .confetti{position:fixed;width:8px;height:12px;z-index:60;pointer-events:none;border-radius:2px}
 @media (max-width:600px){.att button{min-width:44px;padding:5px 6px}.srow .nm{min-width:100%}}
 </style><script>
@@ -152,7 +171,7 @@ function start(){ unsub.forEach(u=>u());unsub=[];
 }
 let cunsub=[];
 function subClass(){ cunsub.forEach(u=>u()); cunsub=[]; T.attHist=null; if(!T.cls) return;
-  cunsub.push(db.collection('t_students').where('classId','==',T.cls).onSnapshot(s=>{ T.students=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>!x.removed); render(); }));
+  cunsub.push(db.collection('t_students').where('classId','==',T.cls).onSnapshot(s=>{ T.students=s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>!x.removed); if(T.showOn) drawShow(); else render(); }));
   subAtt(); }
 function subAtt(){ if(T._attU) T._attU(); T._attU=db.doc('t_att/'+T.cls+'_'+T.date).onSnapshot(s=>{ T.att=s.exists?(s.data().marks||{}):{}; if(T.tab==='att') render(); }); }
 const sorted=()=>T.students.slice().sort(T.sort==='pts'?(a,b)=>(b.pts||0)-(a.pts||0)||a.name.localeCompare(b.name,'ar'):(a,b)=>a.name.localeCompare(b.name,'ar'));
@@ -288,6 +307,29 @@ function delR(k){ REASONS=readR(); if(REASONS.length<=1) return toast('يجب أ
 function mvR(k,d){ REASONS=readR(); const j=k+d; if(j<0||j>=REASONS.length) return; [REASONS[k],REASONS[j]]=[REASONS[j],REASONS[k]]; render(); }
 async function saveR(){ REASONS=readR(); if(!REASONS.length) return toast('أضيفي بندًا واحدًا على الأقل');
   try{ await db.doc('t_config/reasons').set({list:REASONS.map(([n,e,v])=>({n,e,v})),at:Date.now()}); T.editR=false; if(!REASONS.find(r=>r[0]===T.reason)) T.reason=REASONS[0][0]; toast('حُفظت البنود ✅'); render(); }catch(e){ toast('تعذّر الحفظ: حدّثي قواعد الحماية') } }
+
+/* ---------- points show mode ---------- */
+T.showSort='name';
+function openShow(){ T.showOn=true; drawShow(); try{ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen() }catch(e){} }
+function closeShow(){ T.showOn=false; const el=$('#show'); if(el) el.remove(); try{ document.fullscreenElement&&document.exitFullscreen() }catch(e){} render(); }
+function drawShow(){ if(!T.showOn) return; const c=T.classes.find(x=>x.id===T.cls); let el=$('#show'); if(!el){ el=document.createElement('div'); el.id='show'; el.className='show'; document.body.appendChild(el); }
+  const L=T.showSort==='pts'?T.students.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)||a.name.localeCompare(b.name,'ar')):sorted();
+  const top=L.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)); const medal={}; top.slice(0,3).forEach((s,k)=>{ if((s.pts||0)>0) medal[s.id]=['🥇','🥈','🥉'][k] });
+  const m=T.att||{}; const tot=L.reduce((a,s)=>a+(s.pts||0),0);
+  el.innerHTML=`<div class="sh"><h1>⭐ نقاط ${esc(c?c.name:'')}</h1><span style="font-weight:800;opacity:.9">المجموع: ${tot}</span><span class="sp"></span>
+   ${T.role==='owner'?`<div class="rs">${REASONS.map(([r,e,v],k)=>`<button aria-pressed="${T.reason===r}" onclick="T.reason=REASONS[${k}][0];drawShow()">${e} ${esc(r)} (${v>0?'+':''}${v})</button>`).join('')}</div>`:''}
+   <button class="x" onclick="T.showSort=T.showSort==='name'?'pts':'name';drawShow()">${T.showSort==='name'?'🔤 أبجدي':'🏆 حسب النقاط'}</button>${T.role==='owner'?`<button class="x" onclick="undo().then(drawShow)">↶</button>`:''}<button class="x" onclick="closeShow()">✕ إغلاق</button></div>
+   <div class="sgrid" id="sgrid">${L.map(s=>`<div class="scard ${m[s.id]==='a'?'abs':''}" data-id="${s.id}" onclick="showTap('${s.id}',this)">${medal[s.id]?`<span class="smd">${medal[s.id]}</span>`:''}${av(s)}<div class="snm">${esc(s.name)}</div><div class="spt">${s.pts||0}</div></div>`).join('')||'<p>لا يوجد طلاب.</p>'}</div>`;
+  fitShow(); }
+function fitShow(){ const g=$('#sgrid'); if(!g) return; const n=g.children.length||1; const W=g.clientWidth, H=g.clientHeight; const gap=Math.max(6,Math.min(14,W/120));
+  let best={cs:0,cols:1}; for(let cols=1;cols<=n;cols++){ const rows=Math.ceil(n/cols); const cw=(W-gap*(cols-1))/cols, ch=(H-gap*(rows-1))/rows; const cs=Math.min(cw,ch*0.92); if(cs>best.cs) best={cs,cols,rows,ch}; }
+  g.style.setProperty('--g',gap+'px'); g.style.gridTemplateColumns=`repeat(${best.cols},1fr)`; g.style.gridAutoRows=Math.floor((H-gap*(best.rows-1))/best.rows)+'px'; g.style.setProperty('--cs',Math.floor(best.cs)+'px'); }
+addEventListener('resize',()=>{ if(T.showOn) fitShow() });
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&T.showOn) closeShow() });
+document.addEventListener('fullscreenchange',()=>{ if(T.showOn) setTimeout(fitShow,100) });
+async function showTap(id,el){ if(T.role!=='owner') return; const v=rv(); const f=document.createElement('span'); f.className='fly'+(v<0?' neg':''); f.textContent=(v>0?'+':'')+v; el.appendChild(f);
+  f.animate([{transform:'translate(-50%,-50%) scale(.6)',opacity:0},{transform:'translate(-50%,-90%) scale(1.2)',opacity:1,offset:.3},{transform:'translate(-50%,-160%) scale(1)',opacity:0}],{duration:1100}).onfinish=()=>f.remove();
+  await give([id],v); }
 /* ---------- points ---------- */
 T.reason=REASONS[0][0];
 function ptsView(c){ const L=sorted(); const tot=L.reduce((a,s)=>a+(s.pts||0),0); const top=L.slice().sort((a,b)=>(b.pts||0)-(a.pts||0)); const medal={}; top.slice(0,3).forEach((s,k)=>{ if(s.pts>0) medal[s.id]=['🥇','🥈','🥉'][k] });
@@ -296,7 +338,7 @@ function ptsView(c){ const L=sorted(); const tot=L.reduce((a,s)=>a+(s.pts||0),0)
   <div class="edit"><div class="bar"><span style="font-weight:900">السبب:</span><span class="reasons">${REASONS.map(([r,e,v],k)=>`<button class="chip" aria-pressed="${T.reason===r}" onclick="T.reason=REASONS[${k}][0];render()">${e} ${esc(r)} <small style="opacity:.75">(${v>0?'+':''}${v})</small></button>`).join('')}</span><button class="btn sm ghost" onclick="T.editR=!T.editR;render()">✏️ تعديل البنود</button></div>${T.editR?reasonEditor():''}
   <div class="bar"><button class="btn sm ghost" onclick="T.sort=T.sort==='name'?'pts':'name';render()">ترتيب: ${T.sort==='name'?'أبجدي':'الأعلى نقاطًا'}</button><button class="btn sm ghost" onclick="selAll()">${T.sel.size?'إلغاء التحديد':'تحديد الكل'}</button>
    ${T.sel.size?`<button class="btn sm" onclick="give([...T.sel],rv())">${rv()>0?'+':''}${rv()} للمحددين (${T.sel.size})</button>`:''}
-   <button class="btn sm gold" onclick="givePresent()">${rv()>0?'+':''}${rv()} لكل الحاضرين اليوم</button><span class="sp"></span><button class="btn sm ghost" ${T.undo.length?'':'disabled'} onclick="undo()">↶ تراجع</button></div></div>
+   <button class="btn sm gold" onclick="givePresent()">${rv()>0?'+':''}${rv()} لكل الحاضرين اليوم</button><span class="sp"></span><button class="btn sm ghost" ${T.undo.length?'':'disabled'} onclick="undo()">↶ تراجع</button></div></div><div class="bar"><button class="btn gold" onclick="openShow()">📺 عرض النقاط على الشاشة</button></div>
   <div class="pgrid">${L.map(s=>`<div class="pcard ${T.sel.has(s.id)?'sel':''}">${medal[s.id]?`<span class="rk">${medal[s.id]}</span>`:''}${av(s)}<div class="nm" onclick="toggleSel('${s.id}')">${esc(s.name)}</div><div class="pt">${s.pts||0}</div>
    <div class="pbtns edit"><button class="minus" onclick="give(['${s.id}'],-Math.abs(rv()))" aria-label="خصم">−${Math.abs(rv())}</button><button class="plus" onclick="give(['${s.id}'],rv())" aria-label="إضافة" style="${rv()<0?'background:var(--no)':''}">${rv()>0?'+':''}${rv()}</button></div></div>`).join('')||'<p class="muted">أضيفي الطلاب أولًا.</p>'}</div>
   <p class="muted edit" style="font-size:.85rem">اضغطي على اسم الطالب لتحديده، لتعطي عدة طلاب نقطة واحدة معًا.</p></div>`; }
