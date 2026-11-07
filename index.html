@@ -1199,7 +1199,7 @@ window.addPost=async function(kind){
 window.delPost=async function(id){ if(!confirm('حذف هذا المنشور؟')) return; const isNote=S.notes.some(n=>n.id===id);
   try{ await fdb.doc((isNote?'notes/':'posts/')+id).delete(); toast('حُذف') }catch(e){toast('تعذّر الحذف')} };
 /* ---- portal ---- */
-const _rp0=window.renderPortal; const XTABS=[['results','نتائج الطلبة'],['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
+const _rp0=window.renderPortal; const XTABS=[['results','نتائج الطلبة'],['import','📥 استيراد بطاقات'],['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
 const tabsFor=()=>role()==='owner'?XTABS:XTABS.filter(t=>t[0]==='results');
 window.renderPortal=function(){
   if(!S.authUser){
@@ -1221,7 +1221,7 @@ window.renderPortal=function(){
     tabs.insertAdjacentHTML('beforeend',`<span style="flex:1"></span><span class="muted" style="font-weight:700">${esc(S.email)}</span><button class="btn sm ghost" onclick="fbLogout()">تسجيل الخروج</button>`);
     tabs.style.display='flex'; tabs.style.flexWrap='wrap'; tabs.style.gap='8px'; tabs.style.alignItems='center'; }
   if(want){ const head=`<h1 style="margin-bottom:6px">بوابة المُلهِمات</h1>`+document.querySelector('.ptabs').outerHTML;
-    if(want==='results') renderResults(head); else if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
+    if(want==='results') renderResults(head); else if(want==='import') renderImport(head); else if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
 };
 window.fbLogin=async function(){ const e=$('#lgE').value.trim(), p=$('#lgP').value; const er=$('#lgErr');
   if(!e||!p){er.textContent='اكتبي البريد وكلمة المرور';return} er.textContent='جارٍ الدخول…';
@@ -1276,6 +1276,39 @@ window.exportResults=function(){ const rows=resFiltered();
   const lines=[['الاسم','الشعبة','الفئة','النوع','النشاط','الدرجة','من','النسبة %','النجوم','التاريخ'],...rows.map(r=>[r.name||'',r.cls||'',r.group||'',r.type||'',r.title||'',r.score,r.total,r.pct||0,r.stars||0,r.at?new Date(r.at).toLocaleString('ar-OM'):''])];
   const csv='\ufeff'+lines.map(l=>l.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\r\n');
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='نتائج-الطلبة.csv'; document.body.appendChild(a); a.click(); a.remove(); };
+
+/* ---- bulk import of cards ---- */
+const normT=t=>String(t||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();
+window.renderImport=function(head){ S._impHead=head;
+  const L=S._imp; const secT=id=>(window.ALLSECTIONS||SECTIONS).find(x=>x.id===id)?.t||id;
+  let body='';
+  if(L){ const sel=L.filter(x=>x._on).length;
+    body=`<div class="bar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0"><b>${L.length} بطاقة في الملف</b><span class="muted">· المحدّد للإضافة: ${sel}</span><span style="flex:1"></span>
+      <button class="btn sm ghost" onclick="S._imp.forEach(x=>x._on=true);renderImport(S._impHead)">تحديد الكل</button><button class="btn sm ghost" onclick="S._imp.forEach(x=>x._on=!x._dup);renderImport(S._impHead)">الجديد فقط</button>
+      <button class="btn" ${sel?'':'disabled'} onclick="doImport()">📥 إضافة ${sel} بطاقة</button></div>
+    <div class="stwrap"><table class="stt"><thead><tr><th></th><th>البطاقة</th><th>القسم</th><th>الصف</th><th>الوحدة</th><th>الحالة</th></tr></thead><tbody>
+    ${L.map((x,k)=>`<tr><td><input type="checkbox" ${x._on?'checked':''} onchange="S._imp[${k}]._on=this.checked;renderImport(S._impHead)" aria-label="تحديد"></td>
+      <td style="text-align:right">${x.coverData?`<img src="${x.coverData}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-left:8px">`:''}<b>${esc(x.title)}</b></td>
+      <td>${esc(secT(x.section))}</td><td>${esc(x.grade||'')}</td><td>${x.u||'—'}</td><td>${x._dup?'<span style="color:#B07A2A;font-weight:800">موجودة مسبقًا</span>':'<span style="color:#2F8A57;font-weight:800">جديدة</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+  }
+  $('#view').innerHTML=head+`<section class="block"><h2>📥 استيراد بطاقات دفعة واحدة</h2>
+   <p class="muted" style="margin:0">اختاري ملف الاستيراد (‎.json) الذي يُرسل لك، فتظهر البطاقات هنا لتراجعيها، ثم تُضاف كلها بضغطة. البطاقات الموجودة مسبقًا بنفس العنوان لا تُحدَّد تلقائيًا حتى لا تتكرر.</p>
+   <label class="btn gold" style="display:inline-block;margin-top:10px;cursor:pointer">📂 اختيار ملف الاستيراد<input type="file" accept=".json,application/json" hidden onchange="readImport(this.files[0])"></label>
+   <p id="impMsg" class="muted" style="font-weight:700;margin:8px 0 0"></p>${body}</section>`;
+};
+window.readImport=async function(f){ if(!f) return; let d; try{ d=JSON.parse(await f.text()) }catch(e){ return toast('الملف غير صالح') }
+  if(d.app!=='abeer-cards'||!Array.isArray(d.items)) return toast('هذا ليس ملف استيراد بطاقات');
+  const ex=new Set(S.items.map(i=>i.section+'|'+(i.grade||'')+'|'+normT(i.title)));
+  S._imp=d.items.map(x=>{ const dup=ex.has(x.section+'|'+(x.grade||'')+'|'+normT(x.title)); return {...x,_dup:dup,_on:!dup} });
+  renderImport(S._impHead); };
+window.doImport=async function(){ const L=(S._imp||[]).filter(x=>x._on); if(!L.length) return;
+  if(!confirm('إضافة '+L.length+' بطاقة إلى المنصة؟')) return;
+  const msg=()=>$('#impMsg'); let n=0, t0=Date.now();
+  try{ for(let i=0;i<L.length;i+=8){ const b=fdb.batch();
+      L.slice(i,i+8).forEach((x,k)=>{ const {_on,_dup,...d}=x; d.createdAt=t0+i+k; b.set(fdb.collection('items').doc(),d) });
+      await b.commit(); n+=Math.min(8,L.length-i); if(msg()) msg().textContent='جارٍ الإضافة… '+n+' من '+L.length; }
+    sfx.ok(); toast('أُضيفت '+n+' بطاقة ✅'); S._imp=null; renderImport(S._impHead); const m=msg(); if(m) m.textContent='✅ أُضيفت '+n+' بطاقة. تجدينها في أقسامها.';
+  }catch(e){ console.warn(e); toast('تعذّر إكمال الإضافة بعد '+n+' بطاقة'); } };
 /* ---- section manager ---- */
 const ICONKEYS=Object.keys(ICONS||{});
 window.renderSecMgr=function(head){
