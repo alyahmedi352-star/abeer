@@ -122,6 +122,7 @@ function sendRes(){ const m=document.getElementById('sendmsg'); if(m){m.style.co
     else { m.style.color='#C8443B'; m.innerHTML=`⚠️ لم تصل النتيجة بعد. تأكد من اتصال الإنترنت ثم <button class="btn sm" onclick="sendRes()">أعد الإرسال</button><br><small style="color:#5E7079">(${r})</small>`; } }); }
 function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();return} sfx.win(); confetti();
   const cls=(($('#cls')||{}).value||'').trim(); try{localStorage.setItem('abeer.name',n);localStorage.setItem('abeer.cls',cls)}catch(e){}
+  try{localStorage.setItem('abeer.hv.'+S.key,S.right+' من '+S.qs.length)}catch(e){}
   if(!S._sent){ S._sent=1; S._rec={name:n,cls,type:'حصاد',key:S.key,title:'حصاد '+S.u.unit,grade:S.u.grade,score:S.right,total:S.qs.length,points:S.score,pct:Math.round(S.right/S.qs.length*100),stars:starsOf()}; sendRes(); }
   const d=new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'});
   $('#cert').innerHTML=`<div class="cert"><img src="903b5f133dc801a5866fccf3307ee053.jpg" alt=""><h2>شهادة حصاد الوحدة</h2><div>تُمنح هذه الشهادة للبطل/ة</div><div class="nm">${esc(n)}</div><div>لإتمامه/ا حصاد <b>${esc(S.u.unit)}</b> — ${esc(S.u.grade)}</div><div style="margin-top:6px">بنتيجة <b>${S.score}</b> نقطة و ${'⭐'.repeat(starsOf())||'—'}</div><div class="muted" style="color:#5E7079;margin-top:6px">${d}</div><div class="by">إعداد الأستاذة عبير صالح اليحمدية</div></div>
