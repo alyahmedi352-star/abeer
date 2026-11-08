@@ -1235,7 +1235,7 @@ window.fbLogout=async function(){ await fauth.signOut(); S.ptab=null; toast('ت�
 S.rf={gid:'',type:'',title:'',q:'',view:'list'};
 window.renderResults=async function(head){
   $('#view').innerHTML=head+`<section class="block"><p class="muted">جارٍ تحميل النتائج…</p></section>`;
-  try{ const q=await fdb.collection('results').get(); S._res=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); }
+  try{ const q=await fdb.collection('results').get(); S._res=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); try{ const h=await fdb.doc('settings/homework').get(); S._hwAtt=h.exists?(+h.data().attempts||0):0 }catch(e){ S._hwAtt=0 } }
   catch(e){ $('#view').innerHTML=head+`<section class="block"><p class="muted">تعذّر تحميل النتائج. تأكدي من تحديث قواعد الحماية.</p></section>`; return; }
   S._resHead=head; drawResults();
 };
@@ -1250,8 +1250,8 @@ function drawResults(){
   const students=new Set(rows.map(r=>(r.name||'')+'|'+(r.cls||'')+'|'+r.gid)).size;
   let body='';
   if(f.view==='list'){
-    body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>النجوم</th><th>الوقت</th>${role()==='owner'?'<th></th>':''}</tr></thead><tbody>
-    ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(r.cls||'—')}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
+    body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>المحاولة</th><th>النجوم</th><th>الوقت</th>${role()==='owner'?'<th></th>':''}</tr></thead><tbody>
+    ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(r.cls||'—')}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${r.attempt||'—'}</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
   } else {
     const m={}; rows.forEach(r=>{const k=(r.name||'')+'|'+(r.cls||'')+'|'+r.gid; (m[k]=m[k]||{name:r.name,cls:r.cls,group:r.group,n:0,sum:0,best:0,last:0,acts:new Set()}); const x=m[k]; x.n++; x.sum+=(r.pct||0); x.best=Math.max(x.best,r.pct||0); x.last=Math.max(x.last,r.at||0); x.acts.add(r.title)});
     const list=Object.values(m).sort((a,b)=>b.sum/b.n-a.sum/a.n);
@@ -1260,6 +1260,7 @@ function drawResults(){
   }
   $('#view').innerHTML=head+`
   <section class="block"><h2>نتائج الطلبة</h2>
+   ${role()==='owner'?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--chip);border-radius:14px;padding:10px 14px;margin-bottom:10px"><b>📌 عدد محاولات الطالب في كل واجب:</b>${[[1,'محاولة واحدة'],[2,'محاولتان'],[3,'3 محاولات'],[0,'دون حد']].map(([n,t])=>`<button class="chip" aria-pressed="${(S._hwAtt||0)===n}" onclick="setHwAtt(${n})">${t}</button>`).join('')}<span class="muted" style="font-size:.85rem">يُحسب على جهاز الطالب.</span></div>`:''}
    <div class="kpis"><div class="kpi"><b>${rows.length}</b>محاولة</div><div class="kpi"><b>${students}</b>طالب/ة</div><div class="kpi"><b style="color:${pctColor(avg)}">${avg}%</b>متوسط النتائج</div></div>
    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0">
     <select class="in" onchange="S.rf.gid=this.value;S.rf.title='';drawResults()">${RG.map(([k,t])=>`<option value="${k}" ${f.gid===k?'selected':''}>${t}</option>`).join('')}</select>
@@ -1272,6 +1273,7 @@ function drawResults(){
    ${body}</section>`;
 }
 window.drawResults=drawResults;
+window.setHwAtt=async function(n){ try{ await fdb.doc('settings/homework').set({attempts:n,at:Date.now()}); S._hwAtt=n; drawResults(); toast(n?('صار للطالب '+(n===1?'محاولة واحدة':n===2?'محاولتان':n+' محاولات')+' في كل واجب ✅'):'صارت المحاولات دون حد ✅') }catch(e){ toast('تعذّر الحفظ') } };
 window.delResult=async function(id){ if(!confirm('حذف هذه النتيجة؟')) return; try{ await fdb.doc('results/'+id).delete(); S._res=S._res.filter(r=>r.id!==id); drawResults(); toast('حُذفت') }catch(e){toast('تعذّر الحذف')} };
 window.exportResults=function(){ const rows=resFiltered();
   const lines=[['الاسم','الشعبة','الفئة','النوع','النشاط','الدرجة','من','النسبة %','النجوم','التاريخ'],...rows.map(r=>[r.name||'',r.cls||'',r.group||'',r.type||'',r.title||'',r.score,r.total,r.pct||0,r.stars||0,r.at?new Date(r.at).toLocaleString('ar-OM'):''])];
