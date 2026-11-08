@@ -1530,7 +1530,13 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .hb-cv img{width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block}
 .hb-cv svg{width:64px;height:64px}
 .hb-n{position:absolute;top:10px;right:10px;background:var(--brand);color:#fff;font-weight:900;padding:5px 11px;border-radius:10px}
-.hb-ok{position:absolute;top:10px;left:10px;background:#2F8A57;color:#fff;font-weight:800;font-size:.82rem;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:4px}
+.hb-ok{position:absolute;top:8px;left:8px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F7DE9F,#D9A64E 60%,#B07A2A);border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.25);display:grid;place-items:center;color:#2A1C05;animation:hbPop .5s ease-out}
+.hb-ok svg{width:22px!important;height:22px!important;stroke-width:3}
+.hb-done{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#E8F5EC,#F3FAF5);border:1px solid #BFE3CB;border-radius:12px;padding:6px 10px;font-weight:800;font-size:.85rem;color:#2F6B4A}
+.hb-done .st{color:#D9A64E;letter-spacing:1px;font-size:.95rem}
+.hb-done .sc{margin-inline-start:auto;background:#2F8A57;color:#fff;border-radius:99px;padding:1px 8px;font-size:.78rem}
+@keyframes hbPop{0%{transform:scale(.3) rotate(-30deg);opacity:0}70%{transform:scale(1.12) rotate(6deg)}100%{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hb-ok{animation:none}}
 .hb-cb{padding:14px;display:flex;flex-direction:column;gap:9px;flex:1}
 .hb-cb b{font-size:1.2rem;font-weight:900;color:var(--brand)}
 .hb-tags{display:flex;gap:6px;flex-wrap:wrap}.hb-tags span{font-size:.8rem;font-weight:700;color:var(--brand-2,#225C78);background:var(--chip);padding:3px 9px;border-radius:99px}
@@ -1577,7 +1583,7 @@ function hub(gs){
    <section class="hb-box"><div class="hb-bh"><div><small>${UDEF[u-1]}</small><h2>${esc(unitTitle(g,u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[u-1])}</h2></div><span style="flex:1"></span>
      ${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
     <div class="hb-grid">${UL.map(l=>{const e=all[l.id]; const has=e.items.length||l.key; const tags=[]; if(pick(e.items,'lessons')||e.items.some(i=>firstLink(i))) tags.push('درس تفاعلي'); if(pick(e.items,'presentations')) tags.push('عرض'); if(l.key) tags.push('واجب'); if(pick(e.items,'videos')) tags.push('فيديو');
-      const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${ok?`<span class="hb-ok">${ic('check',14)} أنجزت الواجب</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b><span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
+      const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${ok?`<span class="hb-ok" title="أنجزت الواجب" aria-label="أنجزت الواجب">${ic('check',22)}</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b>${ok?(()=>{const m=String(ok).match(/(\d+)\D+(\d+)/); const p=m?(+m[1])/(+m[2]):1; const st=p>=.9?3:p>=.6?2:1; return `<span class="hb-done"><span>أنجزت الواجب</span><span class="st">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>${m?`<span class="sc">${m[1]}/${m[2]}</span>`:''}</span>`})():''}<span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
   return true;
 }
 function lessonPage(id){
