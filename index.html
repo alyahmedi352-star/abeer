@@ -1573,7 +1573,7 @@ function hub(gs){
     <h1 style="margin-top:12px">دروس ${esc(g)}</h1><p>اختر وحدتك، ثم ادخل إلى الدرس لتجد كل ما يخصّه في مكان واحد.</p></div>
    <div class="hb-units">${units.map(uu=>{const p=prog(uu);return `<button class="hb-u ${uu===u?'on':''}" onclick="S.hbUnit['${g}']=${uu};render()" aria-pressed="${uu===u}"><span class="r"><span class="nb">${uu}</span><span><small>${UDEF[uu-1]}</small><b>${esc(unitTitle(g,uu).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[uu-1])}</b></span></span><span class="hb-bar"><i style="width:${p.t?Math.round(p.d/p.t*100):0}%"></i></span><span class="pr">${p.t} ${p.t>2&&p.t<11?'دروس':'درسًا'} · زرت ${p.d}</span></button>`}).join('')}</div>
    <section class="hb-box"><div class="hb-bh"><div><small>${UDEF[u-1]}</small><h2>${esc(unitTitle(g,u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[u-1])}</h2></div><span style="flex:1"></span>
-     ${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}" target="_blank" rel="noopener">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}" target="_blank" rel="noopener">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
+     ${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
     <div class="hb-grid">${UL.map(l=>{const e=all[l.id]; const has=e.items.length||l.key; const tags=[]; if(pick(e.items,'lessons')||e.items.some(i=>firstLink(i))) tags.push('درس تفاعلي'); if(pick(e.items,'presentations')) tags.push('عرض'); if(l.key) tags.push('واجب'); if(pick(e.items,'videos')) tags.push('فيديو');
       const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${ok?`<span class="hb-ok">${ic('check',14)} أنجزت الواجب</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b><span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
   return true;
@@ -1596,8 +1596,8 @@ function lessonPage(id){
      ${start?`<a class="ls-start" href="${esc(start)}" target="_blank" rel="noopener">${ic('play',26)} ابدأ الدرس التفاعلي</a>`:`<div class="ls-start" style="opacity:.55;box-shadow:none">الدرس التفاعلي قريبًا</div>`}
      <div class="ls-tiles">
       ${pr?`<button class="ls-t" onclick="openItem('${pr.id}')"><span class="i">${ic('pres',24)}</span><b>العرض التقديمي</b><small>يعمل دون إنترنت · تنزيل</small></button>`:''}
-      ${l.key?`<a class="ls-t ${doneOf(l)?'dn':''}" href="${BASE}wajibat.html#${l.key}" target="_blank" rel="noopener"><span class="i">${ic('pen',24)}</span><b>الواجب</b><small>${doneOf(l)?'✓ أنجزته · '+esc(doneOf(l)):'6 أسئلة · شهادة باسمك'}</small></a>`:''}
-      ${hk?`<a class="ls-t g" href="${BASE}hasad.html#${hk}" target="_blank" rel="noopener"><span class="i">${ic('wheat',24)}</span><b>حصاد الوحدة</b><small>مراجعة شاملة · سباق ضد الوقت</small></a>`:''}
+      ${l.key?`<a class="ls-t ${doneOf(l)?'dn':''}" href="${BASE}wajibat.html#${l.key}"><span class="i">${ic('pen',24)}</span><b>الواجب</b><small>${doneOf(l)?'✓ أنجزته · '+esc(doneOf(l)):'6 أسئلة · شهادة باسمك'}</small></a>`:''}
+      ${hk?`<a class="ls-t g" href="${BASE}hasad.html#${hk}"><span class="i">${ic('wheat',24)}</span><b>حصاد الوحدة</b><small>مراجعة شاملة · سباق ضد الوقت</small></a>`:''}
      </div>
      ${others.length?`<div><b style="color:var(--brand)">مواد أخرى للدرس</b><div class="ls-more" style="margin-top:8px">${others.map(i=>`<button onclick="openItem('${i.id}')">${ic('clip',16)} ${esc(i.title)}</button>`).join('')}</div></div>`:''}
      <nav class="ls-nav" aria-label="التنقل بين الدروس">
