@@ -471,16 +471,16 @@ const ICONS={
 const svg=(n,cls='')=>`<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true">${ICONS[n]}</svg>`;
 const SECTIONS=[
  {id:'lessons',t:'الدروس التفاعلية',c:'#1F6F8B',i:'play',d:'دروس نشاهدها ونتفاعل معها خطوة بخطوة'},
- {id:'presentations',t:'العروض التقديمية',c:'#B07A2A',i:'slides',d:'عروض الحصص الصفية'},
- {id:'videos',t:'فيديوهات Ai',c:'#2A6F97',i:'video',d:'مقاطع مصنوعة بالذكاء الاصطناعي تشرح الدروس'},
- {id:'images',t:'الصور التفاعلية',c:'#3E7CB1',i:'image',d:'بطاقات الدروس المصوّرة'},
- {id:'homework',t:'الواجبات والمسابقات',c:'#B5443B',i:'game',d:'واجبات ومسابقات برابط تفاعلي'},
- {id:'assessments',t:'الأنشطة التقويمية',c:'#6E52A3',i:'check',d:'أسئلة قصيرة ونشاطات عملية'},
- {id:'harvest',t:'حصاد الوحدات',c:'#2F8A57',i:'layers',d:'مراجعة شاملة لكل وحدة'},
- {id:'assistive',t:'التقنيات المساعدة',c:'#1E5A6E',i:'tool',d:'لوحات وأدوات تعين على التعلّم'},
- {id:'workshops',t:'الورش التدريبية',c:'#2A6F97',i:'work',d:'ورش لتطوير المهارات الرقمية للمعلمين والطلبة'},
- {id:'initiatives',t:'المبادرات',c:'#8E2A45',i:'flag',d:'إثراء رقمي وانضباط رقمي'},
- {id:'students',t:'أعمال الطلبة المتميزين',c:'#C08A2E',i:'star',d:'نفخر بإبداعات طلابنا'}
+ {id:'presentations',t:'العروض التقديمية',c:'#2E5E8C',i:'slides',d:'عروض الحصص الصفية'},
+ {id:'videos',t:'فيديوهات Ai',c:'#2A7A8C',i:'video',d:'مقاطع مصنوعة بالذكاء الاصطناعي تشرح الدروس'},
+ {id:'images',t:'الصور التفاعلية',c:'#3B6EA5',i:'image',d:'بطاقات الدروس المصوّرة'},
+ {id:'homework',t:'الواجبات والمسابقات',c:'#B07A2A',i:'game',d:'واجبات ومسابقات برابط تفاعلي'},
+ {id:'assessments',t:'الأنشطة التقويمية',c:'#5B5F9E',i:'check',d:'أسئلة قصيرة ونشاطات عملية'},
+ {id:'harvest',t:'حصاد الوحدات',c:'#9A7428',i:'layers',d:'مراجعة شاملة لكل وحدة'},
+ {id:'assistive',t:'التقنيات المساعدة',c:'#3F6F7F',i:'tool',d:'لوحات وأدوات تعين على التعلّم'},
+ {id:'workshops',t:'الورش التدريبية',c:'#2E5E8C',i:'work',d:'ورش لتطوير المهارات الرقمية للمعلمين والطلبة'},
+ {id:'initiatives',t:'المبادرات',c:'#5B5F9E',i:'flag',d:'إثراء رقمي وانضباط رقمي'},
+ {id:'students',t:'أعمال الطلبة المتميزين',c:'#B88A2E',i:'star',d:'نفخر بإبداعات طلابنا'}
 ];
 const GRADES=['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','عام'];
 const GDOT={'الصف الأول':'var(--g1)','الصف الثاني':'var(--g2)','الصف الثالث':'var(--g3)','الصف الرابع':'var(--g4)'};
@@ -605,7 +605,7 @@ function cardsHtml(items){
         <div class="acts">
           <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
-          <button class="btn sm ghost" onclick="openItem('${i.id}',true)">التعليقات (${cc(i.id)})</button>
+          ${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
         </div>
       </div>
@@ -819,7 +819,7 @@ function cardsHtml(items){
         <div class="acts">
           <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
-          <button class="btn sm ghost" onclick="openItem('${i.id}',true)">التعليقات (${cc(i.id)})</button>
+          ${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
         </div>
       </div>
@@ -952,7 +952,7 @@ function cardsHtml(items){
         <div class="acts">
           <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
-          ${fbBtn(i)}<button class="btn sm ghost" onclick="openItem('${i.id}',true)">التعليقات (${cc(i.id)})</button>
+          ${fbBtn(i)}${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
         </div>
       </div>
@@ -966,7 +966,7 @@ function renderHome(){
   const day=Math.floor(Date.now()/864e5); const sp=pool.length?pool[day%pool.length]:null;
   const {cur,next}=levelOf(S.stars); const pct=next?Math.round((S.stars-cur[0])/(next[0]-cur[0])*100):100;
   const n=id=>S.items.filter(i=>i.section===id&&gradeOk(i)).length;
-  $('#view').innerHTML=`
+  $('#view').innerHTML=(window.hubEntry?hubEntry():'')+`
   <div class="live">
     <section class="lcard"><h3><span class="pulse-dot"></span>درس اليوم</h3>
       ${sp?`<div class="spot">${sp.cover||sp.thumb||(sp.assetId&&/^image/.test(sp.mime||''))?`<img src="${sp.thumb&&THUMBS[sp.thumb]?THUMBS[sp.thumb]:blobUrl(sp.cover||sp.assetId)}" alt="">`:''}<div><b>${esc(sp.title)}</b><div class="meta">${esc(sp.grade||'')} · ${esc(introOf(sp))}</div><button class="btn sm add" style="margin-top:6px" onclick="openItem('${sp.id}')">ابدأ الآن ★</button></div></div>`:'<p class="muted">لا دروس بعد.</p>'}
@@ -1523,6 +1523,15 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .hb-bh h2{margin:0;font-size:1.7rem;font-weight:900;color:var(--brand)}.hb-bh small{display:block;color:var(--muted);font-weight:700}
 .hb-act{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:14px;background:var(--chip);color:var(--brand);text-decoration:none;font-weight:800}
 .hb-act.gold{background:#FFF6E3;color:#6B4B10;border:2px solid #E8C882}
+.jr{display:flex;align-items:flex-start;overflow-x:auto;padding:6px 4px 10px;gap:0}
+.jr-st{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;width:92px}
+.jr-st span{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:900;background:var(--chip);color:var(--muted);border:3px solid var(--line);font-size:1rem}
+.jr-st.sn span{background:#FFF6E3;color:#6B4B10;border-color:#E8C882}
+.jr-st.dn span{background:var(--gold);color:#2A1C05;border-color:#fff;box-shadow:0 6px 14px rgba(217,166,78,.45)}
+.jr-st.chest span{font-size:1.4rem}
+.jr-st small{font-size:.75rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.3}
+.jr-ln{flex:1 0 24px;height:4px;margin-top:26px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px);border-radius:2px}
+.jr-ln.on{background:var(--gold)}
 .hb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
 .hb-c{text-decoration:none;color:var(--text);border-radius:20px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
 .hb-c:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(23,63,85,.14)}
@@ -1581,9 +1590,11 @@ function hub(gs){
     <h1 style="margin-top:12px">دروس ${esc(g)}</h1><p>اختر وحدتك، ثم ادخل إلى الدرس لتجد كل ما يخصّه في مكان واحد.</p></div>
    <div class="hb-units">${units.map(uu=>{const p=prog(uu);return `<button class="hb-u ${uu===u?'on':''}" onclick="S.hbUnit['${g}']=${uu};render()" aria-pressed="${uu===u}"><span class="r"><span class="nb">${uu}</span><span><small>${UDEF[uu-1]}</small><b>${esc(unitTitle(g,uu).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[uu-1])}</b></span></span><span class="hb-bar"><i style="width:${p.t?Math.round(p.d/p.t*100):0}%"></i></span><span class="pr">${p.t} ${p.t>2&&p.t<11?'دروس':'درسًا'} · زرت ${p.d}</span></button>`}).join('')}</div>
    <section class="hb-box"><div class="hb-bh"><div><small>${UDEF[u-1]}</small><h2>${esc(unitTitle(g,u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[u-1])}</h2></div><span style="flex:1"></span>
-     ${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
+     <a class="hb-act" href="#words/${gs}-${u}">📖 كلمات الوحدة</a>${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
+    ${window.unitMsgHtml?unitMsgHtml(gs+'u'+u):''}
+    <div class="jr" aria-label="رحلة الوحدة">${UL.map((l,k)=>{const d=doneOf(l),sn=seenOf(l);return `${k?'<span class="jr-ln '+(d||sn?'on':'')+'"></span>':''}<a class="jr-st ${d?'dn':sn?'sn':''}" href="#d/${l.id}" title="${esc(l.name)}"><span>${d?'✓':l.u+'.'+l.n}</span><small>${esc(l.name)}</small></a>`}).join('')}${hk?`<span class="jr-ln ${LS2.get('abeer.hv.'+hk)?'on':''}"></span><a class="jr-st chest ${LS2.get('abeer.hv.'+hk)?'dn':''}" href="${BASE}hasad.html#${hk}" title="حصاد الوحدة"><span>🏆</span><small>كنز الحصاد</small></a>`:''}</div>
     <div class="hb-grid">${UL.map(l=>{const e=all[l.id]; const has=e.items.length||l.key; const tags=[]; if(pick(e.items,'lessons')||e.items.some(i=>firstLink(i))) tags.push('درس تفاعلي'); if(pick(e.items,'presentations')) tags.push('عرض'); if(l.key) tags.push('واجب'); if(pick(e.items,'videos')) tags.push('فيديو');
-      const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${ok?`<span class="hb-ok" title="أنجزت الواجب" aria-label="أنجزت الواجب">${ic('check',22)}</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b>${ok?(()=>{const m=String(ok).match(/(\d+)\D+(\d+)/); const p=m?(+m[1])/(+m[2]):1; const st=p>=.9?3:p>=.6?2:1; return `<span class="hb-done"><span>أنجزت الواجب</span><span class="st">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>${m?`<span class="sc">${m[1]}/${m[2]}</span>`:''}</span>`})():''}<span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
+      const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${window.heartSmall?heartSmall(likeCount('lesson-'+l.id)):''}${ok?`<span class="hb-ok" title="أنجزت الواجب" aria-label="أنجزت الواجب">${ic('check',22)}</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b>${ok?(()=>{const m=String(ok).match(/(\d+)\D+(\d+)/); const p=m?(+m[1])/(+m[2]):1; const st=p>=.9?3:p>=.6?2:1; return `<span class="hb-done"><span>أنجزت الواجب</span><span class="st">${'★'.repeat(st)}${'☆'.repeat(3-st)}</span>${m?`<span class="sc">${m[1]}/${m[2]}</span>`:''}</span>`})():''}<span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
   return true;
 }
 function lessonPage(id){
@@ -1598,9 +1609,9 @@ function lessonPage(id){
   $('#view').innerHTML=`<div class="hb">
    <div class="hb-gr" style="align-items:center"><a href="#${gs}">${ic('prev',18)} ${esc(g)} · ${esc(unitTitle(g,l.u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[l.u-1])}</a></div>
    <div class="ls"><aside class="ls-a"><div class="ls-p">${posterItem?coverHtml(posterItem).replace('<img ','<img onclick="openItem(\''+posterItem.id+'\')" '):ic('img',80)}</div>
-     ${posterItem?`<button class="btn ghost" onclick="openItem('${posterItem.id}')">${ic('img',18)} تكبير البطاقة</button>`:''}</aside>
+     ${posterItem?`<button class="btn ghost" onclick="openItem('${posterItem.id}')">${ic('img',18)} تكبير البطاقة</button>`:''}<button class="btn ghost noprint" onclick="classMode()">📺 وضع الصف</button></aside>
     <section class="ls-m"><div class="ls-tg"><span>الدرس ${l.u}.${l.n}</span><span>${esc(g)} · ${UDEF[l.u-1]}</span></div>
-     <h1>${esc(l.name)}</h1>${desc?`<p class="ds">${esc(desc)}</p>`:''}
+     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="margin:0">${esc(l.name)}</h1>${window.likeBtn?likeBtn('lesson-'+l.id):''}</div>${desc?`<p class="ds">${esc(desc)}</p>`:''}
      ${start?`<a class="ls-start" href="${esc(start)}" target="_blank" rel="noopener">${ic('play',26)} ابدأ الدرس التفاعلي</a>`:`<div class="ls-start" style="opacity:.55;box-shadow:none">الدرس التفاعلي قريبًا</div>`}
      <div class="ls-tiles">
       ${pr?`<button class="ls-t" onclick="openItem('${pr.id}')"><span class="i">${ic('pres',24)}</span><b>العرض التقديمي</b><small>يعمل دون إنترنت · تنزيل</small></button>`:''}
@@ -1633,6 +1644,7 @@ const UNITB=[
  {id:'g3u3',g:'الصف الثالث',u:3,t:'حارس الإنترنت الآمن',d:'أنجز كل واجبات وحدة «عالمي المتصل»',c1:'#2F8A57',c2:'#1E5A47',i:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path><path d="M9 12l2 2 4-4"></path>'}];
 const HW={g1u1:['l11','l12','l13','l14','l15','l16'],g1u2:['l21','l22','l23','l24','l25','l26'],g1u3:['l31','l32','l33','l34'],g3u1:['t11','t12','t13'],g3u2:['t21','t22','t23'],g3u3:['t31','t32','t33','t34','t35']};
 const ALLHW=Object.values(HW).flat();
+const wkCount=()=>{let n=0; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(/^abeer\.wk\./.test(k)&&localStorage.getItem(k)==='ok') n++ } }catch(e){} return n};
 const parse=v=>{const m=String(v||'').match(/(\d+)\D+(\d+)/); return m?{a:+m[1],b:+m[2]}:null};
 const stars=v=>{const p=parse(v); if(!p) return 0; const r=p.a/p.b; return r>=.9?3:r>=.6?2:1};
 function stat(){ const done=ALLHW.filter(k=>LSg('abeer.hw.'+k)); const st=done.reduce((s,k)=>s+stars(LSg('abeer.hw.'+k)),0);
@@ -1643,6 +1655,7 @@ const GEN=[
  {id:'stars',t:'النجوم الثلاث',d:'احصل على ★★★ في واجب',c1:'#E0A100',c2:'#A06A00',i:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path>',ok:s=>s.three>=1,p:s=>[Math.min(s.three,1),1]},
  {id:'five',t:'المثابر',d:'أنجز 5 واجبات',c1:'#C8443B',c2:'#8A2A23',i:'<path d="M13 3L4 14h7l-1 7 9-11h-7z"></path>',ok:s=>s.done.length>=5,p:s=>[Math.min(s.done.length,5),5]},
  {id:'harvest',t:'بطل الحصاد',d:'أكمل حصاد وحدة',c1:'#B07A2A',c2:'#6B4B10',i:'<path d="M12 21V8"></path><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5z"></path><path d="M12 13c0-3-2-5-5-5 0 3 2 5 5 5z"></path><path d="M12 18c0-3 2-5 5-5 0 3-2 5-5 5z"></path>',ok:s=>s.hv.length>=1,p:s=>[Math.min(s.hv.length,1),1]},
+ {id:'weekly',t:'بطل التحدي',d:'أجب تحدّي الأسبوع صحيحًا',c1:'#2F6FB3',c2:'#1E4F86',i:'<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 6h3a3 3 0 0 1-3 4M7 6H4a3 3 0 0 0 3 4"></path>',ok:s=>wkCount()>=1,p:s=>[Math.min(wkCount(),1),1]},
  {id:'explorer',t:'المستكشف',d:'زر 10 دروس',c1:'#225C78',c2:'#0F2C3C',i:'<circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l5 5"></path>',ok:s=>s.seen>=10,p:s=>[Math.min(s.seen,10),10]}];
 function myGrades(){ const g=(S.member&&S.member.group)||''; if(/الصف الأول/.test(g)) return ['الصف الأول']; if(/الصف الثالث/.test(g)) return ['الصف الثالث']; return ['الصف الأول','الصف الثالث']; }
 function unitState(b){ const ks=HW[b.id]; const d=ks.filter(k=>LSg('abeer.hw.'+k)).length; return {ok:d===ks.length,d,t:ks.length}; }
@@ -1679,7 +1692,7 @@ function bag(){
   const s=stat(); const gr=myGrades(); const name=LSg('abeer.name')||''; const earned=earnedList();
   const ub=UNITB.filter(b=>gr.includes(b.g));
   $('#view').innerHTML=`<div class="hb">
-   <div class="bag-hero"><div style="flex:1 1 260px"><h1>🎒 حقيبة إنجازاتي</h1><p>${name?'أهلًا '+esc(name)+'! ':''}اجمع الشارات بإنجاز الواجبات والحصاد.</p></div>
+   <div class="bag-hero"><div style="flex:1 1 260px"><h1>🎒 حقيبة إنجازاتي</h1><a href="#report" class="btn sm" style="float:left;background:#fff;color:#173F55">📄 تقرير ولي الأمر</a><p>${name?'أهلًا '+esc(name)+'! ':''}اجمع الشارات بإنجاز الواجبات والحصاد.</p></div>
     <div class="bag-k"><div><b>${earned.filter(id=>[...GEN,...ub].some(b=>b.id===id)).length}</b>شارة</div><div><b>${s.done.length}</b>واجبًا أنجزت</div><div><b>${s.st}</b>نجمة</div><div><b>${s.hv.length}</b>حصاد</div></div></div>
    <section class="bag-sec"><h2>شارات الوحدات</h2><div class="bag-grid">${ub.map(b=>{const u=unitState(b);return `<div class="bag-b ${u.ok?'on':''}">${medal(b,u.ok)}<b>${b.t}</b><small>${b.g} · ${b.d}</small>${u.ok?`<button class="cert noprint" onclick="unitCert('${b.id}')">🏅 شهادة الوحدة</button>`:`<span class="pg" aria-label="التقدم"><i style="width:${Math.round(u.d/u.t*100)}%"></i></span><small>${u.d} من ${u.t} واجبات</small>`}</div>`}).join('')}</div></section>
    <section class="bag-sec"><h2>شارات التميّز</h2><div class="bag-grid">${GEN.map(b=>{const on=b.ok(s); const [a,t]=b.p(s); return `<div class="bag-b ${on?'on':''}">${medal(b,on,96)}<b>${b.t}</b><small>${b.d}</small>${on?'<small style="color:#2F6B4A">✓ حصلت عليها</small>':`<span class="pg"><i style="width:${Math.round(a/t*100)}%"></i></span><small>${a} من ${t}</small>`}</div>`}).join('')}</div></section>
@@ -1698,9 +1711,128 @@ function checkNew(){ const was=(()=>{try{return JSON.parse(LSg('abeer.badges.see
   if(!nb.length) return; LSs('abeer.badges.seen',JSON.stringify(now)); const b=[...UNITB,...GEN].find(x=>x.id===nb[0]); if(!b) return;
   const d=document.createElement('div'); d.className='bag-pop'; d.innerHTML=`<div class="in" role="dialog" aria-label="شارة جديدة">${medal(b,true,130)}<div style="font-weight:800;color:#B07A2A">🎉 مبروك! حصلت على شارة جديدة</div><h2>${b.t}</h2><p style="margin:0 0 12px;color:var(--muted);font-weight:700">${b.d}</p><div style="display:flex;gap:8px;justify-content:center"><a class="btn gold" href="#bag" onclick="this.closest('.bag-pop').remove()">🎒 افتح حقيبتي</a><button class="btn ghost" onclick="this.closest('.bag-pop').remove()">رائع!</button></div></div>`;
   d.addEventListener('click',e=>{ if(e.target===d) d.remove() }); document.body.appendChild(d); try{ sfx.ok() }catch(e){} try{ if(typeof confetti==='function') confetti() }catch(e){} }
+window.bagCheckNew=checkNew;
 const _hr=window.hubRoute; window.hubRoute=function(v){ if(v==='bag'){ bag(); return true } const r=_hr(v); if(r&&role()==='viewer') setTimeout(checkNew,400); return r; };
 const _he=window.hubEntry; window.hubEntry=()=>_he().replace('</div>$','')+'';
 window.bagEntry=`<a href="#bag" style="background:linear-gradient(135deg,#B07A2A,#6B4B10)"><span class="i"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7z"></path><path d="M9 8a3 3 0 0 1 6 0"></path><path d="M10 13h4"></path></svg></span><span><b>حقيبة إنجازاتي</b><small style="color:#FFE7B0">شاراتي ونجومي وشهادات الوحدات</small></span></a>`;
+})();
+
+</script>
+<script>
+/* ================= Extras: words, teacher message, parent report, weekly challenge, class mode, owl guide ================= */
+(function(){
+const LSg=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, LSs=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const GLOS={
+ 'g1-1':[['Computer','الحاسوب','🖥️'],['Monitor','الشاشة','🖥️'],['Keyboard','لوحة المفاتيح','⌨️'],['Mouse','الفأرة','🖱️'],['Desktop','سطح المكتب','🗂️'],['Icon','أيقونة','🔣'],['Click','نقر','👆'],['Type','كتابة','✍️']],
+ 'g1-2':[['Digital Drawing','الرسم الرقمي','🎨'],['Pixel','بكسل','🟥'],['Tool','أداة','🧰'],['Brush','فرشاة','🖌️'],['Fill','تعبئة','🪣'],['Eraser','ممحاة','🧽'],['Background','خلفية','🖼️'],['Save','حفظ','💾']],
+ 'g1-3':[['Internet','الإنترنت','🌍'],['Satellites','الأقمار الصناعية','🛰️'],['Wired Connection','الاتصال السلكي','🔌'],['Wireless Connection','الاتصال اللاسلكي','📶'],['Antennas','الهوائيات','📡'],['Web Browser','متصفّح الويب','🌐'],['Website','موقع ويب','🏠'],['Hyperlink','ارتباط تشعّبي','🔗'],['Tab','علامة تبويب','🗂️'],['Email','البريد الإلكتروني','📧'],['Safety Rules','قواعد الأمان','🛡️']],
+ 'g3-1':[['Input Devices','أجهزة الإدخال','⌨️'],['Output Devices','أجهزة الإخراج','🖥️'],['Printer','الطابعة','🖨️'],['Scanner','الماسح الضوئي','📠'],['Webcam','كاميرا الويب','📷'],['File','ملف','📄'],['Folder','مجلد','📁'],['Rename','إعادة تسمية','✏️']],
+ 'g3-2':[['Font','الخط','🔤'],['Font Size','حجم الخط','🔠'],['Bold','غامق','𝐁'],['Underline','تسطير','U̲'],['Align','محاذاة','↔️'],['Picture','صورة','🖼️'],['Bullets','تعداد نقطي','•'],['Numbering','تعداد رقمي','1.'],['Zoom','تكبير','🔍'],['Print','طباعة','🖨️']],
+ 'g3-3':[['Password','كلمة المرور','🔑'],['Username','اسم المستخدم','👤'],['Antivirus','مكافحة الفيروسات','🛡️'],['Search Engine','محرّك البحث','🔍'],['Address Bar','شريط العنوان','🔗'],['New Tab','علامة تبويب جديدة','➕'],['Copy','نسخ','📋'],['Paste','لصق','📥'],['Encyclopedia','موسوعة','📚'],['Privacy','الخصوصية','🔒']]};
+const GN={g1:'الصف الأول',g3:'الصف الثالث'};
+document.head.insertAdjacentHTML('beforeend',`<style>
+.wd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.wd{perspective:900px;height:170px;border:0;background:none;padding:0;cursor:pointer;font:inherit;display:block;width:100%}
+.wd .wdi{position:relative;display:block;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.wd.fl .wdi{transform:rotateY(180deg)}
+.wd .wdf,.wd .wdb{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;box-shadow:0 8px 20px rgba(23,63,85,.12)}
+.wd .wdf{background:var(--paper);border:2px solid var(--line);color:var(--brand)}.wd .wdf i{font-style:normal;font-size:2.4rem}.wd .wdf b{font-size:1.15rem;font-weight:900;direction:ltr}
+.wd .wdb{background:linear-gradient(135deg,var(--brand),var(--brand-3,#0F2C3C));color:#fff;transform:rotateY(180deg)}.wd .wdb b{font-size:1.4rem;font-weight:900;color:#F2CF8A}.wd .wdb small{direction:ltr;opacity:.85}
+.wd small.h{color:var(--muted);font-weight:700}
+.um{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(90deg,#FFF6E3,#FFFBF2);border:1px solid #E8C882;border-radius:16px;padding:12px 14px}
+.um .av{width:44px;height:44px;border-radius:50%;background:var(--gold);display:grid;place-items:center;font-size:1.4rem;flex:0 0 auto}
+.um b{color:#6B4B10}.um p{margin:2px 0 0;font-weight:700;line-height:1.7;color:#4A3A12;white-space:pre-line}
+.wk{background:var(--paper);border-radius:22px;padding:18px;box-shadow:0 8px 22px rgba(23,63,85,.08);border:2px solid #E8C882;margin-bottom:18px}
+.wk h3{margin:0 0 4px;color:var(--brand);font-weight:900}.wk .q{font-size:1.25rem;font-weight:900;margin:8px 0}
+.wk .op{display:flex;gap:8px;flex-wrap:wrap}.wk .op button{border:2px solid var(--line);background:var(--bg);border-radius:14px;padding:10px 16px;font-weight:800;font-size:1.05rem;cursor:pointer;min-height:44px}
+.wk .op button.ok{background:#E8F5EC;border-color:#2F8A57;color:#1E5A3A}.wk .op button.no{background:#FDECEA;border-color:#C8443B;color:#8A2A23}
+.rp{background:#fff;color:#1C2A31;border-radius:20px;padding:24px;border:1px solid var(--line);max-width:900px;margin:0 auto}
+.rp h1{margin:0;color:#173F55}.rp table{width:100%;border-collapse:collapse;margin:8px 0 16px}.rp th,.rp td{border:1px solid #D6E2E4;padding:6px 8px;text-align:center}.rp th{background:#EEF3F4}.rp td:first-child,.rp th:first-child{text-align:right}
+body.cls-mode .top,body.cls-mode header,body.cls-mode .sidenav,body.cls-mode .sn-burger,body.cls-mode .gbar,body.cls-mode footer,body.cls-mode #owl,body.cls-mode #bubble,body.cls-mode .hb-gr{display:none!important}
+body.cls-mode{padding-right:0!important}body.cls-mode .ls-m h1{font-size:4.2rem}body.cls-mode .ls-m .ds{font-size:1.6rem}body.cls-mode .ls-a{max-width:520px}body.cls-mode .ls-start{font-size:1.8rem;min-height:90px}
+.cls-x{position:fixed;top:12px;left:12px;z-index:95;display:none}body.cls-mode .cls-x{display:inline-flex}
+@media print{ body *{visibility:hidden} .rp,.rp *{visibility:visible} .rp{position:absolute;inset:0;border:0} }
+</style>`);
+document.body.insertAdjacentHTML('beforeend','<button class="btn gold cls-x" onclick="classMode(false)">✕ إنهاء وضع الصف</button>');
+/* --- class mode --- */
+window.classMode=function(on=true){ document.body.classList.toggle('cls-mode',on); try{ on?document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen():document.fullscreenElement&&document.exitFullscreen() }catch(e){} };
+document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement) document.body.classList.remove('cls-mode') });
+/* --- teacher message per unit --- */
+S.unitMsg={}; try{ FDB.doc('settings/unitmsg').onSnapshot(d=>{ S.unitMsg=d.exists?d.data():{}; const v=location.hash.slice(1); if(v==='g1'||v==='g3') render(); },()=>{}) }catch(e){}
+window.unitMsgHtml=function(key){ const m=S.unitMsg&&S.unitMsg[key]; const own=typeof role==='function'&&role()==='owner';
+  if(!m&&!own) return ''; return `<div class="um"><span class="av">💌</span><div style="flex:1"><b>رسالة من معلمتي</b>${m?`<p>${esc(m)}</p>`:'<p style="opacity:.7">لم تُكتب رسالة لهذه الوحدة بعد.</p>'}</div>${own?`<button class="btn sm ghost" onclick="editUnitMsg('${key}')">✏️ ${m?'تعديل':'اكتبي رسالة'}</button>`:''}</div>`; };
+window.editUnitMsg=async function(key){ const cur=(S.unitMsg&&S.unitMsg[key])||''; const t=prompt('رسالتك لطلبة هذه الوحدة (تظهر أعلى صفحة الوحدة):',cur); if(t===null) return;
+  try{ await FDB.doc('settings/unitmsg').set({[key]:t.trim()},{merge:true}); toast('حُفظت الرسالة 💌') }catch(e){ toast('تعذّر الحفظ') } };
+/* --- unit words --- */
+function words(id){ const [gs,u]=id.split('-'); const L=GLOS[id]; if(!L) return false; const g=GN[gs];
+  const un=(()=>{try{return unitName(g,+u)}catch(e){return ''}})();
+  $('#view').innerHTML=`<div class="hb"><div class="hb-gr"><a href="#${gs}">← ${g} · ${esc((un||'').replace(/^الوحدة\s+\S+\s*:?\s*/,''))}</a></div>
+   <div class="hb-head"><h1>📖 كلمات الوحدة</h1><p>اضغط على البطاقة لتقلبها وترى معناها بالعربية.</p></div>
+   <div class="wd-grid">${L.map(([en,ar,e])=>`<button class="wd" onclick="this.classList.toggle('fl')" aria-label="${esc(en)}: اضغط لترى المعنى"><span class="wdi"><span class="wdf"><i>${e}</i><b>${esc(en)}</b><small class="h">اضغط لترى المعنى</small></span><span class="wdb"><b>${esc(ar)}</b><small>${esc(en)}</small></span></span></button>`).join('')}</div>
+   <div class="hb-gr" style="justify-content:center"><a href="#" onclick="document.querySelectorAll('.wd').forEach(x=>x.classList.add('fl'));return false">اقلب الكل</a><a href="#" onclick="document.querySelectorAll('.wd').forEach(x=>x.classList.remove('fl'));return false">أعد الكل</a></div></div>`;
+  return true; }
+/* --- weekly challenge --- */
+const WEEK=Math.floor((Date.now()/864e5+3)/7);
+function myG(){ const g=(S.member&&S.member.group)||''; return /الثالث/.test(g)?'g3':/الأول/.test(g)?'g1':(['g1','g3'][WEEK%2]); }
+function weekQ(){ const gs=myG(); const pool=Object.keys(GLOS).filter(k=>k.startsWith(gs)).flatMap(k=>GLOS[k]); const r=n=>{let x=Math.sin(WEEK*97+n)*1e4;return x-Math.floor(x)};
+  const c=pool[Math.floor(r(1)*pool.length)]; const others=pool.filter(p=>p[1]!==c[1]); const o1=others[Math.floor(r(2)*others.length)], o2=others.filter(p=>p!==o1)[Math.floor(r(3)*(others.length-1))];
+  const opts=[c,o1,o2].sort((a,b)=>r(a[1].length)-r(b[1].length)); return {c,opts}; }
+window.weekHtml=function(){ const {c,opts}=weekQ(); const ans=LSg('abeer.wk.'+WEEK);
+  return `<div class="wk" id="wk"><h3>🏆 تحدّي الأسبوع</h3><div class="muted" style="font-weight:700">أجب صحيحًا لتحصل على شارة «بطل التحدي». سؤال جديد كل أسبوع!</div>
+   <div class="q">ما معنى «<span dir="ltr">${esc(c[0])}</span>» ${c[2]}؟</div>
+   <div class="op">${opts.map(o=>`<button ${ans?'disabled':''} class="${ans&&o[1]===c[1]?'ok':''}" onclick="wkAns(this,${o[1]===c[1]})">${esc(o[1])}</button>`).join('')}</div>
+   ${ans?`<p style="font-weight:800;margin:10px 0 0;color:${ans==='ok'?'#2F6B4A':'#8A2A23'}">${ans==='ok'?'✓ أحسنت! أجبت تحدّي هذا الأسبوع.':'الإجابة الصحيحة: '+esc(c[1])+'. انتظر تحدّي الأسبوع القادم 💪'}</p>`:''}</div>`; };
+window.wkAns=function(btn,ok){ if(LSg('abeer.wk.'+WEEK)) return; LSs('abeer.wk.'+WEEK,ok?'ok':'no'); try{ ok?sfx.ok():(sfx.no||sfx.click)() }catch(e){} if(ok&&typeof confetti==='function') try{confetti()}catch(e){}
+  const w=$('#wk'); if(w) w.outerHTML=weekHtml(); if(ok) setTimeout(()=>{ try{ window.bagCheckNew&&bagCheckNew() }catch(e){} },500); };
+/* --- parent report --- */
+const HWU={g1u1:['l11','l12','l13','l14','l15','l16'],g1u2:['l21','l22','l23','l24','l25','l26'],g1u3:['l31','l32','l33','l34'],g3u1:['t11','t12','t13'],g3u2:['t21','t22','t23'],g3u3:['t31','t32','t33','t34','t35']};
+const HWN={l11:'الحاسوب في حياتنا',l12:'أجزاء جهاز الحاسوب',l13:'سطح المكتب',l14:'انقر واكتب',l15:'دعنا نتذكّر',l16:'لنطبّق معًا',l21:'مقدمة إلى الرسم الرقمي',l22:'رسم الأشكال',l23:'لنتدرّب على الأشكال',l24:'دمج الأشكال',l25:'لنتدرّب على دمج الأشكال',l26:'الرسم الحر',l31:'الإنترنت',l32:'استمتع',l33:'تواصل',l34:'ابحث',t11:'أجهزة التفاعل مع الحاسوب',t12:'تنظيم الملفات والمجلدات',t13:'أجهزة الطباعة والالتقاط',t21:'تنسيق النص',t22:'إدراج وتنسيق صورة',t23:'إنشاء القوائم',t31:'الأمان عبر الإنترنت',t32:'البحث عن المعلومات',t33:'أخلاقيات الإنترنت',t34:'العثور على المعلومات',t35:'البحث في موسوعة ويكيبيديا'};
+function report(){ const gs=myG(); const g=GN[gs]; const name=LSg('abeer.name')||''; const units=Object.keys(HWU).filter(k=>k.startsWith(gs));
+  const rows=units.map(uk=>{ const u=+uk.slice(-1); const un=(()=>{try{return unitName(g,u)}catch(e){return ''}})()||('الوحدة '+u); const ks=HWU[uk]; const d=ks.filter(k=>LSg('abeer.hw.'+k));
+    return `<h3 style="color:#225C78;margin:14px 0 4px">${esc(un)} <small style="color:#5E7079">· أنجز ${d.length} من ${ks.length} واجبات${LSg('abeer.hv.'+uk)?' · الحصاد: '+esc(LSg('abeer.hv.'+uk)):''}</small></h3>
+    <table><tr><th>الدرس</th><th>الواجب</th></tr>${ks.map(k=>`<tr><td>${esc(HWN[k]||k)}</td><td>${LSg('abeer.hw.'+k)?'✅ '+esc(LSg('abeer.hw.'+k)):'—'}</td></tr>`).join('')}</table>`}).join('');
+  $('#view').innerHTML=`<div class="hb"><div class="hb-gr noprint"><a href="#bag">← حقيبة إنجازاتي</a><a href="#" onclick="print();return false">🖨️ طباعة</a></div>
+   <div class="rp"><div style="font-weight:800;color:#5E7079">منصة أ. عبير اليحمدية · تقنية المعلومات</div><h1>📄 تقرير ولي الأمر</h1>
+   <p style="font-weight:800;margin:6px 0">الطالب/ة: <span style="color:#B07A2A">${esc(name||'—')}</span> · ${g} · ${new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'})}</p>
+   <p style="margin:0;color:#5E7079;font-weight:700">يعرض هذا التقرير ما أنجزه طفلكم على هذا الجهاز. شكرًا لمتابعتكم 🌷</p>${rows}</div></div>`; return true; }
+/* --- routes --- */
+const _hr=window.hubRoute; window.hubRoute=function(v){ if(v.startsWith('words/')) return words(v.slice(6)); if(v==='report') return report(); const r=_hr(v); setTimeout(owlGuide,900); return r; };
+const _he=window.hubEntry; window.hubEntry=()=>_he()+weekHtml();
+/* --- owl guide --- */
+const UB={g1u1:'خبير الحاسوب الصغير',g1u2:'بطل الرسم',g1u3:'المتصفّح الذكي',g3u1:'مستكشف الحاسوب',g3u2:'الكاتب المبدع',g3u3:'حارس الإنترنت الآمن'};
+function owlGuide(){ if(typeof role!=='function'||role()!=='viewer'||typeof owlSay!=='function') return; const gs=myG();
+  const st=Object.keys(HWU).filter(k=>k.startsWith(gs)).map(k=>({k,d:HWU[k].filter(x=>LSg('abeer.hw.'+x)).length,t:HWU[k].length})).filter(x=>x.d<x.t).sort((a,b)=>(b.d/b.t)-(a.d/a.t));
+  const any=Object.values(HWU).flat().some(x=>LSg('abeer.hw.'+x));
+  let m; if(!any) m='🦉 ابدأ بأول واجب لتحصل على شارة «الخطوة الأولى»!'; else if(st.length&&st[0].d>0){ const n=st[0].t-st[0].d; m=`🦉 بقي لك ${n===1?'واجب واحد':n===2?'واجبان':n+' واجبات'} لتحصل على شارة «${UB[st[0].k]}»!`; } else if(!st.length) m='🦉 رائع! أنجزت كل الواجبات. افتح حقيبتك لترى شاراتك 🎒'; else m='🦉 أحسنت! اختر درسًا جديدًا وأكمل رحلتك.';
+  owlSay(m,7000); }
+})();
+
+</script>
+<script>
+
+/* ================= Likes ================= */
+(function(){
+const LSg=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, LSs=(k,v)=>{try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+S.likes={};
+document.head.insertAdjacentHTML('beforeend',`<style>
+.lk,.ic-btn{display:inline-flex!important;align-items:center;gap:5px;min-height:36px}
+.lk svg{transition:transform .2s}.lk.on{color:#C8443B!important;border-color:#F0B9B3!important;background:#FDF1EF!important}
+.lk.on svg{fill:#C8443B}.lk.pop svg{animation:lkPop .45s}
+@keyframes lkPop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.hb-lk{position:absolute;bottom:10px;left:10px;background:rgba(255,255,255,.92);border-radius:99px;padding:3px 10px;font-weight:800;font-size:.85rem;color:#C8443B;display:flex;align-items:center;gap:4px}
+.hb-lk svg{fill:#C8443B}
+@media (prefers-reduced-motion:reduce){.lk.pop svg{animation:none}}
+</style>`);
+const HEART='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.8 5c2 0 3.6 1.1 5.2 3 1.6-1.9 3.2-3 5.2-3 3.6 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21z"></path></svg>';
+window.likeBtn=function(id){ const on=!!LSg('abeer.like.'+id); const n=Math.max(0,(S.likes[id]||0)); return `<button class="btn sm ghost lk ${on?'on':''}" data-lk="${id}" onclick="toggleLike('${id}',this)" aria-pressed="${on}" title="أعجبني" aria-label="أعجبني">${HEART} <span>${n}</span></button>`; };
+window.likeCount=id=>Math.max(0,S.likes[id]||0);
+window.heartSmall=n=>n?`<span class="hb-lk">${HEART.replace('width="18" height="18"','width="14" height="14"')} ${n}</span>`:'';
+window.toggleLike=async function(id,btn){ const on=!LSg('abeer.like.'+id); LSs('abeer.like.'+id,on?'1':null); S.likes[id]=Math.max(0,(S.likes[id]||0)+(on?1:-1)); paint(id);
+  if(btn){ btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); } try{ if(on) sfx.ok() }catch(e){}
+  try{ await FDB.doc('likes/'+id).set({n:firebase.firestore.FieldValue.increment(on?1:-1)},{merge:true}) }catch(e){ console.warn(e) } };
+function paint(id){ document.querySelectorAll('[data-lk="'+id+'"]').forEach(b=>{ const on=!!LSg('abeer.like.'+id); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); const sp=b.querySelector('span'); if(sp) sp.textContent=likeCount(id); }); }
+let sub=null; function subLikes(){ try{ if(sub) sub(); sub=FDB.collection('likes').onSnapshot(q=>{ q.docs.forEach(d=>{ S.likes[d.id]=d.data().n||0 }); Object.keys(S.likes).forEach(paint); },()=>{}) }catch(e){} }
+subLikes(); setTimeout(subLikes,4000);
 })();
 
 </script>
