@@ -1117,15 +1117,33 @@ function rebuildSections(){
   const fl=document.getElementById('flinks'); if(fl) fl.innerHTML=SECTIONS.map(x=>`<a class="chip" href="#${x.id}">${x.t}</a>`).join('');
 }
 /* ---- public data (re)subscription ---- */
-let pubSubs=[];
+/* ---- public data: live for staff, cached (versioned) for students ---- */
+const IDB={ db:null, open(){ return this.db||(this.db=new Promise((res,rej)=>{ try{ const r=indexedDB.open('abeer-cache',1); r.onupgradeneeded=()=>r.result.createObjectStore('kv'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error) }catch(e){ rej(e) } })) },
+  async get(k){ try{ const d=await this.open(); return await new Promise(res=>{ const q=d.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result||null); q.onerror=()=>res(null) }) }catch(e){ return null } },
+  async set(k,v){ try{ const d=await this.open(); d.transaction('kv','readwrite').objectStore('kv').put(v,k) }catch(e){} } };
+let pubSubs=[], verTimer=null, liveFirst={};
+function applyBundle(b){ S.denied=false; S._itemsEmpty=!b.items.length; S.items=b.items.length?b.items:(seed.items||[]); S.sections=b.sections||[]; rebuildSections(); S.pubPosts=b.posts||[]; mergePosts(); if(b.fb!==undefined&&b.fb!==null) S.fb=b.fb; S.units=b.units||{}; rerender(); }
+function bumpVer(){ if(!S.owner) return; clearTimeout(verTimer); verTimer=setTimeout(()=>{ fdb.doc('config/ver').set({v:Date.now()}).catch(()=>{}) },2500); }
+const denied=e=>{ if(e&&e.code==='permission-denied'&&S.locked&&role()==='viewer'){ S.member=null; S.denied=true; render(); } };
+async function cachedPublic(){
+  const c=await IDB.get('bundle'); if(c&&c.items) applyBundle(c);
+  let ver=null; try{ const d=await fdb.doc('config/ver').get(); ver=d.exists?d.data().v:null }catch(e){}
+  if(c&&ver&&c.ver===ver) return;
+  try{ const [it,se,po,fb,un]=await Promise.all([fdb.collection('items').get(),fdb.collection('sections').get(),fdb.collection('posts').get(),fdb.doc('settings/feedback').get().catch(()=>null),fdb.doc('settings/units').get().catch(()=>null)]);
+    const b={ver,items:it.docs.map(d=>({id:d.id,...d.data()})),sections:se.docs.map(d=>({id:d.id,...d.data()})),posts:po.docs.map(d=>({id:d.id,...d.data()})),fb:fb&&fb.exists&&fb.data().url!==undefined?fb.data().url:null,units:un&&un.exists?un.data():{}};
+    applyBundle(b); if(ver) IDB.set('bundle',b);
+  }catch(e){ denied(e) } }
 function subPublic(){
   pubSubs.forEach(u=>{try{u()}catch(e){}}); pubSubs=[];
-  const denied=e=>{ if(e&&e.code==='permission-denied'&&S.locked&&role()==='viewer'){ S.member=null; S.denied=true; render(); } };
-  pubSubs.push(fdb.collection('items').onSnapshot(s=>{ S.denied=false; S._itemsEmpty=s.empty; S.items=s.empty?(seed.items||[]):s.docs.map(d=>({id:d.id,...d.data()})); maybeSeed(); rerender(); },denied));
-  pubSubs.push(fdb.collection('sections').onSnapshot(s=>{ S.sections=s.docs.map(d=>({id:d.id,...d.data()})); rebuildSections(); rerender(); },denied));
-  pubSubs.push(fdb.collection('posts').onSnapshot(s=>{ S.pubPosts=s.docs.map(d=>({id:d.id,...d.data()})); mergePosts(); rerender(); },denied));
-  pubSubs.push(fdb.doc('settings/feedback').onSnapshot(s=>{ if(s.exists&&s.data().url!==undefined) S.fb=s.data().url; rerender(); },()=>{}));
-  pubSubs.push(fdb.doc('settings/units').onSnapshot(s=>{ S.units=s.exists?s.data():{}; rerender(); },()=>{}));
+  if(role()==='viewer'){ cachedPublic(); return; }
+  liveFirst={};
+  const watch=(k,fn)=>s=>{ fn(s); if(liveFirst[k]) bumpVer(); liveFirst[k]=1; };
+  pubSubs.push(fdb.collection('items').onSnapshot(watch('items',s=>{ S.denied=false; S._itemsEmpty=s.empty; S.items=s.empty?(seed.items||[]):s.docs.map(d=>({id:d.id,...d.data()})); maybeSeed(); rerender(); }),denied));
+  pubSubs.push(fdb.collection('sections').onSnapshot(watch('sections',s=>{ S.sections=s.docs.map(d=>({id:d.id,...d.data()})); rebuildSections(); rerender(); }),denied));
+  pubSubs.push(fdb.collection('posts').onSnapshot(watch('posts',s=>{ S.pubPosts=s.docs.map(d=>({id:d.id,...d.data()})); mergePosts(); rerender(); }),denied));
+  pubSubs.push(fdb.doc('settings/feedback').onSnapshot(watch('fb',s=>{ if(s.exists&&s.data().url!==undefined) S.fb=s.data().url; rerender(); }),()=>{}));
+  pubSubs.push(fdb.doc('settings/units').onSnapshot(watch('units',s=>{ S.units=s.exists?s.data():{}; rerender(); }),()=>{}));
+  if(S.owner) fdb.doc('config/ver').get().then(d=>{ if(!d.exists) bumpVer() }).catch(()=>{});
 }
 fdb.doc('config/lock').onSnapshot(s=>{ S.locked=!!(s.exists&&s.data().on); if(S.authReady) render(); },()=>{});
 let staffSubs=[];
@@ -1829,10 +1847,10 @@ window.likeCount=id=>Math.max(0,S.likes[id]||0);
 window.heartSmall=n=>n?`<span class="hb-lk">${HEART.replace('width="18" height="18"','width="14" height="14"')} ${n}</span>`:'';
 window.toggleLike=async function(id,btn){ const on=!LSg('abeer.like.'+id); LSs('abeer.like.'+id,on?'1':null); S.likes[id]=Math.max(0,(S.likes[id]||0)+(on?1:-1)); paint(id);
   if(btn){ btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop'); } try{ if(on) sfx.ok() }catch(e){}
-  try{ await FDB.doc('likes/'+id).set({n:firebase.firestore.FieldValue.increment(on?1:-1)},{merge:true}) }catch(e){ console.warn(e) } };
+  try{ await FDB.doc('likes/all').set({[id]:firebase.firestore.FieldValue.increment(on?1:-1)},{merge:true}) }catch(e){ console.warn(e) } };
 function paint(id){ document.querySelectorAll('[data-lk="'+id+'"]').forEach(b=>{ const on=!!LSg('abeer.like.'+id); b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); const sp=b.querySelector('span'); if(sp) sp.textContent=likeCount(id); }); }
-let sub=null; function subLikes(){ try{ if(sub) sub(); sub=FDB.collection('likes').onSnapshot(q=>{ q.docs.forEach(d=>{ S.likes[d.id]=d.data().n||0 }); Object.keys(S.likes).forEach(paint); },()=>{}) }catch(e){} }
-subLikes(); setTimeout(subLikes,4000);
+let tries=0; function loadLikes(){ try{ FDB.doc('likes/all').get().then(d=>{ const o=d.exists?d.data():{}; Object.keys(o).forEach(k=>S.likes[k]=o[k]||0); Object.keys(S.likes).forEach(paint); }).catch(()=>{ if(++tries<3) setTimeout(loadLikes,3000) }) }catch(e){ if(++tries<3) setTimeout(loadLikes,3000) } }
+setTimeout(loadLikes,1500);
 })();
 
 </script>
