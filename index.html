@@ -569,6 +569,7 @@ function render(){
   const v=location.hash.slice(1)||'home';
   if(v==='portal') return renderPortal();
   if(v==='search') return renderSearch();
+  if(window.hubRoute&&window.hubRoute(v)) return;
   const sec=SECTIONS.find(s=>s.id===v);
   if(sec){renderSection(sec); if(typeof bannerBubbles==='function') bannerBubbles(); return}
   renderHome();
@@ -577,7 +578,7 @@ const gtxt=()=>S.grade==='all'?'في كل الصفوف':'في '+S.grade;
 function count(id){return S.items.filter(i=>i.section===id&&gradeOk(i)).length}
 function renderHome(){
   const posts=S.posts.filter(p=>p.kind==='teacher').sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
-  $('#view').innerHTML=`
+  $('#view').innerHTML=(window.hubEntry?hubEntry():'')+`
   <div class="tiles">${SECTIONS.map(s=>`<a class="tile" style="--tc:${s.c}" href="#${s.id}"><span class="ic">${svg(s.i)}</span><span><b>${s.t}</b><em class="tl">${s.d}</em><small>${count(s.id)} ${count(s.id)===1?'عنصر':'عناصر'} ${gtxt()}</small><span class="go">${TILEGO[s.id]||'ادخل ←'}</span></span>${svg(s.i,'wm')}</a>`).join('')}</div>
   <section class="block"><h2>آخر المستجدات</h2>
    ${posts.length?posts.map(p=>`<article class="post"><h3>${esc(p.title)}</h3><div class="meta">${fmtDate(p.createdAt)}</div><p>${esc(p.text)}</p></article>`).join(''):`<p class="muted" style="margin:0">لا توجد منشورات بعد. تكتب المعلمة المستجدات من البوابة.</p>`}
@@ -1448,6 +1449,7 @@ body.sn-mini .sidenav a.sn{justify-content:center}
     const logo=(document.querySelector('header img, .logo img, img[alt*="شعار"]')||{}).src||'';
     nav.innerHTML=`<div class="sn-head">${logo?`<img src="${logo}" alt="">`:''}<b>منصة أ. عبير اليحمدية</b></div>
     <div class="sn-list"><a class="sn ${v==='home'?'on':''}" href="#home" title="الرئيسية"><span class="si" style="--sc:#2F6FB3">${HOME_IC}</span><span class="st">الرئيسية</span></a>
+    <a class="sn ${v==='g1'||/^d\/g1/.test(v)?'on':''}" href="#g1" title="دروس الصف الأول"><span class="si" style="--sc:#D9A64E">${HOME_IC}</span><span class="st">دروس الصف الأول</span></a><a class="sn ${v==='g3'||/^d\/g3/.test(v)?'on':''}" href="#g3" title="دروس الصف الثالث"><span class="si" style="--sc:#D9A64E">${HOME_IC}</span><span class="st">دروس الصف الثالث</span></a>
     ${SECTIONS.map(x=>`<a class="sn ${v===x.id?'on':''}" href="#${x.id}" title="${x.t}"><span class="si" style="--sc:${x.c}">${svg(x.i)}</span><span class="st">${x.t}</span><span class="sc">${cnt(x.id)}</span></a>`).join('')}</div>
     <div class="sn-foot"><a class="sn ${v==='portal'?'on':''}" href="#portal" title="بوابة المُلهِمات"><span class="si">${KEY_IC}</span><span class="st">بوابة المُلهِمات</span></a><button class="sn-col" onclick="snToggle()" title="طيّ القائمة">⇆</button></div>`;
     nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>document.body.classList.remove('sn-open')));
@@ -1455,6 +1457,160 @@ body.sn-mini .sidenav a.sn{justify-content:center}
   const _r=window.render; window.render=function(){ _r.apply(this,arguments); buildSide(); };
   buildSide();
 })();
+</script>
+<script>
+/* ================= Lesson hub (units → lessons → lesson page) ================= */
+(function(){
+const CAT={
+ 'الصف الأول':[
+  [1,1,'الحاسوب في حياتنا',[],'l11'],[1,2,'أجزاء جهاز الحاسوب',['أجزاء الحاسوب'],'l12'],[1,3,'سطح المكتب',[],'l13'],[1,4,'انقر واكتب',[],'l14'],[1,5,'دعنا نتذكّر',['لنتذكر معا','لنتذكر'],'l15'],[1,6,'لنطبّق معًا',['لنطبق'],'l16'],
+  [2,1,'مقدمة إلى الرسم الرقمي',['الرسم الرقمي'],'l21'],[2,2,'رسم الأشكال',[],'l22'],[2,3,'لنتدرّب على الأشكال',[],'l23'],[2,4,'دمج الأشكال',[],'l24'],[2,5,'لنتدرّب على دمج الأشكال',[],'l25'],[2,6,'الرسم الحر',[],'l26'],
+  [3,1,'الإنترنت',[],'l31'],[3,2,'استمتع',[],'l32'],[3,3,'تواصل',[],'l33'],[3,4,'ابحث',[],'l34']],
+ 'الصف الثالث':[
+  [1,1,'أجهزة التفاعل مع الحاسوب',['التفاعل مع الحاسوب'],'t11'],[1,2,'تنظيم الملفات والمجلدات',[],'t12'],[1,3,'أجهزة الطباعة والالتقاط',['الطباعة والالتقاط'],'t13'],
+  [2,1,'تنسيق النص',[],'t21'],[2,2,'إدراج وتنسيق صورة',['إدراج الصور وتنسيقها','إدراج الصورة وتنسيقها','ادراج الصورة'],'t22'],[2,3,'إنشاء القوائم',[],'t23'],[2,4,'المشروع · ترشيد استهلاك المياه',['المشروع','ترشيد'],''],
+  [3,1,'الأمان عبر الإنترنت',[],'t31'],[3,2,'البحث عن المعلومات',[],'t32'],[3,3,'أخلاقيات الإنترنت',[],'t33'],[3,4,'العثور على المعلومات',[],'t34'],[3,5,'البحث في موسوعة ويكيبيديا',['ويكيبيديا','ويكيبديا'],'t35']]};
+const HARV={'الصف الأول':{1:'g1u1',2:'g1u2',3:'g1u3'},'الصف الثالث':{1:'g3u1',2:'g3u2',3:'g3u3'}};
+const GSLUG={'الصف الأول':'g1','الصف الثالث':'g3'}, SLUGG={g1:'الصف الأول',g3:'الصف الثالث'};
+const BASE='https://alyahmedi352-star.github.io/abeer/';
+const nrm=t=>String(t||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[«»"']/g,'').replace(/\s+/g,' ').trim();
+const LS2={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const UNIT_SECS=['homework','harvest'];
+function lessons(g){ return (CAT[g]||[]).map(([u,n,name,al,key])=>({g,u,n,name,al,key,id:GSLUG[g]+'-'+u+'-'+n})) }
+function matchItem(i,g){
+  if(i.grade!==g) return null; const L=lessons(g); const t=nrm(i.title), tx=nrm((i.title||'')+' '+(i.desc||''));
+  const m=(i.title||'').match(/(\d)\s*[\.:٫]\s*(\d)/)||(i.desc||'').match(/الدرس\s*(\d)\s*[\.:٫]\s*(\d)/);
+  if(m){ const hit=L.find(l=>l.u==+m[1]&&l.n==+m[2]); if(hit) return hit; }
+  let best=null,bl=0; L.forEach(l=>{ if(i.u&&l.u!==i.u) return; [l.name,...l.al].forEach(a=>{ const na=nrm(a); if(na.length>bl&&t.includes(na)){best=l;bl=na.length} }) });
+  return best;
+}
+function gather(g){
+  const map={}; lessons(g).forEach(l=>map[l.id]={l,items:[]});
+  S.items.forEach(i=>{ if(UNIT_SECS.includes(i.section)) return; const l=matchItem(i,g); if(l) map[l.id].items.push(i) });
+  return map;
+}
+const pick=(arr,sec)=>arr.find(i=>i.section===sec);
+const firstLink=i=>i&&i.links&&i.links[0];
+function posterOf(e){ const it=pick(e.items,'images')||pick(e.items,'lessons')||pick(e.items,'presentations')||e.items[0]; return it?coverHtml(it):'' }
+function doneOf(l){ return l.key&&LS2.get('abeer.hw.'+l.key) }
+function seenOf(l){ return LS2.get('abeer.seen.'+l.id) }
+function unitTitle(g,u){ try{ return unitName(g,u) }catch(e){ return 'الوحدة '+u } }
+const ICO={play:'<path d="M8 5v14l11-7z"></path>',pres:'<rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M12 16v4M8 20h8"></path>',pen:'<path d="M4 20h4L19 9l-4-4L4 16z"></path><path d="M13.5 6.5l4 4"></path>',wheat:'<path d="M12 21V8"></path><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5z"></path><path d="M12 13c0-3-2-5-5-5 0 3 2 5 5 5z"></path><path d="M12 18c0-3 2-5 5-5 0 3-2 5-5 5z"></path>',team:'<circle cx="9" cy="8" r="3"></circle><circle cx="17" cy="9" r="2.5"></circle><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"></path><path d="M15 14.5c3 0 5.5 2 5.5 5.5"></path>',img:'<rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 17l-5-5-8 8"></path>',next:'<path d="M15 6l-6 6 6 6"></path>',prev:'<path d="M9 6l6 6-6 6"></path>',check:'<path d="M5 12l5 5 9-10"></path>',clip:'<path d="M21 12l-8.5 8.5a5 5 0 0 1-7-7L14 5a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L15 8"></path>'};
+const ic=(k,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[k]}</svg>`;
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hb{display:flex;flex-direction:column;gap:22px}
+.hb-head h1{margin:0;font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;color:var(--brand)}
+.hb-head p{margin:4px 0 0;color:var(--muted);font-weight:600}
+.hb-gr{display:flex;gap:8px;flex-wrap:wrap}
+.hb-gr a{padding:8px 18px;border-radius:99px;background:var(--chip);color:var(--text);text-decoration:none;font-weight:800}
+.hb-gr a.on{background:var(--gold);color:#2A1C05}
+.hb-units{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.hb-u{all:unset;cursor:pointer;background:var(--paper);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 22px rgba(23,63,85,.08);border:2px solid transparent;transition:transform .15s}
+.hb-u:hover{transform:translateY(-2px)}.hb-u:focus-visible{outline:3px solid var(--gold)}
+.hb-u.on{background:var(--brand);border-color:var(--gold)}
+.hb-u .r{display:flex;align-items:center;gap:12px}
+.hb-u .nb{width:46px;height:46px;border-radius:14px;background:var(--chip);color:var(--brand);display:grid;place-items:center;font-weight:900;font-size:1.2rem;flex:0 0 auto}
+.hb-u.on .nb{background:var(--gold);color:#2A1C05}
+.hb-u small{display:block;color:var(--muted);font-weight:700}.hb-u b{display:block;font-size:1.3rem;font-weight:900;color:var(--brand)}
+.hb-u.on small{color:#BFD3DC}.hb-u.on b{color:#fff}
+.hb-bar{height:8px;border-radius:99px;background:var(--chip);overflow:hidden}.hb-u.on .hb-bar{background:rgba(255,255,255,.2)}
+.hb-bar i{display:block;height:100%;background:var(--gold);border-radius:99px}
+.hb-u .pr{font-size:.88rem;font-weight:800;color:var(--muted)}.hb-u.on .pr{color:#F2CF8A}
+.hb-box{background:var(--paper);border-radius:24px;padding:22px;box-shadow:0 8px 22px rgba(23,63,85,.07);display:flex;flex-direction:column;gap:18px}
+.hb-bh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hb-bh h2{margin:0;font-size:1.7rem;font-weight:900;color:var(--brand)}.hb-bh small{display:block;color:var(--muted);font-weight:700}
+.hb-act{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:14px;background:var(--chip);color:var(--brand);text-decoration:none;font-weight:800}
+.hb-act.gold{background:#FFF6E3;color:#6B4B10;border:2px solid #E8C882}
+.hb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.hb-c{text-decoration:none;color:var(--text);border-radius:20px;overflow:hidden;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+.hb-c:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(23,63,85,.14)}
+.hb-cv{position:relative;height:220px;overflow:hidden;background:var(--chip);display:grid;place-items:center;color:var(--brand)}
+.hb-cv img{width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block}
+.hb-cv svg{width:64px;height:64px}
+.hb-n{position:absolute;top:10px;right:10px;background:var(--brand);color:#fff;font-weight:900;padding:5px 11px;border-radius:10px}
+.hb-ok{position:absolute;top:10px;left:10px;background:#2F8A57;color:#fff;font-weight:800;font-size:.82rem;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:4px}
+.hb-cb{padding:14px;display:flex;flex-direction:column;gap:9px;flex:1}
+.hb-cb b{font-size:1.2rem;font-weight:900;color:var(--brand)}
+.hb-tags{display:flex;gap:6px;flex-wrap:wrap}.hb-tags span{font-size:.8rem;font-weight:700;color:var(--brand-2,#225C78);background:var(--chip);padding:3px 9px;border-radius:99px}
+.hb-go{margin-top:auto;min-height:44px;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.hb-c.empty{opacity:.6}.hb-c.empty .hb-go{background:var(--chip);color:var(--muted)}
+.ls{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.ls-a{flex:1 1 320px;max-width:400px;display:flex;flex-direction:column;gap:10px}
+.ls-p{border-radius:22px;overflow:hidden;background:var(--paper);box-shadow:0 12px 30px rgba(23,63,85,.16);display:grid;place-items:center;min-height:200px;color:var(--brand)}
+.ls-p img{width:100%;display:block;cursor:zoom-in}.ls-p svg{width:80px;height:80px}
+.ls-m{flex:999 1 520px;min-width:0;display:flex;flex-direction:column;gap:18px}
+.ls-tg{display:flex;gap:8px;flex-wrap:wrap}.ls-tg span{font-weight:900;padding:6px 12px;border-radius:10px;background:var(--brand);color:#fff}.ls-tg span+span{background:#FFF6E3;color:#6B4B10}
+.ls-m h1{margin:0;font-size:clamp(2rem,4vw,3rem);font-weight:900;color:var(--brand)}
+.ls-m .ds{margin:0;font-size:1.12rem;line-height:1.8;color:var(--text)}
+.ls-start{min-height:62px;border-radius:18px;background:var(--gold);color:#2A1C05;text-decoration:none;font-weight:900;font-size:1.3rem;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 24px rgba(217,166,78,.35)}
+.ls-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.ls-t{all:unset;cursor:pointer;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:6px;text-decoration:none}
+.ls-t:focus-visible{outline:3px solid var(--gold)}
+.ls-t .i{width:44px;height:44px;border-radius:13px;background:var(--chip);color:var(--brand);display:grid;place-items:center}
+.ls-t.g .i{background:#FFF6E3;color:#6B4B10}
+.ls-t b{font-size:1.1rem;font-weight:900;color:var(--brand)}.ls-t small{color:var(--muted);font-weight:700}
+.ls-t.dn small{color:#2F6B4A}
+.ls-nav{display:flex;gap:12px;flex-wrap:wrap}
+.ls-nav a{flex:1 1 220px;text-decoration:none;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:10px;color:var(--brand);min-height:44px}
+.ls-nav a.nx{background:var(--brand);color:#fff;justify-content:flex-end;text-align:left}
+.ls-nav small{display:block;font-weight:700;opacity:.8}.ls-nav b{font-weight:900}
+.ls-more{display:flex;gap:8px;flex-wrap:wrap}
+.ls-more button{border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:8px 12px;font-weight:700;color:var(--brand);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.hb-entry{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:18px}
+.hb-entry a{text-decoration:none;border-radius:22px;padding:20px 22px;background:linear-gradient(135deg,var(--brand),var(--brand-3,#0F2C3C));color:#fff;display:flex;align-items:center;gap:14px;box-shadow:0 10px 24px rgba(23,63,85,.2)}
+.hb-entry a span.i{width:54px;height:54px;border-radius:16px;background:var(--gold);color:#2A1C05;display:grid;place-items:center;flex:0 0 auto}
+.hb-entry b{font-size:1.35rem;font-weight:900;display:block}.hb-entry small{color:#F2CF8A;font-weight:700}
+</style>`);
+S.hbUnit=S.hbUnit||{};
+function hub(gs){
+  const g=SLUGG[gs]; if(!g) return false; const all=gather(g); const L=lessons(g); const units=[...new Set(L.map(l=>l.u))];
+  if(!S.hbUnit[g]) S.hbUnit[g]=units[units.length-1];
+  const u=S.hbUnit[g]; const UL=L.filter(l=>l.u===u);
+  const prog=uu=>{const ls=L.filter(l=>l.u===uu); const d=ls.filter(l=>doneOf(l)||seenOf(l)).length; return {d,t:ls.length}};
+  const hk=HARV[g]&&HARV[g][u];
+  $('#view').innerHTML=`<div class="hb">
+   <div class="hb-head"><nav class="hb-gr" aria-label="الصف">${Object.keys(SLUGG).map(k=>`<a href="#${k}" class="${k===gs?'on':''}">${SLUGG[k]}</a>`).join('')}</nav>
+    <h1 style="margin-top:12px">دروس ${esc(g)}</h1><p>اختر وحدتك، ثم ادخل إلى الدرس لتجد كل ما يخصّه في مكان واحد.</p></div>
+   <div class="hb-units">${units.map(uu=>{const p=prog(uu);return `<button class="hb-u ${uu===u?'on':''}" onclick="S.hbUnit['${g}']=${uu};render()" aria-pressed="${uu===u}"><span class="r"><span class="nb">${uu}</span><span><small>${UDEF[uu-1]}</small><b>${esc(unitTitle(g,uu).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[uu-1])}</b></span></span><span class="hb-bar"><i style="width:${p.t?Math.round(p.d/p.t*100):0}%"></i></span><span class="pr">${p.t} ${p.t>2&&p.t<11?'دروس':'درسًا'} · زرت ${p.d}</span></button>`}).join('')}</div>
+   <section class="hb-box"><div class="hb-bh"><div><small>${UDEF[u-1]}</small><h2>${esc(unitTitle(g,u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[u-1])}</h2></div><span style="flex:1"></span>
+     ${hk?`<a class="hb-act gold" href="${BASE}hasad.html#${hk}" target="_blank" rel="noopener">${ic('wheat',20)} حصاد الوحدة</a><a class="hb-act" href="${BASE}jamaiya.html#${hk}" target="_blank" rel="noopener">${ic('team',20)} المسابقة الجماعية</a>`:''}</div>
+    <div class="hb-grid">${UL.map(l=>{const e=all[l.id]; const has=e.items.length||l.key; const tags=[]; if(pick(e.items,'lessons')||e.items.some(i=>firstLink(i))) tags.push('درس تفاعلي'); if(pick(e.items,'presentations')) tags.push('عرض'); if(l.key) tags.push('واجب'); if(pick(e.items,'videos')) tags.push('فيديو');
+      const ok=doneOf(l); return `<a class="hb-c ${has?'':'empty'}" href="#d/${l.id}"><span class="hb-cv">${posterOf(e)||ic('img',64)}<span class="hb-n">${l.u}.${l.n}</span>${ok?`<span class="hb-ok">${ic('check',14)} أنجزت الواجب</span>`:''}</span><span class="hb-cb"><b>${esc(l.name)}</b><span class="hb-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</span><span class="hb-go">${has?'افتح الدرس':'قريبًا'}</span></span></a>`}).join('')}</div></section></div>`;
+  return true;
+}
+function lessonPage(id){
+  const [gs,uu,nn]=id.split('-'); const g=SLUGG[gs]; if(!g) return false; const L=lessons(g); const k=L.findIndex(l=>l.id===id); if(k<0) return false;
+  const l=L[k], e=gather(g)[id]; LS2.set('abeer.seen.'+id,'1');
+  const li=pick(e.items,'lessons'), im=pick(e.items,'images'), pr=pick(e.items,'presentations');
+  const start=firstLink(li)||firstLink(im)||(e.items.find(i=>firstLink(i))||{links:[]}).links[0];
+  const desc=((li&&li.desc)||(im&&im.desc)||'').replace(/^الدرس\s*\d\s*[\.:٫]\s*\d\s*:?\s*/,'').replace(/^بطاقة الدرس المصوّرة:\s*/,'').replace(/\s*امسح الرمز أو افتح الرابط وابدأ\.?$/,'');
+  const hk=HARV[g]&&HARV[g][l.u]; const prevL=L[k-1], nextL=L[k+1]; const used=new Set([li,im,pr].filter(Boolean).map(i=>i.id));
+  const others=e.items.filter(i=>!used.has(i.id));
+  const posterItem=im||li||pr;
+  $('#view').innerHTML=`<div class="hb">
+   <div class="hb-gr" style="align-items:center"><a href="#${gs}">${ic('prev',18)} ${esc(g)} · ${esc(unitTitle(g,l.u).replace(/^الوحدة\s+\S+\s*:?\s*/,'')||UDEF[l.u-1])}</a></div>
+   <div class="ls"><aside class="ls-a"><div class="ls-p">${posterItem?coverHtml(posterItem).replace('<img ','<img onclick="openItem(\''+posterItem.id+'\')" '):ic('img',80)}</div>
+     ${posterItem?`<button class="btn ghost" onclick="openItem('${posterItem.id}')">${ic('img',18)} تكبير البطاقة</button>`:''}</aside>
+    <section class="ls-m"><div class="ls-tg"><span>الدرس ${l.u}.${l.n}</span><span>${esc(g)} · ${UDEF[l.u-1]}</span></div>
+     <h1>${esc(l.name)}</h1>${desc?`<p class="ds">${esc(desc)}</p>`:''}
+     ${start?`<a class="ls-start" href="${esc(start)}" target="_blank" rel="noopener">${ic('play',26)} ابدأ الدرس التفاعلي</a>`:`<div class="ls-start" style="opacity:.55;box-shadow:none">الدرس التفاعلي قريبًا</div>`}
+     <div class="ls-tiles">
+      ${pr?`<button class="ls-t" onclick="openItem('${pr.id}')"><span class="i">${ic('pres',24)}</span><b>العرض التقديمي</b><small>يعمل دون إنترنت · تنزيل</small></button>`:''}
+      ${l.key?`<a class="ls-t ${doneOf(l)?'dn':''}" href="${BASE}wajibat.html#${l.key}" target="_blank" rel="noopener"><span class="i">${ic('pen',24)}</span><b>الواجب</b><small>${doneOf(l)?'✓ أنجزته · '+esc(doneOf(l)):'6 أسئلة · شهادة باسمك'}</small></a>`:''}
+      ${hk?`<a class="ls-t g" href="${BASE}hasad.html#${hk}" target="_blank" rel="noopener"><span class="i">${ic('wheat',24)}</span><b>حصاد الوحدة</b><small>مراجعة شاملة · سباق ضد الوقت</small></a>`:''}
+     </div>
+     ${others.length?`<div><b style="color:var(--brand)">مواد أخرى للدرس</b><div class="ls-more" style="margin-top:8px">${others.map(i=>`<button onclick="openItem('${i.id}')">${ic('clip',16)} ${esc(i.title)}</button>`).join('')}</div></div>`:''}
+     <nav class="ls-nav" aria-label="التنقل بين الدروس">
+      ${prevL?`<a href="#d/${prevL.id}">${ic('prev',20)}<span><small>الدرس السابق</small><b>${esc(prevL.name)}</b></span></a>`:''}
+      ${nextL?`<a class="nx" href="#d/${nextL.id}"><span><small>الدرس التالي</small><b>${esc(nextL.name)}</b></span>${ic('next',20)}</a>`:''}
+     </nav></section></div></div>`;
+  window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
+  return true;
+}
+window.hubRoute=function(v){ if(v==='g1'||v==='g3') return hub(v); if(v.startsWith('d/')) return lessonPage(v.slice(2)); return false; };
+window.hubEntry=()=>`<div class="hb-entry"><a href="#g1"><span class="i">${ic('play',28)}</span><span><b>دروس الصف الأول</b><small>كل درس في مكان واحد: الدرس والعرض والواجب</small></span></a><a href="#g3"><span class="i">${ic('play',28)}</span><span><b>دروس الصف الثالث</b><small>كل درس في مكان واحد: الدرس والعرض والواجب</small></span></a></div>`;
+})();
+
 </script>
 </body>
 </html>
