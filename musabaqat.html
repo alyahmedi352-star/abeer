@@ -121,4 +121,5 @@ function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();re
   $('#cert').scrollIntoView({behavior:'smooth'}); }
 function route(){ const k=location.hash.slice(1); if(DATA[k]) intro(k); else home(); }
 addEventListener('hashchange',route); route();
-</script></body></html>
+</script><script src="devices.js" defer></script>
+</body></html>

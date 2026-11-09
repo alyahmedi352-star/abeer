@@ -207,4 +207,5 @@ addEventListener('hashchange',route); route();
 (function(){ function upd(){ const k=location.hash.slice(1), a=document.getElementById('toPlat'); if(!a) return; const m=k.match(/^([lt])(\d)(\d)$/);
   if(m){ a.href='index.html#d/'+(m[1]==='l'?'g1':'g3')+'-'+m[2]+'-'+m[3]; a.textContent='↩ رجوع إلى الدرس'; } else { a.href='index.html'; a.textContent='↩ رجوع إلى المنصة'; } }
   upd(); addEventListener('hashchange',upd); })();
-</script></body></html>
+</script><script src="devices.js" defer></script>
+</body></html>

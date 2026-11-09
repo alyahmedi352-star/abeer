@@ -152,4 +152,5 @@ addEventListener('hashchange',route); route();
 <script>
 (function(){ function upd(){ const k=location.hash.slice(1), a=document.getElementById('toPlat'); if(!a) return; const m=k.match(/^(g[13])u\d$/);
   a.href=m?'index.html#'+m[1]:'index.html'; } upd(); addEventListener('hashchange',upd); })();
-</script></body></html>
+</script><script src="devices.js" defer></script>
+</body></html>
