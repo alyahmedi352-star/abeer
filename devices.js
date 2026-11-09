@@ -36,7 +36,7 @@
     '#abr-prev iframe{border:0;border-radius:24px;background:#fff;display:block;max-width:none!important}' +
     '#abr-prev .dev.lap iframe{border-radius:4px}' +
     '#abr-toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:' + BRAND + ';color:#fff;padding:12px 20px;border-radius:14px;z-index:2147483002;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.3);display:none;max-width:92vw;text-align:center;font-family:inherit}' +
-    '.sidenav a.sn#abr-sn{cursor:pointer}' +
+    '.sidenav a.sn#abr-sn{cursor:pointer}body:not(.staff) #abr-sn,body:not(.staff) #abr-fab{display:none!important}' +
     '@media print{#abr-fab{display:none}}';
   var st = document.createElement('style'); st.id = 'abr-style'; st.textContent = css; document.head.appendChild(st);
   if (LS.get('abr-class') === '1' && !IN_PREVIEW) document.documentElement.classList.add('abr-class');
