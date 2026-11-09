@@ -1,5 +1,5 @@
 /* منصة أ. عبير — خدمة العمل دون إنترنت (الإصدار 3) */
-const C = 'abeer-v3';
+const C = 'abeer-v4';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'devices.js'];
 const SKIP = /(firestore\.googleapis\.com|firebaseio\.com|firebasestorage|identitytoolkit|securetoken|googleapis\.com\/identity|google-analytics|googletagmanager|api\.github\.com)/;
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting())); });
@@ -13,7 +13,14 @@ self.addEventListener('fetch', e => {
       .catch(() => caches.match(clean(r.url), { ignoreSearch: true }).then(m => m || caches.match('./'))));
     return;
   }
-  // الملفات: المحفوظ أولًا مع تحديثه في الخلفية
+  // ملفات البرمجة والبيانات (js/css/json/html): الإنترنت أولًا لتصل التحديثات فورًا
+  const u = new URL(r.url);
+  if (u.origin === location.origin && /\.(js|css|json|html?)$/i.test(u.pathname)) {
+    e.respondWith(fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })
+      .catch(() => caches.match(r, { ignoreSearch: true })));
+    return;
+  }
+  // الملفات الثقيلة (صور، عروض، PDF، خطوط): المحفوظ أولًا مع تحديثه في الخلفية
   e.respondWith(caches.match(r).then(m => {
     const net = fetch(r).then(res => { if (res && (res.ok || res.type === 'opaque')) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; }).catch(() => m);
     return m || net;

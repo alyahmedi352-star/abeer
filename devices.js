@@ -9,8 +9,7 @@
   if (!document.querySelector('link[rel="manifest"]')) { var mf = document.createElement('link'); mf.rel = 'manifest'; mf.href = 'manifest.json'; document.head.appendChild(mf); }
 
   var css = '' +
-    'html.abr-class body{zoom:1.18}' +
-    'html.abr-class .sidenav{zoom:.9}' +
+    'html.abr-class{zoom:1.15}' +
     '#abr-fab{position:fixed;left:16px;bottom:calc(112px + env(safe-area-inset-bottom,0px));z-index:30;width:50px;height:50px;border-radius:50%;border:0;background:' + BRAND + ';color:#fff;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer}' +
     '#abr-shade{position:fixed;inset:0;background:rgba(15,44,60,.55);z-index:2147483000;display:none;align-items:center;justify-content:center;padding:16px}' +
     '#abr-shade.open{display:flex}' +
@@ -36,7 +35,7 @@
     '#abr-prev iframe{border:0;border-radius:24px;background:#fff;display:block;max-width:none!important}' +
     '#abr-prev .dev.lap iframe{border-radius:4px}' +
     '#abr-toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:' + BRAND + ';color:#fff;padding:12px 20px;border-radius:14px;z-index:2147483002;font-weight:800;box-shadow:0 6px 18px rgba(0,0,0,.3);display:none;max-width:92vw;text-align:center;font-family:inherit}' +
-    '.sidenav a.sn#abr-sn{cursor:pointer}body:not(.staff) #abr-sn,body:not(.staff) #abr-fab{display:none!important}' +
+    '.sidenav a.sn#abr-sn{cursor:pointer}body:not(.staff) #abr-sn,body:not(.staff) #abr-td,body:not(.staff) #abr-fab{display:none!important}' +
     '@media print{#abr-fab{display:none}}';
   var st = document.createElement('style'); st.id = 'abr-style'; st.textContent = css; document.head.appendChild(st);
   if (LS.get('abr-class') === '1' && !IN_PREVIEW) document.documentElement.classList.add('abr-class');
@@ -135,7 +134,12 @@
   function openSheet() {
     if (!shade) {
       shade = document.createElement('div'); shade.id = 'abr-shade';
-      shade.addEventListener('click', function (e) { if (e.target === shade) closeSheet(); });
+      shade.addEventListener('click', function (e) {
+        if (e.target !== shade) return;
+        closeSheet(); /* أغلق اللوحة ثم مرّر النقرة إلى ما تحتها (مثل بوابة المُلهِمات) */
+        var under = document.elementFromPoint(e.clientX, e.clientY), t = under && under.closest('a,button');
+        if (t) t.click();
+      });
       document.body.appendChild(shade);
     }
     var cls = document.documentElement.classList.contains('abr-class'), off = LS.get('abr-offline');
@@ -174,7 +178,10 @@
     var a = document.createElement('a'); a.className = 'sn'; a.id = 'abr-sn'; a.href = '#'; a.title = 'خيارات العرض'; a.setAttribute('role', 'button');
     a.innerHTML = '<span class="si" style="--sc:#2F6FB3">' + ICON + '</span><span class="st">خيارات العرض</span>';
     a.addEventListener('click', function (e) { e.preventDefault(); document.body.classList.remove('sn-open'); openSheet(); });
-    foot.insertBefore(a, foot.firstChild); return true;
+    foot.insertBefore(a, foot.firstChild);
+    var t = document.createElement('a'); t.className = 'sn'; t.id = 'abr-td'; t.href = 'tahdeer.html'; t.title = 'دفتر التحضير';
+    t.innerHTML = '<span class="si" style="--sc:#2E8B57"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"></path><path d="M8 8h6M8 12h6M8 16h4"></path><path d="M18 8h2v12"></path></svg></span><span class="st">دفتر التحضير</span>';
+    foot.insertBefore(t, a); return true;
   }
   function boot() {
     var fab = null;
