@@ -7,6 +7,8 @@
   var nrm = function (s) { return String(s || '').replace(/[\u064B-\u0652\u0640]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[^\u0600-\u06FFa-zA-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(); };
   var digit = function (s) { var m = String(s || '').replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }).match(/(\d)(?!.*\d)/); return m ? m[1] : ''; };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var enc = function (t) { return t.map(function (x) { return { min: x[0], pts: x[1] }; }); };
+  var dec = function (t) { return Array.isArray(t) && t.length && typeof t[0] === 'object' && !Array.isArray(t[0]) ? t.map(function (x) { return [+x.min, +x.pts]; }) : null; };
   function ptsFor(pct) { for (var i = 0; i < C.tiers.length; i++) if (pct >= C.tiers[i][0]) return C.tiers[i][1]; return 0; }
   function say(m) { var f = g('toast'); if (typeof f === 'function') f(m); else console.log(m); }
 
@@ -18,7 +20,7 @@
   function boot() {
     var db = g('db');
     Promise.all([db.doc(CFG_DOC).get(), db.doc(ALIAS_DOC).get()]).then(function (r) {
-      if (r[0].exists) C = Object.assign(C, r[0].data()); else { C.since = 0; C.first = true; }
+      if (r[0].exists) { var dd = r[0].data(); var tt = dec(dd.tiers); C = Object.assign(C, dd); C.tiers = tt || [[90, 3], [70, 2], [50, 1]]; } else { C.since = 0; C.first = true; }
       ALIAS = r[1].exists ? (r[1].data().map || {}) : {};
       injectBtn();
       if (C.first) openPanel(); else if (C.on) sync(true);
@@ -64,14 +66,14 @@
       })(ops.slice(i, i + 200));
       return chain.then(function () {
         C.last = Date.now(); C.total = (C.total || 0) + add;
-        return db.doc(CFG_DOC).set({ on: C.on, tiers: C.tiers, since: C.since || 0, last: C.last, total: C.total }, { merge: true });
+        return db.doc(CFG_DOC).set({ on: C.on, tiers: enc(C.tiers), since: C.since || 0, last: C.last, total: C.total }, { merge: true });
       }).then(function () {
         busy = false; badge();
         if (ops.length) say('🔗 أُضيفت ' + add + ' نقطة من واجبات المنصة لـ ' + ops.length + ' نتيجة');
         else if (!silent) say('لا توجد نتائج جديدة لإضافتها');
         if (document.getElementById('hwp-shade')) openPanel();
       });
-    }).catch(function (e) { busy = false; console.warn(e); say('تعذّرت مزامنة نقاط الواجبات'); });
+    }).catch(function (e) { busy = false; console.warn(e); say('تعذّرت مزامنة نقاط الواجبات'); var sh = document.getElementById('hwp-shade'); if (sh) note(sh, '⚠️ تعذّرت المزامنة: ' + (e && e.code || e)); });
   }
 
   /* زر في شريط التبويبات + لوحة الإعدادات */
@@ -82,7 +84,7 @@
     '#hwp .tr{display:flex;gap:8px;flex-wrap:wrap}#hwp .tr label{background:#EEF3F7;border-radius:12px;padding:6px 10px;font-weight:700}#hwp input[type=number]{width:58px;font:inherit;border:1px solid #cdd8e1;border-radius:8px;padding:2px 6px}' +
     '#hwp .b{border:0;border-radius:12px;padding:9px 14px;font:inherit;font-weight:800;cursor:pointer;background:#173F55;color:#fff}#hwp .b.g{background:#D9A64E;color:#2A1C05}#hwp .b.s{background:#EEF3F7;color:#173F55}' +
     '#hwp table{width:100%;border-collapse:collapse;font-size:.88rem}#hwp td,#hwp th{border:1px solid #dfe7ee;padding:5px;text-align:center}#hwp th{background:#173F55;color:#fff}#hwp select{font:inherit;max-width:180px}' +
-    '#hwp .note{color:#5f7387;font-size:.85rem}#hwp .ok{background:#E4F4EA;border-radius:12px;padding:8px 12px;font-weight:700;color:#1E5A36}';
+    '.toast{z-index:2147483001!important}#hwp .note{color:#5f7387;font-size:.85rem}#hwp .ok{background:#E4F4EA;border-radius:12px;padding:8px 12px;font-weight:700;color:#1E5A36}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   function injectBtn() {
     if (document.getElementById('hwp-btn')) return;
@@ -124,6 +126,7 @@
       });
     });
   }
+  function note(sh, m) { var n = sh.querySelector('#hwp-note'); if (!n) { n = document.createElement('div'); n.id = 'hwp-note'; n.className = 'ok'; n.style.marginTop = '10px'; sh.querySelector('#hwp').appendChild(n); } n.textContent = m; }
   function readTiers(sh) { sh.querySelectorAll('input[data-t]').forEach(function (i) { C.tiers[+i.getAttribute('data-t')][1] = Math.max(0, Math.min(10, +i.value || 0)); }); }
   function act(a, sh) {
     var db = g('db');
@@ -131,11 +134,12 @@
       readTiers(sh); var n = new Date();
       C.since = a === 'all' ? 0 : a === 'month' ? new Date(n.getFullYear(), n.getMonth(), 1).getTime() : Date.now();
       C.first = false; C.on = true;
-      db.doc(CFG_DOC).set({ on: true, tiers: C.tiers, since: C.since, last: 0, total: 0 }).then(function () { say('تم التفعيل ✓ جارٍ الاحتساب…'); sync(false); });
+      note(sh, '⏳ جارٍ التفعيل والاحتساب…');
+      db.doc(CFG_DOC).set({ on: true, tiers: enc(C.tiers), since: C.since, last: 0, total: 0 }).then(function () { say('تم التفعيل ✓ جارٍ الاحتساب…'); sync(false); }).catch(function (e) { C.first = true; note(sh, '⚠️ تعذّر الحفظ: ' + (e && e.code || e)); });
       return;
     }
-    if (a === 'sync') { readTiers(sh); return sync(false); }
-    if (a === 'save') { readTiers(sh); db.doc(CFG_DOC).set({ tiers: C.tiers }, { merge: true }).then(function () { say('حُفظت الإعدادات ✓'); }); return; }
+    if (a === 'sync') { readTiers(sh); note(sh, '⏳ جارٍ المزامنة…'); return sync(false); }
+    if (a === 'save') { readTiers(sh); db.doc(CFG_DOC).set({ tiers: enc(C.tiers) }, { merge: true }).then(function () { say('حُفظت الإعدادات ✓'); }); return; }
     if (a === 'toggle') { C.on = !C.on; db.doc(CFG_DOC).set({ on: C.on }, { merge: true }).then(function () { openPanel(); }); return; }
     if (a === 'alias') {
       var n = 0; sh.querySelectorAll('select[data-u]').forEach(function (sel) { if (sel.value) { ALIAS[UNM[+sel.getAttribute('data-u')].k] = sel.value; n++; } });
