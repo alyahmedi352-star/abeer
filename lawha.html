@@ -352,5 +352,6 @@ async function givePresent(){ const m=T.att||{}; let ids=T.students.filter(s=>['
   if(!ids.length) return toast('سجّلي حضور اليوم أولًا'); give(ids,rv()); }
 async function undo(){ const u=T.undo.pop(); if(!u) return; const b=db.batch(); u.refs.forEach(r=>b.delete(db.doc('t_points/'+r))); u.ids.forEach(id=>b.update(db.doc('t_students/'+id),{pts:firebase.firestore.FieldValue.increment(-u.d)}));
   try{ await b.commit(); toast('تم التراجع ↶') }catch(e){ toast('تعذّر التراجع') } }
-</script><script src="devices.js" defer></script>
+</script><script src="hwpoints.js" defer></script>
+<script src="devices.js" defer></script>
 </body></html>
