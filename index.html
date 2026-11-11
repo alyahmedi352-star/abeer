@@ -1903,6 +1903,53 @@ setTimeout(loadLikes,1500);
 @keyframes ub-orbit{to{transform:rotate(-360deg)}}
 @keyframes ub-blink{0%{opacity:1}50%{opacity:0}}
 @keyframes ub-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.ub-scene .pulse{stroke-dasharray:7 93;animation:ub-dash 6s linear infinite}
+.ub-scene .lit{animation:ub-lit 6s ease-in-out infinite;opacity:.25}
+.ub-scene .twk{animation:ub-twinkle 4s ease-in-out infinite}
+.ub-scene .bob{animation:ub-bob 7s ease-in-out infinite}
+.ub-scene .cyc{animation:ub-cycle 9s ease-in-out infinite;opacity:0}
+.ub-scene .film{animation:ub-film 3s linear infinite}
+.ub-scene .ring{animation:ub-ring 2.6s ease-out infinite}
+.ub-scene .tilt{animation:ub-tilt 9s ease-in-out infinite}
+.ub-scene .draw{stroke-dasharray:100;animation:ub-draw 6s ease-in-out infinite}
+.ub-scene .pop{animation:ub-pop 6s ease-in-out infinite;opacity:0}
+.ub-scene .sway{animation:ub-sway 5s ease-in-out infinite;transform-origin:50% 100%}
+.ub-scene .spin{animation:ub-rot 18s linear infinite}
+.ub-scene .spinr{animation:ub-rot 12s linear infinite reverse}
+.ub-scene .tline{animation:ub-tline 7s ease-in-out infinite;transform-origin:100% 50%;transform:scaleX(0)}
+.ub-scene .glowp{animation:ub-glowp 3.5s ease-in-out infinite}
+.ub-scene .wave{animation:ub-wave 3s ease-in-out infinite;transform-origin:0% 50%}
+.ub-scene .swing{animation:ub-swing 5s ease-in-out infinite;transform-origin:50% 0%}
+.ub-scene .rise{animation:ub-rise 9s ease-in-out infinite;opacity:0}
+.ub-scene .flip{transform-box:view-box;transform-origin:180px 115px;animation:ub-flip 7s ease-in-out -1s infinite}
+@keyframes ub-flip{0%{transform:scaleX(1);opacity:0}10%,22%{transform:scaleX(1);opacity:1}52%{transform:scaleX(-1);opacity:1}64%,100%{transform:scaleX(-1);opacity:0}}
+@keyframes ub-dash{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+@keyframes ub-lit{0%,100%{opacity:.25}12%,55%{opacity:1}}
+@keyframes ub-twinkle{0%,100%{opacity:.35;transform:scale(.75) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(18deg)}}
+@keyframes ub-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes ub-cycle{0%,4%{opacity:0}10%,30%{opacity:1}36%,100%{opacity:0}}
+@keyframes ub-film{to{transform:translateX(30px)}}
+@keyframes ub-ring{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+@keyframes ub-tilt{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+@keyframes ub-draw{0%{stroke-dashoffset:100;opacity:1}40%,82%{stroke-dashoffset:0;opacity:1}96%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes ub-pop{0%,30%{opacity:0;transform:scale(.4)}42%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(1)}}
+@keyframes ub-sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes ub-rot{to{transform:rotate(360deg)}}
+@keyframes ub-tline{0%,8%{transform:scaleX(0)}28%,85%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+@keyframes ub-glowp{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes ub-wave{0%,100%{transform:skewY(-5deg) scaleX(1)}50%{transform:skewY(5deg) scaleX(.93)}}
+@keyframes ub-swing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes ub-rise{0%{transform:translateY(14px);opacity:0}25%,75%{opacity:.8}100%{transform:translateY(-34px);opacity:0}}
+.ub-scene .fx{transform-box:view-box;transform-origin:0 0}
+.ub-scene .fx{transform-box:view-box;transform-origin:0 0}
+.banner.ub-banner{isolation:isolate;padding-inline-end:min(46%,440px);min-height:150px}
+.ub-banner>*:not(.ub-scene){position:relative;z-index:2}
+.ub-banner .wm{display:none}
+.ub-banner .ub-scene{-webkit-mask-image:linear-gradient(to left,transparent 30%,#000 70%);mask-image:linear-gradient(to left,transparent 30%,#000 70%);--s-line:color-mix(in srgb,var(--gold) 50%,transparent);--s-glow:var(--gold-2);--s-soft:rgba(255,255,255,.5);--s-f1:var(--gold);--s-f2:var(--gold-2);--s-f3:color-mix(in srgb,var(--brand-2) 45%,#fff);--s-f4:#fff}
+:root[data-theme="dark"] .ub-banner{background:linear-gradient(120deg,var(--brand),color-mix(in srgb,var(--brand-3) 70%,#000))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ub-banner{background:linear-gradient(120deg,var(--brand),color-mix(in srgb,var(--brand-3) 70%,#000))}}
+.ub-banner .ub-toggle{position:absolute!important;bottom:12px;left:12px;background:rgba(0,0,0,.22);color:#fff;border:1px solid rgba(255,255,255,.28)}
+@media (max-width:640px){.banner.ub-banner{padding-inline-end:22px;padding-bottom:50px}.ub-banner .ub-scene{-webkit-mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%);mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%)}}
 .ub-paused .ub-scene *,.ub-scene.ub-off *{animation-play-state:paused!important}
 @media (max-width:640px){.ub-hero{padding-inline-end:24px;padding-bottom:52px}.ub-hero .ub-scene{-webkit-mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%);mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%)}}
 @media print{.ub-scene,.ub-toggle{display:none!important}.ub-hero{background:none;color:inherit}}
@@ -2009,6 +2056,115 @@ function decorate(v){
   } else return;
   paint(); if(io) document.querySelectorAll('#view .ub-scene').forEach(s=>io.observe(s));
 }
+
+const svg=b=>`<svg class="ub-scene" viewBox="0 0 600 200" preserveAspectRatio="xMinYMid meet" aria-hidden="true" focusable="false">${b}</svg>`;
+let uid=0;
+const star=(cx,cy,r)=>{let p='';for(let i=0;i<10;i++){const a=Math.PI/5*i-Math.PI/2,rr=i%2?r*.45:r;p+=(i?'L':'M')+(cx+rr*Math.cos(a)).toFixed(1)+' '+(cy+rr*Math.sin(a)).toFixed(1)}return p+'Z'};
+const gear=(cx,cy,r,t)=>{let p='';const w=2*Math.PI/t;for(let k=0;k<t;k++){const a=k*w;[[r,a-.3*w],[r+8,a-.17*w],[r+8,a+.17*w],[r,a+.3*w]].forEach(([rr,aa],j)=>{p+=(k||j?'L':'M')+(cx+rr*Math.cos(aa)).toFixed(1)+' '+(cy+rr*Math.sin(aa)).toFixed(1)})}return p+'Z'};
+
+const SEC={
+/* الدروس التفاعلية: مسار محطات تضيء */
+lessons:()=>svg(`<g transform="translate(40 -14)"><path class="s-line" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round" d="M20 160C80 160 90 110 150 110S230 150 290 120S360 60 410 60"/>
+<path class="s-glow pulse" stroke-width="3" stroke-linecap="round" pathLength="100" d="M20 160C80 160 90 110 150 110S230 150 290 120S360 60 410 60"/>
+${[[20,160,0],[150,110,1.5],[290,120,3],[410,60,4.5]].map(([x,y,d])=>`<circle class="s-soft" cx="${x}" cy="${y}" r="12" stroke-width="2"/><circle class="lit f2" cx="${x}" cy="${y}" r="7" style="animation-delay:${d}s"/>`).join('')}
+<path class="twk f1" d="${star(448,48,16)}"/><path class="twk f4" style="animation-delay:-2s" d="${star(90,60,6)}" opacity=".7"/><path class="twk f2" style="animation-delay:-1s" d="${star(230,70,5)}"/></g>`),
+
+/* العروض التقديمية: شاشة تتبدّل شرائحها */
+presentations:()=>{const c='uc'+(++uid);return svg(`<defs><clipPath id="${c}"><rect x="84" y="44" width="192" height="112" rx="6"/></clipPath></defs>
+<rect class="s-glow" x="80" y="40" width="200" height="120" rx="10" stroke-width="3"/><rect class="f4" x="80" y="40" width="200" height="120" rx="10" fill-opacity=".06"/>
+<path class="s-glow" stroke-width="3" stroke-linecap="round" d="M180 160V182M150 184H210"/>
+<g clip-path="url(#${c})">
+<g class="cyc" style="animation-delay:-7.2s"><rect class="f2" x="110" y="60" width="140" height="14" rx="4"/><rect class="f4" x="140" y="88" width="110" height="7" rx="3" opacity=".7"/><rect class="f4" x="160" y="104" width="90" height="7" rx="3" opacity=".7"/><rect class="f4" x="150" y="120" width="100" height="7" rx="3" opacity=".7"/></g>
+<g class="cyc" style="animation-delay:-4.2s"><rect class="f2" x="120" y="110" width="22" height="30" rx="3"/><rect class="f1" x="152" y="88" width="22" height="52" rx="3"/><rect class="f2" x="184" y="70" width="22" height="70" rx="3"/><rect class="f4" x="216" y="96" width="22" height="44" rx="3" opacity=".7"/></g>
+<g class="cyc" style="animation-delay:-1.2s"><circle class="f1" cx="135" cy="100" r="26"/><rect class="f4" x="178" y="80" width="72" height="8" rx="3" opacity=".7"/><rect class="f4" x="190" y="98" width="60" height="8" rx="3" opacity=".7"/><rect class="f4" x="184" y="116" width="66" height="8" rx="3" opacity=".7"/></g></g>
+<g class="bob"><rect class="s-soft" x="320" y="60" width="64" height="40" rx="6" stroke-width="2"/><rect class="f2" x="332" y="72" width="40" height="6" rx="3"/></g>
+<g class="bob" style="animation-delay:-3s"><rect class="s-soft" x="340" y="118" width="54" height="34" rx="6" stroke-width="2"/><rect class="f4" x="352" y="128" width="30" height="5" rx="2" opacity=".7"/></g>`)},
+
+/* فيديوهات: شريط فيلم وزر تشغيل */
+videos:()=>{const c='uc'+(++uid);let holes='';for(let x=-30;x<=330;x+=30){holes+=`<rect class="f4" x="${x+8}" y="74" width="12" height="8" rx="2" opacity=".55"/><rect class="f4" x="${x+8}" y="148" width="12" height="8" rx="2" opacity=".55"/>`}
+let frames='';for(let x=-30;x<=330;x+=60){frames+=`<rect class="f3" x="${x+6}" y="90" width="48" height="50" rx="4" opacity=".45"/>`}
+return svg(`<defs><clipPath id="${c}"><rect x="0" y="66" width="300" height="98"/></clipPath></defs>
+<rect class="f4" x="0" y="66" width="300" height="98" fill-opacity=".07"/><path class="s-line" stroke-width="2" d="M0 66H300M0 164H300"/>
+<g clip-path="url(#${c})"><g class="film">${holes}${frames}</g></g>
+<circle class="ring s-glow" cx="370" cy="115" r="34" stroke-width="3"/><circle class="f1" cx="370" cy="115" r="34"/>
+<path d="M360 99L388 115L360 131Z" fill="#2A1C05"/>
+<path class="twk f2" d="${star(430,50,8)}"/>`)},
+
+/* الصور التفاعلية: إطارات صور تطفو */
+images:()=>svg([[40,40,0],[150,100,-3],[260,36,-5],[370,104,-7]].map(([x,y,d],i)=>`<g class="tilt" style="animation-delay:${d}s"><rect x="${x}" y="${y}" width="76" height="60" rx="6" class="f4" fill-opacity=".1"/><rect x="${x}" y="${y}" width="76" height="60" rx="6" class="s-soft" stroke-width="2.5"/>
+<circle class="${i%2?'f1':'f2'}" cx="${x+56}" cy="${y+17}" r="7"/><path class="${i%2?'f2':'f3'}" d="M${x+6} ${y+54}L${x+28} ${y+28}L${x+44} ${y+44}L${x+54} ${y+36}L${x+70} ${y+54}Z" opacity=".85"/></g>`).join('')),
+
+/* الواجبات والمسابقات: علامة صح تُرسم ونجوم */
+homework:()=>svg(`<circle class="s-soft" cx="190" cy="100" r="72" stroke-width="2" stroke-dasharray="3 7"/>
+<path class="s-glow draw" style="animation-delay:-3s" pathLength="100" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" d="M145 102L178 135L240 68"/>
+<path class="pop f1" style="animation-delay:-3.2s" d="${star(270,52,12)}"/><path class="pop f2" style="animation-delay:-2.95s" d="${star(105,60,9)}"/><path class="pop f2" style="animation-delay:-2.7s" d="${star(285,150,8)}"/><path class="pop f4" style="animation-delay:-2.45s" d="${star(110,150,7)}"/>
+<g class="bob"><g class="fx" transform="translate(330 70) rotate(40)"><rect class="f1" x="0" y="0" width="14" height="70" rx="3"/><path class="f2" d="M0 70L7 86L14 70Z"/><rect class="f4" x="0" y="0" width="14" height="10" rx="3" opacity=".8"/></g></g>`),
+
+/* الأنشطة التقويمية: قائمة تُعلَّم بالتتابع */
+assessments:()=>svg(`<rect class="f4" x="70" y="28" width="210" height="144" rx="14" fill-opacity=".08"/><rect class="s-soft" x="70" y="28" width="210" height="144" rx="14" stroke-width="2"/>
+${[0,1,2].map(i=>{const y=52+i*40;return `<rect class="s-glow" x="232" y="${y}" width="24" height="24" rx="6" stroke-width="2.5"/><path class="pop s-glow" style="animation-delay:${-3.5+i*.5}s" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M237 ${y+12}L243 ${y+18}L252 ${y+6}"/><rect class="f4" x="96" y="${y+8}" width="${110-i*16}" height="8" rx="4" opacity=".55"/>`}).join('')}
+<text class="rise f2" x="330" y="90" font-size="40" font-weight="900" font-family="Tajawal,sans-serif">؟</text>
+<text class="rise f1" x="380" y="160" font-size="30" font-weight="900" font-family="Tajawal,sans-serif" style="animation-delay:-4s">؟</text>
+<text class="rise f4" x="20" y="180" font-size="26" font-weight="900" font-family="Tajawal,sans-serif" style="animation-delay:-6s">؟</text>`),
+
+/* حصاد الوحدات: سنابل تتمايل */
+harvest:()=>{const st=(x,h,d)=>{let g='';for(let i=0;i<5;i++){const y=200-h+i*11;g+=`<ellipse class="f1 fx" cx="${x-6}" cy="${y}" rx="5" ry="9" transform="rotate(-25 ${x-6} ${y})"/><ellipse class="f2 fx" cx="${x+6}" cy="${y+4}" rx="5" ry="9" transform="rotate(25 ${x+6} ${y+4})"/>`}
+return `<g class="sway" style="animation-delay:${d}s"><path class="s-glow" stroke-width="3" stroke-linecap="round" d="M${x} 200V${200-h-8}"/><ellipse class="f2" cx="${x}" cy="${200-h-10}" rx="4" ry="8"/>${g}</g>`};
+return svg(`<circle class="glowp f2" cx="330" cy="58" r="30" fill-opacity=".35"/><circle class="f2" cx="330" cy="58" r="20" fill-opacity=".5"/>
+${st(50,100,0)}${st(105,125,-1.2)}${st(160,92,-2.4)}${st(215,115,-.6)}${st(270,86,-1.8)}
+<path class="s-line" stroke-width="2" d="M0 198H420"/>`)},
+
+/* التقنيات المساعدة: تروس تدور */
+assistive:()=>svg(`<g class="spin"><path class="s-glow" stroke-width="2.5" stroke-linejoin="round" d="${gear(120,95,46,12)}"/><circle class="s-glow" cx="120" cy="95" r="16" stroke-width="2.5"/></g>
+<g class="spinr"><path class="s-soft" stroke-width="2.5" stroke-linejoin="round" d="${gear(214,140,28,8)}"/><circle class="f2" cx="214" cy="140" r="8"/></g>
+<g class="spinr" style="animation-duration:15s"><path class="s-line" stroke-width="2.5" stroke-linejoin="round" d="${gear(222,48,22,7)}"/><circle class="s-line" cx="222" cy="48" r="7" stroke-width="2.5"/></g>
+<rect class="rise f2" x="300" y="120" width="8" height="8" rx="2"/><rect class="rise f4" x="350" y="80" width="6" height="6" rx="2" style="animation-delay:-3s"/><rect class="rise f1" x="400" y="140" width="7" height="7" rx="2" style="animation-delay:-6s"/>`),
+
+/* الورش التدريبية: حاسوب محمول وسطور تُكتب ومصباح فكرة */
+workshops:()=>svg(`<rect class="f4" x="70" y="40" width="200" height="118" rx="10" fill-opacity=".07"/><rect class="s-glow" x="70" y="40" width="200" height="118" rx="10" stroke-width="3"/>
+<path class="s-glow" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M50 168H290L276 182H64Z"/>
+${[[0,140,'f2'],[1,110,'f4'],[2,125,'f4'],[3,90,'f1']].map(([i,w,c])=>`<rect class="tline ${c}" style="animation-delay:${-3.5+i*.4}s" x="${250-w}" y="${60+i*22}" width="${w}" height="9" rx="4" ${c==='f4'?'opacity=".7"':''}/>`).join('')}
+<g transform="translate(350 82)"><circle class="glowp f2" cx="0" cy="0" r="34" fill-opacity=".25"/><path class="f2" d="M-14 -4A14 14 0 1 1 14 -4C14 6 7 9 7 16H-7C-7 9 -14 6 -14 -4Z"/><rect class="f1" x="-7" y="19" width="14" height="5" rx="2"/><rect class="f1" x="-5" y="26" width="10" height="4" rx="2"/></g>`),
+
+/* المبادرات: راية ترفرف وبراعم */
+initiatives:()=>svg(`<path class="s-glow" stroke-width="4" stroke-linecap="round" d="M120 190V30"/><circle class="f2" cx="120" cy="28" r="6"/>
+<path class="wave f1" d="M123 36C150 28 170 46 200 38C220 33 235 36 248 40V96C235 92 220 89 200 94C170 102 150 84 123 92Z"/>
+<path class="wave f2" style="animation-delay:-.4s" d="M123 50C150 42 170 60 200 52C220 47 235 50 248 54V62C235 58 220 55 200 60C170 68 150 50 123 58Z" opacity=".55"/>
+${[[260,0],[300,-1.5],[340,-3]].map(([x,d])=>`<g class="sway" style="animation-delay:${d}s"><path class="s-glow" stroke-width="3" stroke-linecap="round" d="M${x} 196V156"/><path class="f2" d="M${x} 166C${x-22} 164 ${x-26} 146 ${x-24} 140C${x-8} 142 ${x} 152 ${x} 166Z"/><path class="f1" d="M${x} 158C${x+20} 156 ${x+24} 138 ${x+22} 132C${x+6} 134 ${x} 144 ${x} 158Z"/></g>`).join('')}
+<path class="s-line" stroke-width="2" d="M0 196H420"/>`),
+
+/* القصص التفاعلية: كتاب تتقلّب صفحته وتخرج منه نجوم */
+stories:()=>svg(`<path class="glowp f2" d="M70 28A24 24 0 1 0 96 62A18 18 0 1 1 70 28Z" opacity=".8"/>
+<path class="f4" fill-opacity=".1" d="M180 78C150 64 115 64 90 72V162C115 154 150 154 180 168ZM180 78C210 64 245 64 270 72V162C245 154 210 154 180 168Z"/>
+<path class="s-glow" stroke-width="3" stroke-linejoin="round" d="M180 78C150 64 115 64 90 72V162C115 154 150 154 180 168C210 154 245 154 270 162V72C245 64 210 64 180 78V168"/>
+${[96,112,128,144].map(y=>`<path class="s-soft" stroke-width="2" stroke-linecap="round" d="M106 ${y-6}C130 ${y-12} 150 ${y-10} 166 ${y-4}M194 ${y-4}C210 ${y-10} 230 ${y-12} 254 ${y-6}"/>`).join('')}
+<path class="flip f2" fill-opacity=".45" d="M180 78C210 64 245 64 270 72V162C245 154 210 154 180 168Z"/>
+${[[170,0,8],[195,-2,6],[215,-4,7],[150,-6,5],[235,-1,5]].map(([x,d,r])=>`<path class="rise f2" style="animation-delay:${d}s;animation-duration:7s" d="${star(x,58,r)}"/>`).join('')}
+<path class="twk f1" d="${star(330,60,12)}"/><path class="twk f4" style="animation-delay:-2s" d="${star(380,140,7)}" opacity=".8"/><path class="twk f2" style="animation-delay:-1s" d="${star(30,140,6)}"/>`),
+
+/* أعمال الطلبة: نجوم تتلألأ وميدالية */
+students:()=>svg(`<g class="swing"><path class="f3" d="M150 0L172 70H186L208 0Z" opacity=".8"/><path class="f4" d="M168 0L179 70L190 0Z" opacity=".35"/>
+<circle class="f1" cx="179" cy="108" r="40"/><circle class="s-glow" cx="179" cy="108" r="30" stroke-width="3"/><path class="f2" d="${star(179,108,18)}"/></g>
+${[[60,50,14,0],[300,60,12,-1],[90,150,9,-2],[270,160,10,-3],[380,100,16,-1.5],[30,110,6,-2.5],[420,40,7,-.5]].map(([x,y,r,d],i)=>`<path class="twk ${i%3?'f2':'f1'}" style="animation-delay:${d}s" d="${star(x,y,r)}"/>`).join('')}`)
+};
+
+/* قسم جديد يُضاف من البوابة: مشهد عام هادئ */
+SEC.generic=()=>svg(`<path class="s-line" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round" d="M10 170C120 60 260 60 400 150"/>
+<circle class="bob f1" cx="110" cy="80" r="22" fill-opacity=".3"/><circle class="bob f3" style="animation-delay:-3s" cx="220" cy="130" r="16" fill-opacity=".35"/><circle class="bob f2" style="animation-delay:-5s" cx="330" cy="70" r="12" fill-opacity=".4"/>
+${[[60,50,10,0],[170,40,7,-1],[280,150,9,-2],[380,110,12,-3],[30,140,6,-1.5]].map(([x,y,r,d],i)=>`<path class="twk ${i%2?'f2':'f1'}" style="animation-delay:${d}s" d="${star(x,y,r)}"/>`).join('')}`);
+/* ترويسات الأقسام: مشهد لكل قسم بدل الفقاعات */
+const _bb=window.bannerBubbles;
+window.bannerBubbles=function(){
+  let id=''; try{ id=decodeURIComponent(location.hash.slice(1)) }catch(e){}
+  const all=window.ALLSECTIONS||(typeof SECTIONS!=='undefined'?SECTIONS:[]);
+  const sec=all.find(x=>x.id===id);
+  if(!sec) return typeof _bb==='function'?_bb.apply(this,arguments):undefined;
+  const k=SEC[id]?id:(/قص/.test(sec.t||'')?'stories':'generic');
+  document.querySelectorAll('#view .banner').forEach(b=>{ if(b.querySelector('.ub-scene')) return;
+    b.querySelectorAll('.bubbles').forEach(x=>x.remove()); b.classList.add('ub-banner');
+    b.insertAdjacentHTML('afterbegin',SEC[k]()); b.insertAdjacentHTML('beforeend',btn) });
+  paint(); if(io) document.querySelectorAll('#view .ub-scene').forEach(x=>io.observe(x));
+};
 const _hr=window.hubRoute;
 if(typeof _hr==='function'){ window.hubRoute=function(v){ const r=_hr(v); if(r){ try{decorate(v)}catch(e){console.warn(e)} } return r }; }
 paint();
