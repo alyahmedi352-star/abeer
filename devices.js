@@ -38,7 +38,7 @@
     '.sidenav a.sn#abr-sn{cursor:pointer}body:not(.staff) #abr-sn,body:not(.staff) #abr-td,body:not(.staff) #abr-rp,body:not(.staff) #abr-fab{display:none!important}' +
     '@media print{#abr-fab{display:none}}';
   var st = document.createElement('style'); st.id = 'abr-style'; st.textContent = css; document.head.appendChild(st);
-  if (LS.get('abr-class') === '1' && !IN_PREVIEW) document.documentElement.classList.add('abr-class');
+  if (LS.get('abr-class') === '1') LS.set('abr-class', '0'); /* أُلغي وضع شاشة الفصل */
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(function () {});
@@ -144,14 +144,9 @@
     }
     var cls = document.documentElement.classList.contains('abr-class'), off = LS.get('abr-offline');
     var inst = window.matchMedia('(display-mode: standalone)').matches;
-    shade.innerHTML = '<div id="abr-sheet" role="dialog" aria-label="خيارات العرض"><button class="x" aria-label="إغلاق">✕</button>' +
-      '<h3>خيارات العرض</h3><p class="sub">شاهدي المنصة على أي جهاز، أو جهّزيها للفصل.</p>' +
-      '<h4>معاينة المنصة على الأجهزة</h4><div class="grid">' +
-      op('phone', '📱', 'هاتف', '390 × 844') + op('tablet', '📲', 'آيباد', '820 × 1180') + op('laptop', '💻', 'لابتوب', '1366 × 768') + op('pc', '🖥️', 'الحاسوب', 'العرض العادي', !cls) + '</div>' +
-      '<h4>في الفصل</h4><div class="grid">' +
-      op('class', '🧑‍🏫', 'شاشة الفصل', cls ? 'مفعّل — انقري للإلغاء' : 'خط كبير وملء الشاشة', cls) +
-      op('install', '⬇️', inst ? 'مثبّتة كتطبيق ✓' : 'تثبيت كتطبيق', 'أيقونة على الشاشة الرئيسية', inst) + '</div>' +
-      '<h4>العمل دون إنترنت</h4><div class="grid">' +
+    shade.innerHTML = '<div id="abr-sheet" role="dialog" aria-label="العمل دون إنترنت"><button class="x" aria-label="إغلاق">✕</button>' +
+      '<h3>العمل دون إنترنت</h3><p class="sub">احفظي المنصة على هذا الجهاز لتعمل في الفصل دون إنترنت.</p>' +
+      '<div class="grid">' +
       op('light', '📶', 'حفظ الصفحات والصور', 'خفيف — مناسب للهاتف') + op('full', '🗂️', 'حفظ كل الملفات والعروض', 'يشمل العروض وملفات PDF (حجم كبير)') + '</div>' +
       '<div class="stat">' + (off ? 'آخر حفظ: ' + off : 'لم يتم الحفظ بعد — احفظي مرة واحدة في البيت قبل الذهاب إلى الفصل') + ' • ' + (navigator.onLine ? '🟢 متّصل' : '🔴 دون إنترنت') + '</div></div>';
     shade.querySelector('.x').onclick = closeSheet;
@@ -171,12 +166,12 @@
   window.abrOpenDisplay = openSheet;
 
   /* ---------- زر في القائمة الجانبية (أو زر عائم إن لم توجد) ---------- */
-  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="10" rx="1.5"></rect><path d="M6 18h6"></path><rect x="17" y="8" width="5" height="12" rx="1"></rect></svg>';
+  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1 .5 7.97"></path><path d="M12 12v8M9 17l3 3 3-3"></path></svg>';
   function injectNav() {
     var foot = document.querySelector('.sidenav .sn-foot');
     if (!foot || foot.querySelector('#abr-sn')) return !!foot;
-    var a = document.createElement('a'); a.className = 'sn'; a.id = 'abr-sn'; a.href = '#'; a.title = 'خيارات العرض'; a.setAttribute('role', 'button');
-    a.innerHTML = '<span class="si" style="--sc:#2F6FB3">' + ICON + '</span><span class="st">خيارات العرض</span>';
+    var a = document.createElement('a'); a.className = 'sn'; a.id = 'abr-sn'; a.href = '#'; a.title = 'العمل دون إنترنت'; a.setAttribute('role', 'button');
+    a.innerHTML = '<span class="si" style="--sc:#2F6FB3">' + ICON + '</span><span class="st">دون إنترنت</span>';
     a.addEventListener('click', function (e) { e.preventDefault(); document.body.classList.remove('sn-open'); openSheet(); });
     foot.insertBefore(a, foot.firstChild);
     var t = document.createElement('a'); t.className = 'sn'; t.id = 'abr-td'; t.href = 'tahdeer.html'; t.title = 'دفتر التحضير';
@@ -192,7 +187,7 @@
       var ok = injectNav();
       if (ok && fab) { fab.remove(); fab = null; }
       if (!ok && !fab && !document.querySelector('.sidenav')) {
-        fab = document.createElement('button'); fab.id = 'abr-fab'; fab.title = 'خيارات العرض'; fab.setAttribute('aria-label', 'خيارات العرض'); fab.textContent = '📱';
+        fab = document.createElement('button'); fab.id = 'abr-fab'; fab.title = 'العمل دون إنترنت'; fab.setAttribute('aria-label', 'العمل دون إنترنت'); fab.textContent = '📶';
         fab.onclick = openSheet; document.body.appendChild(fab);
       }
     }
