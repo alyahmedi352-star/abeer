@@ -1,4 +1,4 @@
-/* منصة أ. عبير — خدمة العمل دون إنترنت (الإصدار 3) */
+/* منصة أ. عبير — خدمة العمل دون إنترنت (الإصدار 4: حفظ تلقائي خفيف للطلبة) */
 const C = 'abeer-v4';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'devices.js'];
 const SKIP = /(firestore\.googleapis\.com|firebaseio\.com|firebasestorage|identitytoolkit|securetoken|googleapis\.com\/identity|google-analytics|googletagmanager|api\.github\.com)/;
@@ -29,11 +29,12 @@ self.addEventListener('fetch', e => {
 self.addEventListener('message', e => {
   const d = e.data || {}; if (d.type !== 'abr-precache') return;
   const urls = d.urls || []; let ok = 0, fail = 0, i = 0;
-  const tell = msg => self.clients.matchAll().then(cl => cl.forEach(x => x.postMessage(msg)));
+  const silent = !!d.silent;
+  const tell = msg => self.clients.matchAll().then(cl => cl.forEach(x => x.postMessage(Object.assign({ silent }, msg))));
   e.waitUntil(caches.open(C).then(c => {
     const worker = () => { if (i >= urls.length) return Promise.resolve(); const u = urls[i++];
-      return fetch(u, { cache: 'no-cache' }).then(res => { if (res.ok) { ok++; return c.put(u, res); } fail++; }).catch(() => { fail++; })
-        .then(() => { if ((ok + fail) % 5 === 0) tell({ type: 'abr-precache-progress', done: ok + fail, total: urls.length }); return worker(); }); };
-    return Promise.all([worker(), worker(), worker(), worker()]);
+      return (silent ? c.match(u).then(m => m ? (ok++, null) : fetch(u, { cache: 'no-cache' })) : fetch(u, { cache: 'no-cache' })).then(res => { if (!res) return; if (res.ok) { ok++; return c.put(u, res); } fail++; }).catch(() => { fail++; })
+        .then(() => { if (!silent && (ok + fail) % 5 === 0) tell({ type: 'abr-precache-progress', done: ok + fail, total: urls.length }); return worker(); }); };
+    return Promise.all(silent ? [worker(), worker()] : [worker(), worker(), worker(), worker()]);
   }).then(() => tell({ type: 'abr-precache-done', ok, fail, full: d.full })));
 });

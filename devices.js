@@ -120,6 +120,7 @@
   }
   if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', function (e) {
     var d = e.data || {};
+    if (d.silent) { if (d.type === 'abr-precache-done') { LS.set('abr-auto', String(Date.now())); if (!LS.get('abr-offline')) LS.set('abr-offline', new Date().toLocaleDateString('ar-OM') + ' (تلقائي)'); } return; }
     if (d.type === 'abr-precache-progress') toast('جاري الحفظ: ' + d.done + ' من ' + d.total + '…', 0);
     if (d.type === 'abr-precache-done') {
       var when = new Date().toLocaleDateString('ar-OM');
@@ -181,6 +182,38 @@
     r.innerHTML = '<span class="si" style="--sc:#8E44AD"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></span><span class="st">التقرير الشهري</span>';
     foot.insertBefore(r, t); return true;
   }
+  /* ---------- حفظ تلقائي خفيف لكل زائر (الطلبة وأولياء الأمور) ---------- */
+  var LIGHT = /\.(html?|js|css|json|png|jpe?g|webp|gif|svg|ico|woff2?)$/i, MAXF = 3 * 1048576, WEEK = 7 * 864e5;
+  function pageUrls() {
+    var b = base(), set = {}, add = function (u) {
+      try { var x = new URL(u, b); if (x.origin !== location.origin) return; x.hash = ''; var p = x.href;
+        if (p.indexOf(b) === 0 && (p === b || LIGHT.test(x.pathname)) && !SKIPF.test(x.pathname)) set[p] = 1; } catch (e) {}
+    };
+    add(b);
+    document.querySelectorAll('a[href],img[src],link[href],script[src]').forEach(function (el) { add(el.getAttribute('href') || el.getAttribute('src')); });
+    try { (typeof S !== 'undefined' && S.items || []).forEach(function (it) {
+      JSON.stringify(it).replace(/"([^"]{3,300})"/g, function (_, v) { if (/^(\.?\/|[\w\-%]+\/|[\w\-%]+\.)[^\s]*$/.test(v) || v.indexOf(location.origin) === 0) add(v); return _; }); }); } catch (e) {}
+    return Object.keys(set);
+  }
+  function autoSave() {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller || !navigator.onLine) return;
+    var c = navigator.connection; if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
+    var last = +LS.get('abr-auto') || 0; if (Date.now() - last < WEEK) return;
+    var b = base();
+    listFiles().then(function (files) {
+      return files.filter(function (f) { return !SKIPF.test(f.p) && !HEAVY.test(f.p) && LIGHT.test(f.p) && (f.s || 0) <= MAXF; })
+        .map(function (f) { return b + f.p.split('/').map(encodeURIComponent).join('/'); });
+    }).catch(function () { return []; }).then(function (urls) {
+      var all = {}; [b].concat(urls, pageUrls()).forEach(function (u) { all[u] = 1; });
+      navigator.serviceWorker.controller.postMessage({ type: 'abr-precache', urls: Object.keys(all), full: false, silent: true });
+    });
+  }
+  function scheduleAuto() {
+    var go = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 50); })(autoSave); };
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) setTimeout(go, 12000);
+    else if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('controllerchange', function () { setTimeout(go, 12000); }, { once: true });
+  }
+
   function boot() {
     var fab = null;
     function check() {
@@ -196,6 +229,7 @@
     setTimeout(check, 1500);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  if (location.protocol !== 'file:') scheduleAuto();
   window.addEventListener('online', function () { toast('عاد الاتصال بالإنترنت ✓'); });
   window.addEventListener('offline', function () { toast('لا يوجد إنترنت — المنصة تعمل من النسخة المحفوظة'); });
 })();

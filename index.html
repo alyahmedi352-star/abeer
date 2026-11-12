@@ -1987,6 +1987,22 @@ setTimeout(loadLikes,1500);
 .ub-tile>*:not(.ub-scene){position:relative;z-index:1}
 .ub-tile .ub-scene{opacity:.42;-webkit-mask-image:linear-gradient(to left,transparent 42%,#000 88%);mask-image:linear-gradient(to left,transparent 42%,#000 88%);--s-line:color-mix(in srgb,var(--gold) 55%,transparent);--s-glow:var(--gold-2);--s-soft:rgba(255,255,255,.55);--s-f1:var(--gold);--s-f2:var(--gold-2);--s-f3:color-mix(in srgb,var(--brand-2) 45%,#fff);--s-f4:#fff}
 .ub-tile:hover .ub-scene{opacity:.75;transition:opacity .3s}
+/* ترتيب محتوى الأقسام: لوحات للوحدات بدل الخطوط والمساحات الفارغة */
+.ug-grade{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;margin:26px 0 14px;padding:12px 18px;border-radius:18px;color:#fff;background:linear-gradient(120deg,var(--brand-2),var(--brand));box-shadow:0 8px 20px rgba(23,63,85,.14)}
+.ug-grade:first-child{margin-top:8px}
+.ug-grade .b{width:42px;height:42px;border-radius:13px;background:var(--gold);color:#2A1C05;display:grid;place-items:center;font-weight:900;font-size:1.25rem;flex:0 0 auto}
+.ug-grade h2{margin:0;font-size:1.3rem;font-weight:900;color:#fff}
+.ug-grade small{margin-inline-start:auto;background:rgba(255,255,255,.16);border-radius:99px;padding:3px 12px;font-weight:800;font-size:.85rem;white-space:nowrap}
+.ug-units{display:flex;flex-wrap:wrap;gap:18px;align-items:stretch}
+.ug-unit{flex:var(--n,1) 1 calc(var(--n,1) * 280px);min-width:min(100%,280px);max-width:calc(var(--n,1) * 400px + (var(--n,1) - 1) * 16px + 30px);background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.ug-head{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:10px;min-height:74px;padding:12px 16px;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-2));--s-line:color-mix(in srgb,var(--gold) 50%,transparent);--s-glow:var(--gold-2);--s-soft:rgba(255,255,255,.5);--s-f1:var(--gold);--s-f2:var(--gold-2);--s-f3:color-mix(in srgb,var(--brand-2) 45%,#fff);--s-f4:#fff}
+.ug-head>*:not(.ub-scene){position:relative;z-index:1}
+.ug-head .ub-scene{opacity:.7;-webkit-mask-image:linear-gradient(to left,transparent 35%,#000 85%);mask-image:linear-gradient(to left,transparent 35%,#000 85%)}
+.ug-head .k{display:block;font-size:.78rem;font-weight:800;color:var(--gold-2)}
+.ug-head b{display:block;font-size:1.15rem;font-weight:900;line-height:1.3}
+.ug-head .c{margin-inline-start:auto;background:var(--gold);color:#2A1C05;border-radius:99px;padding:2px 11px;font-weight:900;font-size:.82rem;white-space:nowrap}
+.ug-body{padding:14px;flex:1}
+.ug-body .grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .ub-paused .ub-scene *,.ub-scene.ub-off *{animation-play-state:paused!important}
 @media (max-width:640px){.ub-hero{padding-inline-end:24px;padding-bottom:52px}.ub-hero .ub-scene{-webkit-mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%);mask-image:linear-gradient(to left,transparent 15%,rgba(0,0,0,.5) 85%)}}
 @media print{.ub-scene,.ub-toggle{display:none!important}.ub-hero{background:none;color:inherit}}
@@ -2228,6 +2244,27 @@ function decorateTiles(){
 (function(){ const v=document.getElementById('view'); if(!v||!('MutationObserver' in window)) return;
   let q=0; new MutationObserver(()=>{ if(q) return; q=requestAnimationFrame(()=>{q=0; try{decorateTiles()}catch(e){}}) }).observe(v,{childList:true});
   try{decorateTiles()}catch(e){} })();
+
+/* أقسام المنصة: كل وحدة في لوحة بترويسة متحركة، والوحدات تتجاور لتملأ المساحة */
+if(typeof window.groupHtml==='function'){
+  const ORD=['','الأولى','الثانية','الثالثة','الرابعة'], GN={'الصف الأول':'١','الصف الثاني':'٢','الصف الثالث':'٣','الصف الرابع':'٤'};
+  const GK={'الصف الأول':'g1','الصف الثالث':'g3'};
+  const panel=(title,kick,list,scene)=>`<section class="ug-unit" style="--n:${Math.min(list.length,3)}"><div class="ug-head">${scene}<div><span class="k">${kick}</span><b>${esc(title)}</b></div><span class="c">${list.length} ${list.length===1?'عنصر':list.length===2?'عنصران':'عناصر'}</span></div><div class="ug-body">${cardsHtml(list)}</div></section>`;
+  window.groupHtml=function(items){
+    const real=['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع'];
+    const gs=S.grade==='all'?real:[S.grade]; let h='';
+    for(const g of gs){ const l=items.filter(i=>i.grade===g); if(!l.length) continue;
+      const units=[]; for(let u=1;u<=4;u++){ const ul=l.filter(i=>i.u===u); if(ul.length) units.push([u,ul]) }
+      const rest=l.filter(i=>!(i.u>=1&&i.u<=4));
+      if(S.grade==='all') h+=`<div class="ug-grade"><span class="b">${GN[g]||'•'}</span><h2>${g}</h2><small>${l.length} ${l.length===1?'عنصر':'عناصر'}</small></div>`;
+      h+='<div class="ug-units">'+units.map(([u,ul])=>{ const k=(MAP[GK[g]]||{})[u]; const nm=unitName(g,u), kk='الوحدة '+ORD[u]; return panel(nm,nm===kk?g:kk,ul,k?scene(k):SEC.generic()) }).join('')
+        +(rest.length?panel('عام',g,rest,SEC.generic()):'')+'</div>';
+    }
+    const common=items.filter(i=>!real.includes(i.grade));
+    if(common.length) h+=`<div class="ug-grade"><span class="b">★</span><h2>لكل الصفوف</h2><small>${common.length} ${common.length===1?'عنصر':'عناصر'}</small></div><div class="ug-units">${panel('لكل الصفوف','عام',common,SEC.generic())}</div>`;
+    return h;
+  };
+}
 let lastLs=null;
 const _hr=window.hubRoute;
 if(typeof _hr==='function'){ window.hubRoute=function(v){ const r=_hr(v); if(r){ try{decorate(v)}catch(e){console.warn(e)} } return r }; }
