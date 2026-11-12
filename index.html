@@ -1751,6 +1751,7 @@ function checkNew(){ const was=(()=>{try{return JSON.parse(LSg('abeer.badges.see
   if(!nb.length) return; LSs('abeer.badges.seen',JSON.stringify(now)); const b=[...UNITB,...GEN].find(x=>x.id===nb[0]); if(!b) return;
   const d=document.createElement('div'); d.className='bag-pop'; d.innerHTML=`<div class="in" role="dialog" aria-label="شارة جديدة">${medal(b,true,130)}<div style="font-weight:800;color:#B07A2A">🎉 مبروك! حصلت على شارة جديدة</div><h2>${b.t}</h2><p style="margin:0 0 12px;color:var(--muted);font-weight:700">${b.d}</p><div style="display:flex;gap:8px;justify-content:center"><a class="btn gold" href="#bag" onclick="this.closest('.bag-pop').remove()">🎒 افتح حقيبتي</a><button class="btn ghost" onclick="this.closest('.bag-pop').remove()">رائع!</button></div></div>`;
   d.addEventListener('click',e=>{ if(e.target===d) d.remove() }); document.body.appendChild(d); try{ sfx.ok() }catch(e){} try{ if(typeof confetti==='function') confetti() }catch(e){} }
+window.__bag={GEN,UNITB,stat,earnedList,unitState,medal};
 window.bagCheckNew=checkNew;
 const _hr=window.hubRoute; window.hubRoute=function(v){ if(v==='bag'){ bag(); return true } const r=_hr(v); if(r&&role()==='viewer') setTimeout(checkNew,400); return r; };
 const _he=window.hubEntry; window.hubEntry=()=>_he().replace('</div>$','')+'';
@@ -1827,14 +1828,101 @@ window.wkAns=function(btn,ok){ if(LSg('abeer.wk.'+WEEK)) return; LSs('abeer.wk.'
 /* --- parent report --- */
 const HWU={g1u1:['l11','l12','l13','l14','l15','l16'],g1u2:['l21','l22','l23','l24','l25','l26'],g1u3:['l31','l32','l33','l34'],g3u1:['t11','t12','t13'],g3u2:['t21','t22','t23'],g3u3:['t31','t32','t33','t34','t35']};
 const HWN={l11:'الحاسوب في حياتنا',l12:'أجزاء جهاز الحاسوب',l13:'سطح المكتب',l14:'انقر واكتب',l15:'دعنا نتذكّر',l16:'لنطبّق معًا',l21:'مقدمة إلى الرسم الرقمي',l22:'رسم الأشكال',l23:'لنتدرّب على الأشكال',l24:'دمج الأشكال',l25:'لنتدرّب على دمج الأشكال',l26:'الرسم الحر',l31:'الإنترنت',l32:'استمتع',l33:'تواصل',l34:'ابحث',t11:'أجهزة التفاعل مع الحاسوب',t12:'تنظيم الملفات والمجلدات',t13:'أجهزة الطباعة والالتقاط',t21:'تنسيق النص',t22:'إدراج وتنسيق صورة',t23:'إنشاء القوائم',t31:'الأمان عبر الإنترنت',t32:'البحث عن المعلومات',t33:'أخلاقيات الإنترنت',t34:'العثور على المعلومات',t35:'البحث في موسوعة ويكيبيديا'};
-function report(){ const gs=myG(); const g=GN[gs]; const name=LSg('abeer.name')||''; const units=Object.keys(HWU).filter(k=>k.startsWith(gs));
-  const rows=units.map(uk=>{ const u=+uk.slice(-1); const un=(()=>{try{return unitName(g,u)}catch(e){return ''}})()||('الوحدة '+u); const ks=HWU[uk]; const d=ks.filter(k=>LSg('abeer.hw.'+k));
-    return `<h3 style="color:#225C78;margin:14px 0 4px">${esc(un)} <small style="color:#5E7079">· أنجز ${d.length} من ${ks.length} واجبات${LSg('abeer.hv.'+uk)?' · الحصاد: '+esc(LSg('abeer.hv.'+uk)):''}</small></h3>
-    <table><tr><th>الدرس</th><th>الواجب</th></tr>${ks.map(k=>`<tr><td>${esc(HWN[k]||k)}</td><td>${LSg('abeer.hw.'+k)?'✅ '+esc(LSg('abeer.hw.'+k)):'—'}</td></tr>`).join('')}</table>`}).join('');
-  $('#view').innerHTML=`<div class="hb"><div class="hb-gr noprint"><a href="#bag">← حقيبة إنجازاتي</a><a href="#" onclick="print();return false">🖨️ طباعة</a></div>
-   <div class="rp"><div style="font-weight:800;color:#5E7079">منصة أ. عبير اليحمدية · تقنية المعلومات</div><h1>📄 تقرير ولي الأمر</h1>
-   <p style="font-weight:800;margin:6px 0">الطالب/ة: <span style="color:#B07A2A">${esc(name||'—')}</span> · ${g} · ${new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'})}</p>
-   <p style="margin:0;color:#5E7079;font-weight:700">يعرض هذا التقرير ما أنجزه طفلكم على هذا الجهاز. شكرًا لمتابعتكم 🌷</p>${rows}</div></div>`; return true; }
+const RPCSS=`
+.rp.rp2{background:transparent;border:0;padding:0;max-width:900px;width:100%;color:#1C2A31}
+.rp2 .sheet{background:#fff;border-radius:26px;box-shadow:0 14px 36px rgba(23,63,85,.12);overflow:hidden}
+.rp2 .top{position:relative;overflow:hidden;color:#fff;background:radial-gradient(120% 140% at 85% 10%,var(--brand-2),var(--brand) 50%,var(--brand-3));padding:24px 26px 28px}
+.rp2 .top::before{content:"";position:absolute;inset:0;opacity:.08;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.2'%3E%3Crect x='24' y='24' width='36' height='36'/%3E%3Crect x='24' y='24' width='36' height='36' transform='rotate(45 42 42)'/%3E%3Ccircle cx='42' cy='42' r='8'/%3E%3C/g%3E%3C/svg%3E")}
+.rp2 .top>*{position:relative}
+.rp2 .bl{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:800;font-size:.85rem;color:var(--gold-2)}
+.rp2 .who{display:flex;align-items:center;gap:20px;margin-top:14px;flex-wrap:wrap}
+.rp2 .ring{position:relative;width:132px;height:132px;flex:0 0 auto}
+.rp2 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.rp2 .ring .bgc{fill:none;stroke:rgba(255,255,255,.16);stroke-width:12}
+.rp2 .ring .fgc{fill:none;stroke:var(--gold);stroke-width:12;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:rpfill 1.4s ease-out .3s forwards}
+@keyframes rpfill{to{stroke-dashoffset:var(--off)}}
+.rp2 .ring b{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-weight:900;font-size:2rem;line-height:1;color:#fff}
+.rp2 .ring b small{display:block;font-size:.72rem;font-weight:800;color:var(--gold-2);margin-top:4px}
+.rp2 .who h1{margin:0;font-weight:900;font-size:clamp(1.5rem,4vw,2.2rem);color:#fff}
+.rp2 .nm{font-size:1.25rem;font-weight:800}.rp2 .nm span{color:var(--gold-2)}
+.rp2 .meta{opacity:.85;font-weight:700;font-size:.92rem}
+.rp2 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.rp2 .kpi{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:10px;text-align:center}
+.rp2 .kpi b{display:block;font-size:1.7rem;font-weight:900;color:var(--gold-2);line-height:1.2}
+.rp2 .kpi small{font-weight:700;font-size:.82rem}
+.rp2 .bd0{padding:22px 24px 26px;display:flex;flex-direction:column;gap:18px}
+.rp2 .cheer{display:flex;gap:14px;align-items:center;background:#FFF6E3;border:1px solid #EBD3A0;border-radius:18px;padding:14px 16px;color:#5B3F0C}
+.rp2 .cheer .e{font-size:2.2rem;line-height:1}.rp2 .cheer b{display:block;font-size:1.1rem;color:#6B4B10}
+.rp2 h2{margin:4px 0 0;font-weight:900;color:#173F55;font-size:1.3rem;display:flex;align-items:center;gap:10px}
+.rp2 h2::after{content:"";flex:1;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#F2CF8A)}
+.rp2 .unit{border:1px solid #D6E2E4;border-radius:20px;overflow:hidden;break-inside:avoid}
+.rp2 .uh{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff}
+.rp2 .uh .n{width:40px;height:40px;border-radius:12px;background:var(--gold);color:#2A1C05;display:grid;place-items:center;font-weight:900;font-size:1.1rem;flex:0 0 auto}
+.rp2 .uh b{display:block;font-size:1.12rem;font-weight:900}.rp2 .uh small{color:var(--gold-2);font-weight:700}
+.rp2 .uh .st{margin-inline-start:auto;font-weight:900;font-size:.85rem;border-radius:99px;padding:3px 12px;white-space:nowrap}
+.rp2 .st.done{background:#DFF3E7;color:#1F6B42}.rp2 .st.go{background:#FFF1D2;color:#7A5410}.rp2 .st.new{background:rgba(255,255,255,.18);color:#fff}
+.rp2 .ub{padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start}
+.rp2 .prog{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-weight:800;font-size:.9rem;color:#5E7079}
+.rp2 .prog .t{flex:1;height:12px;border-radius:99px;background:#E4EDEE;overflow:hidden}
+.rp2 .prog .t i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#D9A64E,#F2CF8A);animation:rpgrow 1.2s ease-out .4s forwards}
+@keyframes rpgrow{to{width:var(--w)}}
+.rp2 .ls{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.rp2 .ls li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#EEF3F4;font-weight:700;font-size:.92rem}
+.rp2 .ls li .i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;flex:0 0 auto;background:#fff;border:2px dashed #C9D3D8;color:#9AA8AF}
+.rp2 .ls li.d .i{background:#2F8A57;border:0;color:#fff}
+.rp2 .ls li .sc{margin-inline-start:auto;font-size:.8rem;font-weight:900;color:#173F55;white-space:nowrap}
+.rp2 .ls li .sc em{font-style:normal;color:#D9A64E}.rp2 .ls li.p{color:#5E7079}
+.rp2 .side{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:120px;text-align:center}
+.rp2 .side .hv{background:#EEF3F4;border-radius:14px;padding:8px 10px;font-weight:800;font-size:.82rem;width:100%}
+.rp2 .side .hv b{display:block;font-size:1.3rem;color:#173F55}
+.rp2 .side small{font-weight:800;color:#5E7079;font-size:.78rem}
+.rp2 .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.rp2 .bdg{text-align:center;padding:10px 6px;border-radius:16px;background:#EEF3F4;font-weight:800;font-size:.85rem}
+.rp2 .bdg.off{opacity:.55}
+.rp2 .wk{display:flex;gap:12px;align-items:center;border:1px dashed #D9A64E;border-radius:16px;padding:12px 14px;font-weight:700}
+.rp2 .wk .e{font-size:1.8rem}
+.rp2 .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end;border-top:2px dashed #D6E2E4;padding-top:14px;color:#5E7079;font-weight:700;font-size:.88rem}
+.rp2 .sign{text-align:center;color:#173F55;font-weight:900}.rp2 .sign i{display:block;width:150px;height:2px;background:#D6E2E4;margin:22px auto 4px}
+@media (max-width:620px){.rp2 .kpis{grid-template-columns:repeat(2,1fr)}.rp2 .ub{grid-template-columns:1fr}.rp2 .side{flex-direction:row;flex-wrap:wrap;justify-content:center}}
+@media print{.rp2 *{-webkit-print-color-adjust:exact;print-color-adjust:exact;animation:none!important}.rp2 .ring .fgc{stroke-dashoffset:var(--off)}.rp2 .prog .t i{width:var(--w)}.rp2 .sheet{box-shadow:none}}`;
+function report(){
+  if(!document.getElementById('rp2css')) document.head.insertAdjacentHTML('beforeend','<style id="rp2css">'+RPCSS+'</style>');
+  const AR=n=>Number(n).toLocaleString('ar-EG'), ORD=['','الأولى','الثانية','الثالثة','الرابعة'];
+  const name=LSg('abeer.name')||'';
+  const mg=(S.member&&S.member.group)||'';
+  let gks=/الثالث/.test(mg)?['g3']:/الأول/.test(mg)?['g1']:['g1','g3'].filter(g=>Object.keys(HWU).some(uk=>uk.startsWith(g)&&(HWU[uk].some(k=>LSg('abeer.hw.'+k))||LSg('abeer.hv.'+uk))));
+  if(!gks.length) gks=[myG()];
+  const sc=v=>{const m=String(v||'').match(/(\d+)\D+(\d+)/);return m?[+m[1],+m[2]]:null};
+  const stars=v=>{const x=sc(v);if(!x)return'';const p=x[0]/x[1];const n=p>=.9?3:p>=.6?2:1;return '★'.repeat(n)+'☆'.repeat(3-n)};
+  const B=window.__bag; let medal=null, ubOf=()=>null, gen=[], earned=[];
+  try{ if(B){ medal=B.medal; const s=B.stat(); earned=B.earnedList(); gen=B.GEN.map(b=>[b,b.ok(s)]); ubOf=(g,u)=>B.UNITB.find(b=>b.g===GN[g]&&(b.u===u||(b.id&&String(b.id).endsWith(String(u)))))||null } }catch(e){}
+  let tot=0,done=0,hv=0;
+  const units=[]; gks.forEach(g=>Object.keys(HWU).filter(k=>k.startsWith(g)).forEach(uk=>{ const u=+uk.slice(-1); const ks=HWU[uk];
+    const d=ks.filter(k=>LSg('abeer.hw.'+k)).length; tot+=ks.length; done+=d; const h=LSg('abeer.hv.'+uk); if(h) hv++;
+    const un=(()=>{try{return unitName(GN[g],u)}catch(e){return ''}})()||('الوحدة '+ORD[u]); units.push({g,u,uk,ks,d,h,un}) }));
+  const pct=tot?Math.round(done/tot*100):0;
+  const starsN=(typeof S.stars==='number'?S.stars:0);
+  const cheer=pct>=80?['🌟','أداء رائع!','يسير طفلكم بخطى ممتازة، شكرًا لمتابعتكم وتشجيعكم.']:pct>=40?['💪','تقدّم جميل ومستمر','أنجز طفلكم جزءًا جيدًا من الواجبات، وتشجيعكم سيساعده على إكمال البقية.']:['🌱','بداية الرحلة','ما زالت الواجبات في بدايتها، نرجو تشجيع طفلكم على حلّ واجب كل درس بعد الحصة.'];
+  const wk=LSg('abeer.wk.'+WEEK);
+  const unitHtml=x=>{ const t=x.ks.length, full=x.d===t, st=full?['done','✓ مكتملة']:x.d?['go','قيد الإنجاز']:['new','لم تبدأ'], w=Math.round(x.d/t*100), ub=ubOf(x.g,x.u);
+    return `<section class="unit"><div class="uh"><span class="n">${AR(x.u)}</span><div><small>${gks.length>1?GN[x.g]+' · ':''}الوحدة ${ORD[x.u]}</small><b>${esc(x.un)}</b></div><span class="st ${st[0]}">${st[1]}</span></div>
+    <div class="ub"><div class="prog"><span>${AR(x.d)} من ${AR(t)} واجبات</span><span class="t"><i style="--w:${w}%"></i></span><span>${AR(w)}٪</span></div>
+    <ul class="ls">${x.ks.map(k=>{const v=LSg('abeer.hw.'+k);return `<li class="${v?'d':'p'}"><span class="i">${v?'✓':''}</span>${esc(HWN[k]||k)}<span class="sc">${v?`${esc(String(v).replace('/',' من '))} <em>${stars(v)}</em>`:'لم يُحل بعد'}</span></li>`}).join('')}</ul>
+    <div class="side"><div class="hv">🌾 الحصاد${x.h?`<b>${esc(String(x.h).replace('/',' من '))}</b>`:'<b style="color:#9AA8AF;font-size:1rem">لم يُؤدَّ</b>'}</div>${ub&&medal?medal(ub,full,74):''}<small>${full?'شارة الوحدة 🏅':'شارة الوحدة مقفلة'}</small></div></div></section>`};
+  $('#view').innerHTML=`<div class="hb"><div class="hb-gr noprint"><a href="#bag">← حقيبة إنجازاتي</a><a href="#" onclick="print();return false">🖨️ طباعة أو حفظ PDF</a></div>
+  <div class="rp rp2"><article class="sheet">
+   <header class="top"><div class="bl"><span>منصة أ. عبير اليحمدية · تقنية المعلومات</span><span>مدرسة مزن المعرفة (١–٤)</span></div>
+    <div class="who"><div class="ring" style="--off:${100-pct}"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52"/><circle class="fgc" cx="60" cy="60" r="52" pathLength="100"/></svg><b>${AR(pct)}٪<small>نسبة الإنجاز</small></b></div>
+    <div><h1>📄 تقرير متابعة الطالب</h1><div class="nm">الطالب/ة: <span>${esc(name||'—')}</span></div><div class="meta">${gks.map(g=>GN[g]).join(' و')} · ${new Date().toLocaleDateString('ar-OM',{day:'numeric',month:'long',year:'numeric'})}</div></div></div>
+    <div class="kpis"><div class="kpi"><b>${AR(done)}<small style="font-size:.9rem;color:#fff"> / ${AR(tot)}</small></b><small>واجبات منجزة</small></div><div class="kpi"><b>${AR(hv)}</b><small>حصاد وحدات</small></div><div class="kpi"><b>${AR(earned.length)}</b><small>شارات</small></div><div class="kpi"><b>★ ${AR(starsN)}</b><small>نجمة</small></div></div>
+   </header>
+   <div class="bd0">
+    <div class="cheer"><span class="e">${cheer[0]}</span><div><b>${cheer[1]}</b>${cheer[2]}</div></div>
+    <h2>الوحدات الدراسية</h2>${units.map(unitHtml).join('')}
+    ${gen.length&&medal?`<h2>الشارات</h2><div class="badges">${gen.map(([b,on])=>`<div class="bdg ${on?'':'off'}">${medal(b,on,64)}<div>${esc(b.t)}</div></div>`).join('')}</div>`:''}
+    <div class="wk"><span class="e">${wk==='ok'?'🏆':'⏳'}</span><div><b>تحدّي الأسبوع:</b> ${wk==='ok'?'أجاب طفلكم إجابة صحيحة هذا الأسبوع 👏':wk?'حاول طفلكم الإجابة هذا الأسبوع، وسيجرّب مجددًا في التحدي القادم':'لم تتم الإجابة عن تحدّي هذا الأسبوع بعد'}</div></div>
+    <div class="foot"><span>يعرض هذا التقرير ما أنجزه طفلكم على هذا الجهاز.<br>شكرًا لمتابعتكم واهتمامكم 🌷</span><div class="sign"><i></i>أ. عبير صالح اليحمدية</div></div>
+   </div></article></div></div>`; return true; }
 /* --- routes --- */
 const _hr=window.hubRoute; window.hubRoute=function(v){ if(v.startsWith('words/')) return words(v.slice(6)); if(v==='report') return report(); const r=_hr(v); setTimeout(owlGuide,900); return r; };
 const _he=window.hubEntry; window.hubEntry=()=>_he()+weekHtml();
