@@ -2264,15 +2264,36 @@ presentations:()=>{const c='uc'+(++uid);return svg(`<defs><clipPath id="${c}"><r
 <g class="bob"><rect class="s-soft" x="320" y="60" width="64" height="40" rx="6" stroke-width="2"/><rect class="f2" x="332" y="72" width="40" height="6" rx="3"/></g>
 <g class="bob" style="animation-delay:-3s"><rect class="s-soft" x="340" y="118" width="54" height="34" rx="6" stroke-width="2"/><rect class="f4" x="352" y="128" width="30" height="5" rx="2" opacity=".7"/></g>`)},
 
-/* فيديوهات: شريط فيلم وزر تشغيل */
-videos:()=>{const c='uc'+(++uid);let holes='';for(let x=-30;x<=330;x+=30){holes+=`<rect class="f4" x="${x+8}" y="74" width="12" height="8" rx="2" opacity=".55"/><rect class="f4" x="${x+8}" y="148" width="12" height="8" rx="2" opacity=".55"/>`}
-let frames='';for(let x=-30;x<=330;x+=60){frames+=`<rect class="f3" x="${x+6}" y="90" width="48" height="50" rx="4" opacity=".45"/>`}
-return svg(`<defs><clipPath id="${c}"><rect x="0" y="66" width="300" height="98"/></clipPath></defs>
-<rect class="f4" x="0" y="66" width="300" height="98" fill-opacity=".07"/><path class="s-line" stroke-width="2" d="M0 66H300M0 164H300"/>
-<g clip-path="url(#${c})"><g class="film">${holes}${frames}</g></g>
-<circle class="ring s-glow" cx="370" cy="115" r="34" stroke-width="3"/><circle class="f1" cx="370" cy="115" r="34"/>
-<path d="M360 99L388 115L360 131Z" fill="#2A1C05"/>
-<path class="twk f2" d="${star(430,50,8)}"/>`)},
+/* فيديوهات Ai: روبوت صغير يقدّم الفيديو وشاشة عرض */
+videos:()=>{const c='uc'+(++uid),d='ud'+uid;
+let holes='';for(let x=-60;x<=300;x+=30){holes+=`<rect class="f4" x="${x}" y="166" width="12" height="6" rx="2" opacity=".55"/>`}
+let bits='';[[80,'1',0],[120,'0',-3],[170,'1',-6],[215,'0',-8.5]].forEach(([x,t,dl])=>{bits+=`<text class="letter f2" x="${x}" y="70" font-size="15" style="animation-delay:${dl}s">${t}</text>`});
+return svg(`<defs><clipPath id="${c}"><rect x="54" y="38" width="200" height="114" rx="8"/></clipPath><clipPath id="${d}"><rect x="40" y="160" width="230" height="16"/></clipPath></defs>
+<rect class="f4" x="48" y="32" width="212" height="126" rx="12" fill-opacity=".08"/>
+<rect class="s-glow" x="48" y="32" width="212" height="126" rx="12" stroke-width="3"/>
+<g clip-path="url(#${c})"><rect class="f3" x="54" y="38" width="200" height="114" opacity=".18"/>
+<rect class="f4 glowp" x="54" y="38" width="200" height="4" opacity=".35"/>
+<path class="s-soft draw" pathLength="100" stroke-width="2.5" stroke-linecap="round" d="M70 132L104 104L130 118L166 84L196 100L236 64"/>${bits}</g>
+<circle class="ring s-glow" cx="154" cy="95" r="26" stroke-width="3"/><circle class="ring s-glow" style="animation-delay:-1.3s" cx="154" cy="95" r="26" stroke-width="2"/>
+<circle class="f1" cx="154" cy="95" r="26"/><path d="M146 82L170 95L146 108Z" fill="#2A1C05"/>
+<g clip-path="url(#${d})"><g class="film">${holes}</g></g>
+<path class="s-glow flow" stroke-width="2.5" d="M262 70C285 70 300 60 318 62"/>
+<g class="pop" style="animation-delay:-1s"><rect class="f4" x="276" y="22" width="44" height="28" rx="10" fill-opacity=".9"/><path class="f4" d="M296 50L300 58L304 50Z" opacity=".9"/><path class="f1" d="M292 29L306 36L292 43Z"/></g>
+<g class="bob">
+<path class="s-line" stroke-width="3" stroke-linecap="round" d="M362 52V40"/><circle class="f2 caret" cx="362" cy="37" r="5"/><circle class="ring s-glow" cx="362" cy="37" r="5" stroke-width="2"/>
+<rect class="f4" x="334" y="52" width="56" height="44" rx="14" fill-opacity=".16"/><rect class="s-glow" x="334" y="52" width="56" height="44" rx="14" stroke-width="3"/>
+<rect class="f4" x="328" y="66" width="6" height="14" rx="3"/><rect class="f4" x="390" y="66" width="6" height="14" rx="3"/>
+<circle class="f2 glowp" cx="350" cy="72" r="6"/><circle class="f2 glowp" style="animation-delay:-.4s" cx="374" cy="72" r="6"/>
+<circle fill="#2A1C05" cx="351" cy="72" r="2.4"/><circle fill="#2A1C05" cx="375" cy="72" r="2.4"/>
+<path class="s-glow" stroke-width="2.5" stroke-linecap="round" d="M353 85Q362 91 371 85"/>
+<rect class="f4" x="340" y="100" width="44" height="44" rx="10" fill-opacity=".16"/><rect class="s-glow" x="340" y="100" width="44" height="44" rx="10" stroke-width="3"/>
+<text class="f2 glowp" x="362" y="128" text-anchor="middle" font-family="Tajawal,sans-serif" font-weight="900" font-size="17" direction="ltr">AI</text>
+<g class="swing" style="animation-duration:2.4s"><rect class="f4" x="316" y="102" width="9" height="34" rx="4.5" transform="rotate(30 320 104)"/><circle class="f2" cx="303" cy="132" r="6"/></g>
+<g class="swing" style="animation-delay:-1.2s"><rect class="f4" x="398" y="102" width="9" height="30" rx="4.5"/><circle class="f2" cx="402" cy="136" r="6"/></g>
+<rect class="f4" x="348" y="144" width="10" height="16" rx="4"/><rect class="f4" x="366" y="144" width="10" height="16" rx="4"/></g>
+<rect class="rise f2" x="430" y="120" width="6" height="6" rx="1"/><rect class="rise f4" style="animation-delay:-3s" x="300" y="150" width="5" height="5" rx="1"/><rect class="rise f1" style="animation-delay:-6s" x="420" y="90" width="5" height="5" rx="1"/>
+<path class="twk f2" d="${star(445,46,9)}"/><path class="pop f4" style="animation-delay:-2.2s" d="${star(250,24,6)}"/>
+<path class="twk f1" style="animation-delay:-2.6s" d="${star(436,160,6)}"/><path class="twk f4" style="animation-delay:-3.1s" d="${star(28,60,5)}" opacity=".7"/>`)},
 
 /* الصور التفاعلية: إطارات صور تطفو */
 images:()=>svg([[40,40,0],[150,100,-3],[260,36,-5],[370,104,-7]].map(([x,y,d],i)=>`<g class="tilt" style="animation-delay:${d}s"><rect x="${x}" y="${y}" width="76" height="60" rx="6" class="f4" fill-opacity=".1"/><rect x="${x}" y="${y}" width="76" height="60" rx="6" class="s-soft" stroke-width="2.5"/>
