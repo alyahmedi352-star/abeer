@@ -500,7 +500,7 @@ const SECTIONS=[
  {id:'assessments',t:'الأنشطة التقويمية',c:'#5B5F9E',i:'check',d:'أسئلة قصيرة ونشاطات عملية'},
  {id:'harvest',t:'حصاد الوحدات',c:'#9A7428',i:'layers',d:'مراجعة شاملة لكل وحدة'},
  {id:'assistive',t:'التقنيات المساعدة',c:'#3F6F7F',i:'tool',d:'لوحات وأدوات تعين على التعلّم'},
- {id:'workshops',t:'الورش التدريبية',c:'#2E5E8C',i:'work',d:'ورش لتطوير المهارات الرقمية للمعلمين والطلبة'},
+ {id:'workshops',t:'الورش التدريبية',c:'#2E5E8C',i:'work',d:'ورش لتطوير المهارات الرقمية للمعلمات والمعلمين والمشرفات والمشرفين'},
  {id:'initiatives',t:'المبادرات',c:'#5B5F9E',i:'flag',d:'إثراء رقمي وانضباط رقمي'},
  {id:'students',t:'أعمال الطلبة المتميزين',c:'#B88A2E',i:'star',d:'نفخر بإبداعات طلابنا'}
 ];
@@ -955,7 +955,7 @@ function flyIn(){ bannerBubbles(); document.querySelectorAll('#view .tile,#view 
 
 /* ---------- v6: intros, cheers, live home ---------- */
 const INTRO={"أجزاء الحاسوب": "تعرّف على الشاشة ولوحة المفاتيح والفأرة ووحدة النظام، ووظيفة كل جزء.", "الحاسوب في حياتنا": "اكتشف كيف نستخدم الحاسوب في البيت والمدرسة والعمل.", "سطح المكتب": "تعرّف على الأيقونات وشريط المهام وزر ابدأ في سطح المكتب.", "لنتذكر معًا": "راجع ما تعلّمته في الوحدة بأسئلة سريعة وممتعة.", "لنطبق معًا": "طبّق مهاراتك على الحاسوب خطوة بخطوة.", "انقر واكتب": "تدرّب على النقر بالفأرة والكتابة بلوحة المفاتيح.", "مقدمة إلى الرسم الرقمي": "ارسم بالحاسوب، وتعرّف على البكسل ومزايا الرسم الرقمي.", "رسم الأشكال": "افتح الرسّام وارسم الأشكال ولوّنها ثم احفظ عملك.", "أجهزة الطباعة والالتقاط": "تعرّف على الطابعة والكاميرا والماسح الضوئي واستخداماتها.", "التفاعل مع الحاسوب": "اكتشف أجهزة الإدخال والإخراج وكيف نتواصل مع الحاسوب.", "أجهزة التفاعل مع الحاسوب": "اكتشف أجهزة الإدخال والإخراج وكيف نتواصل مع الحاسوب.", "تنظيم الملفات والمجلدات": "أنشئ المجلدات ورتّب ملفاتك بطريقة صحيحة.", "إدراج الصورة وتنسيقها": "أدرج صورة في مستندك وغيّر حجمها وموضعها.", "إدراج الصور وتنسيقها": "أدرج صورة في مستندك وغيّر حجمها وموضعها.", "تنسيق النص": "غيّر نوع الخط وحجمه ولونه لتجعل نصك أجمل."};
-const SECINTRO={lessons:'دروس تفاعلية تشاهدها وتتفاعل معها، وتجمع بها النجوم.',presentations:'عروض الحصص الصفية بصورها وأنشطتها، جاهزة للمراجعة في أي وقت.',videos:'مقاطع قصيرة مصنوعة بالذكاء الاصطناعي تبسّط الدروس.',images:'بطاقات مصوّرة لكل درس، امسح الرمز أو افتح الرابط وابدأ.',homework:'واجبات ومسابقات ممتعة تختبر فيها ما تعلّمته وتنافس زملاءك.',assessments:'أنشطة قصيرة تقيس تقدّمك وتساعدك على المراجعة.',harvest:'خلاصة كل وحدة في مكان واحد للمراجعة قبل الاختبار.',assistive:'أدوات تساعد على إدارة الصف ومتابعة الطلبة.',workshops:'ورش تدريبية لتطوير المهارات الرقمية.',initiatives:'مبادرات للإثراء الرقمي والاستخدام الآمن للتقنية.',students:'مساحة نفخر فيها بإبداعات طلبتنا.'};
+const SECINTRO={lessons:'دروس تفاعلية تشاهدها وتتفاعل معها، وتجمع بها النجوم.',presentations:'عروض الحصص الصفية بصورها وأنشطتها، جاهزة للمراجعة في أي وقت.',videos:'مقاطع قصيرة مصنوعة بالذكاء الاصطناعي تبسّط الدروس.',images:'بطاقات مصوّرة لكل درس، امسح الرمز أو افتح الرابط وابدأ.',homework:'واجبات ومسابقات ممتعة تختبر فيها ما تعلّمته وتنافس زملاءك.',assessments:'أنشطة قصيرة تقيس تقدّمك وتساعدك على المراجعة.',harvest:'خلاصة كل وحدة في مكان واحد للمراجعة قبل الاختبار.',assistive:'أدوات تساعد على إدارة الصف ومتابعة الطلبة.',workshops:'ورش تدريبية للمعلمات والمعلمين والمشرفات والمشرفين لتطوير المهارات الرقمية.',initiatives:'مبادرات للإثراء الرقمي والاستخدام الآمن للتقنية.',students:'مساحة نفخر فيها بإبداعات طلبتنا.'};
 const SECAUTO={lessons:'درس تفاعلي: شاهد واستكشف ثم أجب عن الأسئلة.',presentations:'عرض الحصة مع صور وأنشطة الدرس.',videos:'مقطع قصير يشرح الدرس بطريقة ممتعة.',images:'بطاقة الدرس المصوّرة مع رابطه التفاعلي.',homework:'مسابقات تفاعلية لكل درس من دروس الوحدة.',assessments:'نشاط قصير لقياس ما تعلّمته.',harvest:'مراجعة شاملة لدروس الوحدة.',assistive:'أداة تساعد على متابعة الطلبة وتنظيم الصف.',workshops:'ورشة تدريبية تفاعلية.',initiatives:'مبادرة لنشر الوعي الرقمي.',students:'عمل مميز من إبداع طلبتنا.'};
 const CHEERS={lessons:['ابدأ الآن واجمع نجمة ★','هيا نتعلّم معًا!','درس ممتع بانتظارك'],homework:['تحدَّ نفسك وفز ★','من الأسرع في الإجابة؟','كل مسابقة نجمة جديدة'],presentations:['راجع الدرس بسهولة','عرض الحصة بين يديك'],videos:['شاهد وتعلّم','دقائق ممتعة من التعلّم'],images:['امسح الرمز وابدأ','صورة تختصر الدرس'],assessments:['أرِنا ما تعلّمت!','قيّم نفسك ★'],harvest:['استعد للاختبار ★','راجع الوحدة كاملة'],assistive:['أداة للمعلمة'],workshops:['طوّر مهاراتك'],initiatives:['كن مواطنًا رقميًا واعيًا'],students:['أبدعت! ★']};
 const introOf=i=>i.desc||INTRO[i.title]||SECAUTO[i.section]||'';
@@ -1346,7 +1346,8 @@ window.renderImport=function(head){ S._impHead=head;
 window.readImport=async function(f){ if(!f) return; let d; try{ d=JSON.parse(await f.text()) }catch(e){ return toast('الملف غير صالح') }
   if(d.app!=='abeer-cards'||!Array.isArray(d.items)) return toast('هذا ليس ملف استيراد بطاقات');
   const key=i=>i.section+'|'+(i.grade||'')+'|'+normT(i.title); const ex={}; S.items.forEach(i=>ex[key(i)]=i.id);
-  S._imp=d.items.map(x=>{ const id=ex[key(x)];
+  const loose=x=>{ const m=S.items.filter(i=>i.section===x.section&&normT(i.title)===normT(x.title)); return m.length===1?m[0].id:null };
+  S._imp=d.items.map(x=>{ const id=ex[key(x)]||(x.op==='update'?loose(x):null);
     if(x.op==='clear') return {...x,title:x.title||'حذف المحتويات السابقة',_clr:1,_on:true};
     if(x.op==='update') return {...x,_upd:1,_id:id||null,_dup:!id,_on:!!id};
     return {...x,_dup:!!id,_on:!id} });
@@ -2430,10 +2431,15 @@ try{ const v=location.hash.slice(1); if(/^(g1|g3|d\/)/.test(v)&&document.querySe
   const WS='workshops';
   const staff=()=>{ try{ return role()!=='viewer'||!!(S.member&&S.member.gid==='tch') }catch(e){ return false } };
   window.wsVisible=staff;
-  document.head.insertAdjacentHTML('beforeend','<style>body.nows a[href="#workshops"]{display:none!important}</style>');
+  document.head.insertAdjacentHTML('beforeend','<style>body.nows a[href="#workshops"]{display:none!important}'+
+   'body.sec-ws #view .grid:not(.list){grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;max-width:880px;margin-inline:auto;column-gap:22px;row-gap:26px}'+
+   'body.sec-ws #view .grid:not(.list) .acts{margin-top:8px}'+
+   'body.sec-ws #view .card .links{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important}'+
+   'body.sec-ws #view .card .links a{display:inline-block!important;width:auto!important;margin:0!important}'+
+   '@media (max-width:640px){body.sec-ws #view .grid:not(.list){grid-template-columns:1fr}}</style>');
   const _r=window.render;
   window.render=function(){
-    const ok=staff(); document.body.classList.toggle('nows',!ok);
+    const ok=staff(); document.body.classList.toggle('nows',!ok); document.body.classList.toggle('sec-ws',location.hash.slice(1)===WS);
     if(ok) return _r.apply(this,arguments);
     if(location.hash.slice(1)===WS) history.replaceState(null,'','#home');
     const all=S.items, sec=SECTIONS.slice(), mine=all.filter(i=>i.section!==WS);
