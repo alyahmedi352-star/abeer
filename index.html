@@ -2424,5 +2424,25 @@ try{ const v=location.hash.slice(1); if(/^(g1|g3|d\/)/.test(v)&&document.querySe
   if(v&&v.querySelector('.live,.hb-entry')){clearInterval(t);setTimeout(show,1200)} else if(tries>240)clearInterval(t)},500);
 })();
 </script>
+<script>
+/* ---- الورش التدريبية: تظهر للمعلمات (رمز المعلمات) والمشرفة وصاحبة المنصة فقط ---- */
+(function(){
+  const WS='workshops';
+  const staff=()=>{ try{ return role()!=='viewer'||!!(S.member&&S.member.gid==='tch') }catch(e){ return false } };
+  window.wsVisible=staff;
+  document.head.insertAdjacentHTML('beforeend','<style>body.nows a[href="#workshops"]{display:none!important}</style>');
+  const _r=window.render;
+  window.render=function(){
+    const ok=staff(); document.body.classList.toggle('nows',!ok);
+    if(ok) return _r.apply(this,arguments);
+    if(location.hash.slice(1)===WS) history.replaceState(null,'','#home');
+    const all=S.items, sec=SECTIONS.slice(), mine=all.filter(i=>i.section!==WS);
+    S.items=mine; const k=SECTIONS.findIndex(x=>x.id===WS); if(k>=0) SECTIONS.splice(k,1);
+    try{ return _r.apply(this,arguments) }
+    finally{ if(k>=0){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
+  };
+  try{ window.render() }catch(e){}
+})();
+</script>
 </body>
 </html>
