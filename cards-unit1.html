@@ -14,7 +14,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"Cairo","Tajawal
 h3{margin:10px 0 4px;font-size:1.05rem;line-height:1.5;font-weight:800}p{margin:0 0 8px;font-size:.92rem;opacity:.85;line-height:1.6}.lk{font-size:.85rem}
 .chip{display:inline-block;margin-top:6px;background:#E9E5F7;color:#2b2350;border-radius:12px;padding:6px 12px;font-weight:800;text-decoration:none;font-size:.92rem}
 </style></head><body>
-<div class="unit"><div><small>الوحدة الأولى</small><h2>حاسوبي</h2></div><div class="dl"><button id="dUp" type="button">⬇️ ملف تحديث الأغلفة</button><button id="dAll" type="button">⬇️ ملف البطاقات كاملة</button></div></div>
+<div class="unit"><div><small>الوحدة الأولى</small><h2>حاسوبي</h2></div><div class="dl"><button id="dUp" type="button">⬇️ ملف تحديث الأغلفة</button><button id="dOld" type="button">⬇️ تحويل القصص القديمة إلى مغامرات</button><button id="dAll" type="button">⬇️ ملف البطاقات كاملة</button></div></div>
 <p id="msg">جارٍ تجهيز الأغلفة بالخط الجديد…</p>
 <div class="grid" id="g"></div>
 <script>
@@ -50,6 +50,7 @@ function save(name,obj){const b=new Blob([JSON.stringify(obj)],{type:'applicatio
   g.insertAdjacentHTML('beforeend',`<article class="card"><div class="cv"><img src="${COV[k]}" alt=""></div><div class="bd"><div class="tags"><span class="t1">الصف الأول</span><span class="t2">حاسوبي</span></div><h3>${it.title}</h3><p>${it.desc}</p><b class="lk">افتح الرابط:</b><br><a class="chip" href="${it.links[0]}" target="_blank" rel="noopener">${it.linkLabels[0]}</a></div></article>`)});
  document.getElementById('msg').textContent='الأغلفة جاهزة بخط المنصة (Baloo Bhaijaan 2 وCairo).';
  document.getElementById('dUp').onclick=()=>save('تحديث_أغلفة_مغامرات_الوحدة_الأولى.json',{app:'abeer-cards',items:DATA.items.map(it=>({op:'update',section:it.section,grade:it.grade,title:it.title,what:'الغلاف',set:{coverData:COV[it.links[0].split('d=')[1]],thumb:''}}))});
+ document.getElementById('dOld').onclick=()=>save('تحويل_قصص_الوحدة_الأولى_إلى_مغامرات.json',{app:'abeer-cards',items:DATA.items.map(it=>({op:'update',section:it.section,grade:it.grade,title:it.title.replace(' — مغامرة تفاعلية',' — قصة تفاعلية'),what:'تحويل إلى مغامرة',set:{title:it.title,desc:it.desc,links:it.links,linkLabels:it.linkLabels,coverData:COV[it.links[0].split('d=')[1]],thumb:''}}))});
  document.getElementById('dAll').onclick=()=>save('بطاقات_مغامرات_الوحدة_الأولى.json',{app:'abeer-cards',items:DATA.items.map(it=>Object.assign({},it,{coverData:COV[it.links[0].split('d=')[1]]}))});
 })();
 </script></body></html>
