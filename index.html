@@ -502,7 +502,8 @@ const SECTIONS=[
  {id:'assistive',t:'التقنيات المساعدة',c:'#3F6F7F',i:'tool',d:'لوحات وأدوات تعين على التعلّم'},
  {id:'workshops',t:'الورش التدريبية',c:'#2E5E8C',i:'work',d:'ورش لتطوير المهارات الرقمية للمعلمات والمعلمين والمشرفات والمشرفين'},
  {id:'initiatives',t:'المبادرات',c:'#5B5F9E',i:'flag',d:'إثراء رقمي وانضباط رقمي'},
- {id:'students',t:'أعمال الطلبة المتميزين',c:'#B88A2E',i:'star',d:'نفخر بإبداعات طلابنا'}
+ {id:'students',t:'أعمال الطلبة المتميزين',c:'#B88A2E',i:'star',d:'نفخر بإبداعات طلابنا'},
+ {id:'creations',t:'بصمات مبدعة',c:'#B8862F',i:'star',d:'إبداعات الطلبة في المناسبات والأعمال الفائزة'}
 ];
 const GRADES=['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع','عام'];
 const GDOT={'الصف الأول':'var(--g1)','الصف الثاني':'var(--g2)','الصف الثالث':'var(--g3)','الصف الرابع':'var(--g4)'};
@@ -2426,26 +2427,173 @@ try{ const v=location.hash.slice(1); if(/^(g1|g3|d\/)/.test(v)&&document.querySe
 })();
 </script>
 <script>
-/* ---- الورش التدريبية: تظهر للمعلمات (رمز المعلمات) والمشرفة وصاحبة المنصة فقط ---- */
+/* ---- الورش للمعلمات فقط · «بصمات مبدعة» لمن يدخل المنصة + شريط المسابقة ---- */
 (function(){
-  const WS='workshops';
+  const WS='workshops', CR='creations';
+  /* ===== إعدادات المسابقات: عدّلي هنا المناسبات والمواعيد ===== */
+  const BM={
+    occ:[
+      {k:'اليوم الوطني',n:'🇴🇲 اليوم الوطني',h:'اليوم الوطني العُماني 56',s:1,task:'عبّر/ي عن حبّك لعُمان الحبيبة',end:'2026-11-22',endT:'الأحد 22 نوفمبر 2026'},
+      {k:'اليوم العالمي للغة العربية',n:'📖 اليوم العالمي للغة العربية',h:'اليوم العالمي للغة العربية',s:1,task:'صمّم/ي عملًا يزيّنه الحرف العربي'},
+      {k:'شهر رمضان المبارك',n:'🌙 شهر رمضان المبارك',h:'شهر رمضان المبارك 🌙',s:2,task:'صمّم/ي مشهدًا رمضانيًا متحركًا'},
+      {k:'عيد الفطر',n:'🍬 عيد الفطر',h:'عيد الفطر السعيد 🎉',s:2,task:'صمّم/ي تهنئة متحركة بالعيد'},
+      {k:'عيد الأضحى',n:'🐑 عيد الأضحى',h:'عيد الأضحى المبارك',s:2,task:'صمّم/ي تهنئة متحركة بعيد الأضحى'}
+    ],
+    prog:{1:{'الصف الأول':'الرسّام','الصف الثالث':'Word'},2:{'الصف الأول':'سكراتش','الصف الثالث':'سكراتش'}},
+    grades:['الصف الأول','الصف الثالث']
+  };
+  window.BM=BM;
+  const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const staff=()=>{ try{ return role()!=='viewer'||!!(S.member&&S.member.gid==='tch') }catch(e){ return false } };
+  const entered=()=>{ try{ return staff()||!!S.member }catch(e){ return false } };
   window.wsVisible=staff;
-  document.head.insertAdjacentHTML('beforeend','<style>body.nows a[href="#workshops"]{display:none!important}'+
-   'body.sec-ws #view .grid:not(.list){grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;max-width:880px;margin-inline:auto;column-gap:22px;row-gap:26px}'+
-   'body.sec-ws #view .grid:not(.list) .acts{margin-top:8px}'+
-   'body.sec-ws #view .card .links{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important}'+
-   'body.sec-ws #view .card .links a{display:inline-block!important;width:auto!important;margin:0!important}'+
-   '@media (max-width:640px){body.sec-ws #view .grid:not(.list){grid-template-columns:1fr}}</style>');
+  const daysLeft=o=>o.end?Math.ceil((new Date(o.end+'T23:59:59')-new Date())/864e5):null;
+  const activeOcc=()=>BM.occ.find(o=>{const d=daysLeft(o);return d!==null&&d>=0});
+  const progTxt=o=>{const p=BM.prog[o.s];return p['الصف الأول']===p['الصف الثالث']?p['الصف الأول']:`${p['الصف الأول']} (الصف الأول) أو ${p['الصف الثالث']} (الصف الثالث)`};
+  if(S._bmo==null){const a=activeOcc(); S._bmo=a?BM.occ.indexOf(a):0}
+  S._bmg=S._bmg||'all';
+
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.nows a[href="#workshops"],body.nocr a[href="#creations"]{display:none!important}
+body.sec-ws #view .grid:not(.list){grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;max-width:880px;margin-inline:auto;column-gap:22px;row-gap:26px}
+body.sec-ws #view .grid:not(.list) .acts{margin-top:8px}
+body.sec-ws #view .card .links{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important}
+body.sec-ws #view .card .links a{display:inline-block!important;width:auto!important;margin:0!important}
+@media (max-width:640px){body.sec-ws #view .grid:not(.list){grid-template-columns:1fr}}
+#bmTk{display:flex;align-items:center;max-width:1180px;margin:10px auto 0;width:calc(100% - 32px);background:linear-gradient(90deg,#2B2148,#4A3B78);color:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(43,33,72,.18);font-family:inherit}
+#bmTk .l{flex:none;background:linear-gradient(180deg,#F2CF8A,#D9A64E);color:#3A2A0C;font-weight:900;padding:9px 14px;display:flex;gap:6px;align-items:center}
+#bmTk .l i{font-style:normal;display:inline-block;animation:bmRing 1.6s ease-in-out infinite}
+@keyframes bmRing{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(-14deg)}20%,40%{transform:rotate(14deg)}}
+#bmTk .m{flex:1;overflow:hidden;white-space:nowrap;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+#bmTk .m span{display:inline-block;padding-inline-start:100%;animation:bmMq 30s linear infinite;font-weight:700}
+#bmTk:hover .m span{animation-play-state:paused}
+@keyframes bmMq{from{transform:translateX(0)}to{transform:translateX(100%)}}
+#bmTk .m b,#bmTk .cd b{color:#F2CF8A}
+#bmTk .cd{flex:none;margin-inline-start:8px;background:#ffffff1f;border:1px solid #ffffff40;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13.5px;white-space:nowrap}
+#bmTk .go{flex:none;margin:0 8px;font:inherit;font-weight:900;font-size:13.5px;border:0;border-radius:999px;padding:6px 14px;background:#fff;color:#2B2148;cursor:pointer;animation:bmPulse 2s ease-in-out infinite}
+@keyframes bmPulse{50%{box-shadow:0 0 0 6px rgba(255,255,255,.18)}}
+@media (max-width:640px){#bmTk .cd{display:none}}
+.bmv{--p1:#2B2148;--p2:#4A3B78;--gd:#D9A64E;--gd2:#F2CF8A;--rd:#C8102E;--gr:#0E7A3E;--ln:#E2DFEC;--mu:#6B6585}
+.bmv .bn{position:relative;overflow:hidden;border-radius:22px;padding:24px;color:#fff;background:radial-gradient(circle at 15% 30%,#5B4A92 0,transparent 45%),linear-gradient(135deg,var(--p1),var(--p2))}
+.bmv .bn::after{content:"";position:absolute;inset:auto 0 0 0;height:6px;background:linear-gradient(90deg,var(--rd) 0 33%,#fff 33% 66%,var(--gr) 66%)}
+.bmv .bh{display:flex;gap:14px;align-items:center}
+.bmv .ico{width:58px;height:58px;border-radius:16px;background:linear-gradient(180deg,var(--gd2),var(--gd));display:grid;place-items:center;font-size:30px;flex:none}
+.bmv .bn h1{margin:0;font-size:28px;font-weight:900;color:#fff}
+.bmv .bn p{margin:2px 0 0;opacity:.9}
+.bmv .sp{position:absolute;color:var(--gd2);animation:bmTw 3s ease-in-out infinite}
+@keyframes bmTw{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+.bmv .occ{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 6px}
+.bmv .occ button,.bmv .fil button{font:inherit;font-weight:800;font-size:14px;border:1px solid var(--ln);background:#fff;color:var(--p2);border-radius:999px;padding:6px 15px;cursor:pointer}
+.bmv .occ button.on{background:var(--p1);color:#fff;border-color:var(--p1)}
+.bmv .occ small{font-size:11px;font-weight:800;opacity:.7;margin-inline-start:4px}
+.bmv .oh{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 6px}
+.bmv .oh h2{margin:0;font-size:22px;font-weight:900;color:var(--p1)}
+.bmv .bd{background:#fff;border:1px solid var(--ln);border-radius:999px;padding:4px 12px;font-weight:700;color:var(--mu);font-size:13.5px}
+.bmv .pg{display:inline-block;background:#fff;border:1px solid var(--ln);border-radius:10px;padding:4px 10px;font-size:13.5px;font-weight:700;color:var(--p2);margin-bottom:12px}
+.bmv .pds{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:820px){.bmv .pds{grid-template-columns:1fr}}
+.bmv .pd{background:#fff;border:1px solid var(--ln);border-radius:20px;padding:16px 14px 0;box-shadow:0 8px 22px rgba(43,33,72,.07);overflow:hidden}
+.bmv .pd h3{margin:0 0 2px;text-align:center;font-size:19px;font-weight:900;color:var(--p1)}
+.bmv .pd .sb{text-align:center;color:var(--mu);font-size:13.5px;margin-bottom:10px}
+.bmv .stg{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:8px}
+.bmv .w{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.bmv .av{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:22px;color:#8E89A6;background:#F1EEF8;border:4px solid #C9C9D6;position:relative}
+.bmv .av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.bmv .r1 .av{width:92px;height:92px;border-color:var(--gd);animation:bmGlow 2.6s ease-in-out infinite}
+@keyframes bmGlow{0%,100%{box-shadow:0 0 0 6px rgba(217,166,78,.2)}50%{box-shadow:0 0 0 12px rgba(217,166,78,.05)}}
+.bmv .r3 .av{border-color:#C98B5A}
+.bmv .md{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-size:24px}
+.bmv .cr{font-size:24px;margin-bottom:-4px;animation:bmBob 2s ease-in-out infinite}
+@keyframes bmBob{50%{transform:translateY(-4px)}}
+.bmv .nm{font-weight:800;margin-top:10px;font-size:14.5px;overflow-wrap:anywhere}
+.bmv .wk{margin:6px 0 6px;width:100%;max-width:140px;aspect-ratio:4/3;border-radius:10px;border:1px solid var(--ln);overflow:hidden;background:#F7F3FF;display:grid;place-items:center;color:var(--mu);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit}
+.bmv .wk img{width:100%;height:100%;object-fit:cover;display:block}
+.bmv .tl{font-size:11.5px;background:#EEEAF8;color:var(--p2);border-radius:999px;padding:1px 9px;font-weight:700}
+.bmv .bk{width:100%;border-radius:12px 12px 0 0;margin-top:8px;display:grid;place-items:center;color:#fff;font-weight:900;font-size:26px}
+.bmv .r1 .bk{height:96px;background:linear-gradient(180deg,#E9BE6C,var(--gd))}
+.bmv .r2 .bk{height:70px;background:linear-gradient(180deg,#B9BCCB,#8F93A8)}
+.bmv .r3 .bk{height:54px;background:linear-gradient(180deg,#D9A47B,#B4774A)}
+.bmv .soon{opacity:.55}
+.bmv .gh{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:26px 0 10px}
+.bmv .gh h3{margin:0;font-size:19px;font-weight:900;color:var(--p1)}
+.bmv .fil{display:flex;gap:6px}
+.bmv .fil button.on{background:var(--gd);border-color:var(--gd);color:#3A2A0C}
+.bmv .gl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.bmv .gl{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bmv .gc{background:#fff;border:1px solid var(--ln);border-radius:16px;overflow:hidden;box-shadow:0 6px 16px rgba(43,33,72,.06);cursor:pointer;transition:transform .2s;text-align:right;padding:0;font:inherit;color:inherit}
+.bmv .gc:hover{transform:translateY(-3px)}
+.bmv .gc .th{aspect-ratio:4/3;background:#F4F1FA;position:relative}
+.bmv .gc .th img{width:100%;height:100%;object-fit:cover;display:block}
+.bmv .gc .th::before,.bmv .wk::before{content:""}
+.bmv .gc .cb{padding:9px 11px 11px}
+.bmv .gc b{display:block;font-size:14.5px}
+.bmv .gc small{color:var(--mu);font-size:12.5px}
+.bmv .emp{background:#fff;border:1px dashed var(--ln);border-radius:16px;padding:22px;text-align:center;color:var(--mu);font-weight:700}
+.bmv details.mg{margin-top:28px;background:#fff;border:1px solid var(--ln);border-radius:16px;padding:10px 14px}
+.bmv details.mg summary{cursor:pointer;font-weight:900;color:var(--p1)}
+</style>`);
+
+  /* ---------- الشريط المتحرك ---------- */
+  function ticker(show){
+    let el=document.getElementById('bmTk'); const o=show&&activeOcc();
+    if(!o){ if(el) el.remove(); return }
+    const d=daysLeft(o), key=o.k+'|'+d;
+    if(el&&el.dataset.k===key) return;
+    const html=`<div class="l"><i>📢</i> مسابقة</div><div class="m"><span>🏆 مسابقة <b>بصمات مبدعة</b> — ${E(o.h)}: ${E(o.task)} ببرنامج <b>${E(progTxt(o))}</b> وشارك/ي بعملك ✦ الجوائز للمراكز الثلاثة الأولى في الصف الأول والثالث ✦ آخر موعد للمشاركة: <b>${E(o.endT||o.end)}</b> ✦ أعمالكم تُعرض في المنصة 🌟</span></div><span class="cd">${d===0?'⏳ <b>اليوم آخر يوم!</b>':`⏳ باقي <b>${d}</b> ${d===1?'يوم':d===2?'يومان':d<=10?'أيام':'يومًا'}`}</span><button class="go" type="button">شارك الآن</button>`;
+    if(!el){ el=document.createElement('div'); el.id='bmTk'; el.setAttribute('role','status'); const m=document.querySelector('main'); if(!m) return; m.parentNode.insertBefore(el,m) }
+    el.dataset.k=key; el.innerHTML=html;
+    el.querySelector('.go').onclick=()=>{ S._bmo=BM.occ.indexOf(o); location.hash=CR };
+  }
+
+  /* ---------- صفحة القسم ---------- */
+  const isWin=i=>[1,2,3].includes(+i.rank);
+  function winner(i,r,g,o){
+    const cls='w r'+r, med=['','🥇','🥈','🥉'][r];
+    if(!i) return `<div class="${cls} soon">${r===1?'<div class="cr">👑</div>':''}<div class="av">؟<span class="md">${med}</span></div><div class="nm">يُعلن قريبًا</div><div class="wk">العمل الفائز</div><span class="tl">${E(BM.prog[o.s][g])}</span><div class="bk">${r}</div></div>`;
+    return `<div class="${cls}">${r===1?'<div class="cr">👑</div>':''}<div class="av">${i.photo?`<img src="${i.photo}" alt="${E(i.title)}">`:E((i.title||'؟').trim().charAt(0))}<span class="md">${med}</span></div><div class="nm">${E(i.title)}</div><button class="wk" type="button" onclick="openItem('${E(i.id)}')">${i.coverData?`<img src="${i.coverData}" alt="عمل ${E(i.title)}">`:'العمل الفائز'}</button><span class="tl">${E(i.prog||BM.prog[o.s][g])}</span><div class="bk">${r}</div></div>`;
+  }
+  function view(){
+    const v=document.getElementById('view'); if(!v) return;
+    const orig=v.innerHTML, o=BM.occ[S._bmo]||BM.occ[0];
+    const its=S.items.filter(i=>i.section===CR&&(i.unit||'').trim()===o.k);
+    const pod=g=>{const w=r=>its.find(i=>i.grade===g&&+i.rank===r);
+      return `<div class="pd"><h3>🏅 الفائزون — ${g}</h3><div class="sb">${E(o.task)} · ${E(BM.prog[o.s][g])}</div><div class="stg">${winner(w(2),2,g,o)}${winner(w(1),1,g,o)}${winner(w(3),3,g,o)}</div></div>`};
+    const gal=its.filter(i=>!isWin(i)&&(S._bmg==='all'||i.grade===S._bmg));
+    const d=daysLeft(o);
+    v.innerHTML=`<nav class="crumb"><a href="#home">الرئيسية</a><span>/</span><span>بصمات مبدعة</span></nav>
+    <div class="bmv">
+      <section class="bn"><span class="sp" style="top:16px;left:30px">✦</span><span class="sp" style="top:60px;left:120px;animation-delay:1s">✦</span><span class="sp" style="bottom:22px;left:60px;animation-delay:2s">✦</span>
+        <div class="bh"><div class="ico">🏆</div><div><h1>بصمات مبدعة</h1><p>إبداعات الطلبة بمهارات تقنية المعلومات في مناسباتنا · والأعمال الفائزة</p></div></div></section>
+      <div class="occ">${BM.occ.map((x,k)=>`<button type="button" class="${k===S._bmo?'on':''}" onclick="S._bmo=${k};render()">${E(x.n)}<small>${x.s===1?'الفصل الأول':'الفصل الثاني'}</small></button>`).join('')}</div>
+      <div class="oh"><h2>${E(o.h)}</h2><span class="bd">${d!==null&&d>=0?`⏳ المشاركة مفتوحة حتى ${E(o.endT||o.end)}`:'الصف الأول · الصف الثالث'}</span></div>
+      <span class="pg">💻 ${o.s===1?'الفصل الأول':'الفصل الثاني'}: ${BM.grades.map(g=>`<b>${E(BM.prog[o.s][g])}</b> لل${g.slice(2)}`).join(' · ')}</span>
+      <div class="pds">${BM.grades.map(pod).join('')}</div>
+      <div class="gh"><h3>✨ معرض المشاركات</h3><div class="fil">${[['all','الكل'],...BM.grades.map(g=>[g,g])].map(([k,t])=>`<button type="button" class="${S._bmg===k?'on':''}" onclick="S._bmg='${k}';render()">${t}</button>`).join('')}</div></div>
+      ${gal.length?`<div class="gl">${gal.map(i=>`<button type="button" class="gc" onclick="openItem('${E(i.id)}')"><div class="th">${i.coverData?`<img src="${i.coverData}" alt="عمل ${E(i.title)}" loading="lazy">`:''}</div><div class="cb"><b>${E(i.title)}</b><small>${E(i.grade||'')}</small><br><span class="tl">${E(i.prog||BM.prog[o.s][i.grade]||'')}</span></div></button>`).join('')}</div>`
+        :`<div class="emp">${d!==null&&d>=0?'شاركوا بأعمالكم 🌟 ستظهر المشاركات هنا قريبًا':'لا توجد مشاركات معروضة لهذه المناسبة بعد'}</div>`}
+      ${(typeof canEditFiles==='function'&&canEditFiles())?`<details class="mg"><summary>⚙️ إدارة بطاقات القسم (للمعلمة)</summary>${orig}</details>`:''}
+    </div>`;
+  }
+
+  /* ---------- التغليف ---------- */
   const _r=window.render;
   window.render=function(){
-    const ok=staff(); document.body.classList.toggle('nows',!ok); document.body.classList.toggle('sec-ws',location.hash.slice(1)===WS);
-    if(ok) return _r.apply(this,arguments);
-    if(location.hash.slice(1)===WS) history.replaceState(null,'','#home');
-    const all=S.items, sec=SECTIONS.slice(), mine=all.filter(i=>i.section!==WS);
-    S.items=mine; const k=SECTIONS.findIndex(x=>x.id===WS); if(k>=0) SECTIONS.splice(k,1);
-    try{ return _r.apply(this,arguments) }
-    finally{ if(k>=0){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
+    const st=staff(), en=entered(); let h=location.hash.slice(1);
+    document.body.classList.toggle('nows',!st); document.body.classList.toggle('nocr',!en);
+    const hide=[]; if(!st) hide.push(WS); if(!en) hide.push(CR);
+    if(hide.includes(h)){ history.replaceState(null,'','#home'); h='home' }
+    document.body.classList.toggle('sec-ws',h===WS);
+    let res;
+    if(!hide.length) res=_r.apply(this,arguments);
+    else{
+      const all=S.items, sec=SECTIONS.slice(), mine=all.filter(i=>!hide.includes(i.section));
+      S.items=mine; for(let k=SECTIONS.length-1;k>=0;k--) if(hide.includes(SECTIONS[k].id)) SECTIONS.splice(k,1);
+      try{ res=_r.apply(this,arguments) }
+      finally{ if(SECTIONS.length!==sec.length){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
+    }
+    try{ ticker(en) }catch(e){ console.warn(e) }
+    if(en&&h===CR){ try{ view() }catch(e){ console.warn(e) } }
+    return res;
   };
   try{ window.render() }catch(e){}
 })();
