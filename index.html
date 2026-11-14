@@ -2698,10 +2698,16 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     try{ return _r.apply(this,arguments) }
     finally{ if(SECTIONS.length!==sec.length){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
   };
+  /* ملفات PowerPoint وWord وExcel تُفتح في عارض Microsoft بدل أن تُنزَّل */
+  const OFFICE=/\.(pptx?|ppsx|pps|docx?|xlsx?)(\?|#|$)/i;
+  const officeView=u=>'https://view.officeapps.live.com/op/view.aspx?src='+encodeURIComponent(u);
+  window.officeView=officeView;
+  document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]'); if(!a||a.hasAttribute('download')) return; const h=a.href||''; if(!/^https?:/i.test(h)||!OFFICE.test(h)||/officeapps\.live\.com/i.test(h)) return; e.preventDefault(); e.stopPropagation(); window.open(officeView(h),'_blank','noopener');},true);
   window.startItem=function(id){
     const i=(S.items||[]).find(x=>x.id===id); if(!i) return;
     const raw=i.links&&i.links[0]; const u=raw?(typeof raw==='string'?((raw.match(/https?:\/\/[^\s|]+/)||[])[0]):raw.u):'';
-    if(!u&&i.pp&&/\.pptx?$/i.test(i.pp.name||'')){
+    if(u&&OFFICE.test(u)){ window.open(officeView(u),'_blank','noopener'); return; }
+    if(!u&&i.pp&&/\.(pptx?|ppsx|pps)$/i.test(i.pp.name||'')){
       /* عرض ملف PowerPoint بعارض Microsoft: يُرفع الملف بالاسم نفسه إلى مجلد pres في المستودع */
       const fu=location.origin+'/abeer/pres/'+encodeURIComponent(i.pp.name);
       const w=window.open('about:blank','_blank');
@@ -2722,6 +2728,7 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     const i=(S.items||[]).find(x=>x.id===id); if(!i||!i.links||!i.links.length) return;
     const raw=i.links[0]; const u=typeof raw==='string'?((raw.match(/https?:\/\/[^\s|]+/)||[])[0]):(raw&&raw.u);
     if(!u) return;
+    if(OFFICE.test(u)){ const a=document.createElement('a'); a.href=u; a.download=decodeURIComponent(u.split('/').pop().split('?')[0]); document.body.append(a); a.click(); a.remove(); return; }
     const [page,hash]=u.split('#'); const name=String(i.title||'ملف').replace(/[\\/:*?"<>|]/g,'').trim()+'.html';
     try{ toast('جارٍ تجهيز الملف…') }catch(e){}
     try{
