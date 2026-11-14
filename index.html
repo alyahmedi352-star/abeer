@@ -33,6 +33,15 @@
 :root[data-palette="violet"]{--brand:#35295A;--brand-2:#4C3D80;--brand-3:#22193D}
 :root[data-palette="sea"]{--brand:#0E4A57;--brand-2:#16707E;--brand-3:#08313A}
 :root[data-palette="olive"]{--brand:#38461F;--brand-2:#566A32;--brand-3:#232D12}
+:root[data-palette="mint"]{--brand:#2F6F68;--brand-2:#4A9A8F;--brand-3:#1E4A45}
+:root[data-palette="lavender"]{--brand:#5A4E8C;--brand-2:#7B6FB0;--brand-3:#3A3260}
+:root[data-palette="sky"]{--brand:#2E6A8E;--brand-2:#4C8DB5;--brand-3:#1C4560}
+:root[data-palette="turq"]{--brand:#1F7A80;--brand-2:#35A3A8;--brand-3:#13504F}
+:root[data-palette="rose"]{--brand:#8A4F5E;--brand-2:#B07282;--brand-3:#5C3240}
+:root[data-palette="sage"]{--brand:#5E7458;--brand-2:#809A79;--brand-3:#3E4F3A}
+:root[data-palette="sand"]{--brand:#8A6A45;--brand-2:#B08E62;--brand-3:#5C4529}
+:root[data-palette="sunset"]{--brand:#9A5B3F;--brand-2:#C98657;--brand-3:#663A27}
+
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0E1A21;--paper:#16262F;--line:#27404B;--text:#E3EDF0;--muted:#9DB3BB;--chip:#1F3540;--shadow:0 1px 0 rgba(0,0,0,.35);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#0E1A21;--paper:#16262F;--line:#27404B;--text:#E3EDF0;--muted:#9DB3BB;--chip:#1F3540;--shadow:0 1px 0 rgba(0,0,0,.35);color-scheme:dark}
@@ -561,7 +570,7 @@ function tone(f,d=.12,type='sine',v=.08,delay=0){ if(!S.sound) return; try{AC=AC
 const sfx={click:()=>tone(660,.08,'triangle',.06),nav:()=>{tone(523,.1,'sine',.07);tone(784,.14,'sine',.06,.07)},ok:()=>{tone(523,.12);tone(659,.12,'sine',.08,.1);tone(784,.2,'sine',.08,.2)},hoot:()=>{tone(392,.22,'sine',.09);tone(330,.3,'sine',.08,.25)},toggle:()=>tone(880,.06,'square',.03)};
 
 /* ---------- prefs ---------- */
-const PALS=[['blue','اللون الأزرق'],['maroon','اللون العنابي'],['green','اللون الأخضر'],['gold','اللون الذهبي'],['night','اللون الليلي'],['brown','اللون البني'],['violet','اللون البنفسجي'],['sea','اللون البحري'],['olive','اللون الزيتوني']];
+const PALS=[['blue','اللون الأزرق'],['maroon','اللون العنابي'],['green','اللون الأخضر'],['gold','اللون الذهبي'],['night','اللون الليلي'],['brown','اللون البني'],['violet','اللون البنفسجي'],['sea','اللون البحري'],['olive','اللون الزيتوني'],['mint','الثيم النعناعي ✨'],['lavender','الثيم الخزامى ✨'],['sky','الثيم السماوي ✨'],['turq','الثيم الفيروزي ✨'],['rose','الثيم الوردي الترابي ✨'],['sage','الثيم المريمية ✨'],['sand','الثيم الرملي ✨'],['sunset','الثيم الغروب ✨']];
 function applyPrefs(){
   const r=document.documentElement;
   r.dataset.palette=LS.get('pal','blue');
@@ -671,7 +680,7 @@ function cardsHtml(items){
         ${i.desc?`<div class="meta">${esc(i.desc)}</div>`:''}
         ${i.links&&i.links.length?`<div class="links">${i.links.map((l,k)=>`<a href="${esc(l)}" target="_blank" rel="noopener">${i.links.length>1?'الرابط التفاعلي '+(k+1):'الرابط التفاعلي'}</a>`).join('')}</div>`:''}
         <div class="acts">
-          <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
+          <button class="btn sm" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}">${i.section==='presentations'?'▶ ابدأ العرض':'عرض'}</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
@@ -812,7 +821,7 @@ function renderPortal(){
       <div style="margin-top:8px"><button class="btn" onclick="addPost('teacher')">نشر</button></div></section>
     <section class="block"><h2>ملاحظات المشرفة</h2>${postList(sup,false)}</section>
     <section class="block"><h2>منشوراتي</h2>${postList(mine,true)}</section>
-    <section class="block"><h2>زر «شاركنا رأيك»</h2><p class="muted" style="margin:0">ضعي هنا رابط نموذج Google Forms (أو أي نموذج) ليظهر زر «شاركنا رأيك» للطلبة في الدروس والمسابقات.</p>
+    <section class="block"><h2>زر «شاركنا رأيك»</h2><p class="muted" style="margin:0">ضعي هنا رابط نموذج Google Forms (أو أي نموذج) ليظهر زر «شاركنا رأيك» للطلبة في الدروس والمسابقات. (زر الورش التدريبية للمعلمات له نموذج خاص ثابت.)</p>
       <label class="f" for="fbUrl">رابط النموذج</label><input class="in" id="fbUrl" dir="ltr" placeholder="https://forms.gle/..." value="${esc(S.fb||'')}">
       <div style="margin-top:8px"><button class="btn" onclick="saveFb()">حفظ الرابط</button> ${S.fb?`<button class="btn ghost" onclick="$('#fbUrl').value='';saveFb()">إخفاء الزر</button>`:''}</div></section>
     <section class="block"><h2>إضافة ملف إلى قسم</h2><div class="chips">${SECTIONS.map(s=>`<button class="chip" onclick="editItem(null,'${s.id}')">${s.t}</button>`).join('')}</div></section>`;
@@ -885,7 +894,7 @@ function cardsHtml(items){
         ${i.desc?`<div class="meta">${esc(i.desc)}</div>`:''}
         ${linksHtml(i)}
         <div class="acts">
-          <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
+          <button class="btn sm" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}">${i.section==='presentations'?'▶ ابدأ العرض':'عرض'}</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
@@ -1023,7 +1032,7 @@ function cardsHtml(items){
         ${linksHtml(i)}
         <div class="acts">
           ${i.section==='images'&&i.links&&i.links[0]?`<a class="btn sm gold" href="${esc(i.links[0])}" target="_blank" rel="noopener">افتح الدرس ↗</a>`:''}
-          <button class="btn sm" onclick="openItem('${i.id}')">${i.section==='images'?'عرض الصورة':'عرض'}</button>
+          <button class="btn sm" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}">${i.section==='images'?'عرض الصورة':i.section==='presentations'?'▶ ابدأ العرض':'عرض'}</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${i.sheet?`<button class="btn sm gold" onclick="sheetDl('${i.id}')">⬇ تحميل</button><button class="btn sm ghost" onclick="sheetPrint('${i.id}')">🖨️ طباعة</button>`:''}
           ${(['presentations','harvest'].includes(i.section)&&!(i.pp||i.assetId)&&i.links&&i.links.length&&window.dlPage)?`<button class="btn sm gold" title="تنزيل نسخة على جهازك" onclick="dlPage(event,'${i.id}')">⬇ تنزيل</button>`:''}
@@ -1104,8 +1113,8 @@ function starBurst(){
 S.fb='https://forms.gle/PBpoYmEXCaCVNaYX7';
 async function saveFb(){ const v=$('#fbUrl').value.trim(); if(v&&!/^https?:\/\//.test(v)) return toast('اكتبي رابطًا صحيحًا يبدأ بـ https');
   try{await S.db.doc('settings/feedback').set({url:v}); sfx.ok(); toast(v?'حُفظ الرابط وظهر زر «شاركنا رأيك»':'أُخفي زر «شاركنا رأيك»')}catch(e){toast('تعذّر الحفظ: تحقّقي من صلاحية الكتابة')} }
-const FBSEC=['lessons','homework','videos','harvest','assessments','workshops'];
-function fbBtn(i,big){ if(!FBSEC.includes(i.section)) return '';
+const FBSEC=['lessons','homework','videos','harvest','assessments','workshops']; const FB_TCH='https://forms.gle/cdNsocizj82i4frd6';
+function fbBtn(i,big){ if(!FBSEC.includes(i.section)) return ''; if(i.section==='workshops'){ if(typeof window.wsVisible==='function'&&!window.wsVisible()) return ''; return `<a class="btn sm fbk${big?' big':''}" href="${FB_TCH}" target="_blank" rel="noopener" onclick="sfx.ok()">💬 شاركينا رأيك في الورشة</a>`; };
   if(S.fb) return `<a class="btn sm fbk${big?' big':''}" href="${esc(S.fb)}" target="_blank" rel="noopener" onclick="sfx.ok()">💬 شاركنا رأيك</a>`;
   return canEditFiles()&&big?`<span class="lhint">لإظهار زر «شاركنا رأيك» أضيفي رابط النموذج من البوابة</span>`:''; }
 
@@ -2692,7 +2701,19 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
   window.startItem=function(id){
     const i=(S.items||[]).find(x=>x.id===id); if(!i) return;
     const raw=i.links&&i.links[0]; const u=raw?(typeof raw==='string'?((raw.match(/https?:\/\/[^\s|]+/)||[])[0]):raw.u):'';
-    if(!u) return openItem(id);
+    if(!u&&i.pp&&/\.pptx?$/i.test(i.pp.name||'')){
+      /* عرض ملف PowerPoint بعارض Microsoft: يُرفع الملف بالاسم نفسه إلى مجلد pres في المستودع */
+      const fu=location.origin+'/abeer/pres/'+encodeURIComponent(i.pp.name);
+      const w=window.open('about:blank','_blank');
+      try{ if(w) w.document.write('<p dir="rtl" style="font:20px Tahoma;text-align:center;margin-top:40vh">جارٍ فتح العرض…</p>') }catch(e){}
+      fetch(fu,{method:'HEAD',cache:'no-cache'}).then(r=>{
+        if(!r.ok) throw 0;
+        const v='https://view.officeapps.live.com/op/view.aspx?src='+encodeURIComponent(fu);
+        if(w) w.location.href=v; else location.href=v;
+      }).catch(()=>{ try{w&&w.close()}catch(e){} openItem(id); try{ toast('لم يُرفع ملف هذا العرض إلى مجلد pres بعد — يمكنك تنزيله بزر «تنزيل»') }catch(e){} });
+      return;
+    }
+    if(!u){ openItem(id); try{ toast('لا يوجد رابط لهذا العرض بعد — أضيفيه من زر «تعديل»') }catch(e){} return; }
     try{ if(S.seen&&!S.seen['i:'+id]){ S.seen['i:'+id]=1; try{LS.set('seen',S.seen)}catch(e){} } }catch(e){}
     const w=window.open(u,'_blank','noopener'); if(!w) location.href=u;
   };
@@ -2717,6 +2738,36 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     }
   };
   try{ window.render() }catch(e){}
+})();
+</script>
+<style>
+/* ===== الثيمات الهادئة المتحركة ===== */
+:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"]) .hero{background:linear-gradient(120deg,var(--brand-3),var(--brand-2),var(--brand),var(--brand-2),var(--brand-3));background-size:300% 300%;animation:calmFlow 16s ease-in-out infinite}
+@keyframes calmFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"]) body{background:linear-gradient(160deg,var(--bg),color-mix(in srgb,var(--brand-2) 9%,var(--bg)),var(--bg),color-mix(in srgb,var(--gold) 7%,var(--bg)));background-size:240% 240%;background-attachment:fixed;animation:calmFlow 24s ease-in-out infinite}
+:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"])::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;background-image:radial-gradient(circle,rgba(242,207,138,.55) 0 1.6px,transparent 2px),radial-gradient(circle,color-mix(in srgb,var(--brand-2) 45%,transparent) 0 2px,transparent 2.6px);background-size:180px 180px,260px 260px;background-position:0 0,90px 120px;animation:calmDrift 40s linear infinite}
+@keyframes calmDrift{to{background-position:0 -360px,90px -400px}}
+#palPick{position:fixed;z-index:2147483000;background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.22);padding:12px;display:grid;grid-template-columns:repeat(4,auto);gap:10px;direction:rtl;max-width:300px}
+#palPick b{grid-column:1/-1;font-size:.95rem;color:var(--text)}
+#palPick button{width:54px;height:54px;border-radius:50%;border:3px solid #fff;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);position:relative;background-size:200% 200%;animation:calmFlow 6s ease-in-out infinite}
+#palPick button.on{outline:3px solid var(--gold);outline-offset:2px}
+#palPick button span{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:.66rem;white-space:nowrap;color:var(--muted);font-weight:700;margin-top:2px}
+#palPick{row-gap:22px;padding-bottom:26px}
+@media (prefers-reduced-motion:reduce){:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"]) .hero,:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"]) body,:root:is([data-palette="mint"],[data-palette="lavender"],[data-palette="sky"],[data-palette="turq"],[data-palette="rose"],[data-palette="sage"],[data-palette="sand"],[data-palette="sunset"])::after{animation:none}}
+</style>
+<script>
+/* اختيار الثيم من لوحة ألوان بدل التنقل واحدًا واحدًا */
+(function(){
+  const ALLP={blue:['#173F55','#225C78'],maroon:['#6E1A31','#8E2A45'],green:['#1E5A47','#2C7A61'],gold:['#7A5520','#9C7030'],night:['#141C2B','#26324A'],brown:['#4A3326','#6E4B35'],violet:['#35295A','#4C3D80'],sea:['#0E4A57','#16707E'],olive:['#38461F','#566A32'],mint:['#2F6F68','#4A9A8F'],lavender:['#5A4E8C','#7B6FB0'],sky:['#2E6A8E','#4C8DB5'],turq:['#1F7A80','#35A3A8'],rose:['#8A4F5E','#B07282'],sage:['#5E7458','#809A79'],sand:['#8A6A45','#B08E62'],sunset:['#9A5B3F','#C98657']};
+  const btn=document.getElementById('bPal'); if(!btn||typeof PALS==='undefined') return;
+  btn.onclick=e=>{e.stopPropagation(); let p=document.getElementById('palPick'); if(p){p.remove();return}
+    p=document.createElement('div'); p.id='palPick'; const cur=LS.get('pal','blue');
+    p.innerHTML='<b>🎨 اختاري لون المنصة</b>'+PALS.map(([k,n])=>{const c=ALLP[k]||['#173F55','#225C78'];return `<button data-k="${k}" class="${k===cur?'on':''}" title="${n}" aria-label="${n}" style="background-image:linear-gradient(135deg,${c[0]},${c[1]},${c[0]})"><span>${n.replace(/^اللون |^الثيم /,'').replace(' ✨','')}</span></button>`}).join('');
+    document.body.appendChild(p); const r=btn.getBoundingClientRect(); const w=p.offsetWidth,h=p.offsetHeight;
+    p.style.top=Math.max(8,Math.min(innerHeight-h-8,r.bottom+8))+'px'; p.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';
+    p.onclick=ev=>{ev.stopPropagation(); const b=ev.target.closest('button'); if(!b) return; LS.set('pal',b.dataset.k); applyPrefs(); try{sfx.click()}catch(x){} try{toast((PALS.find(x=>x[0]===b.dataset.k)||[])[1]||'')}catch(x){} p.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
+  };
+  document.addEventListener('click',()=>{const p=document.getElementById('palPick'); if(p) p.remove()});
 })();
 </script>
 </body>
