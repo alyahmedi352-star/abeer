@@ -1026,6 +1026,7 @@ function cardsHtml(items){
           <button class="btn sm" onclick="openItem('${i.id}')">${i.section==='images'?'عرض الصورة':'عرض'}</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${i.sheet?`<button class="btn sm gold" onclick="sheetDl('${i.id}')">⬇ تحميل</button><button class="btn sm ghost" onclick="sheetPrint('${i.id}')">🖨️ طباعة</button>`:''}
+          ${(['presentations','harvest'].includes(i.section)&&!(i.pp||i.assetId)&&i.links&&i.links.length&&window.dlPage)?`<button class="btn sm gold" title="تنزيل نسخة على جهازك" onclick="dlPage(event,'${i.id}')">⬇ تنزيل</button>`:''}
           ${(()=>{const u=(i.links||[]).find(x=>/story[23]\.html\?d=/.test(x)); return u&&window.dlStory?`<button class="btn sm ghost" title="تنزيل القصة لتعمل دون إنترنت" onclick="dlStory(event,'${esc(u)}','${esc(String(i.title||'').replace(/\s*—.*$/,'').replace(/^الدرس\s*/,''))}')">⬇ تحميل</button>`:''})()}
           ${fbBtn(i)}${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
@@ -2668,6 +2669,45 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     try{ ticker(en) }catch(e){ console.warn(e) }
     if(en&&h===CR){ try{ view() }catch(e){ console.warn(e) } }
     return res;
+  };
+  try{ window.render() }catch(e){}
+})();
+</script>
+<script>
+/* ---- «الشهادات» و«المبادرات» تظهر لصاحبة المنصة والمشرفين فقط · زر تنزيل للعروض التقديمية والحصاد ---- */
+(function(){
+  const vip=()=>{ try{ const r=role(); return r==='owner'||r==='supervisor' }catch(e){ return false } };
+  const hiddenIds=()=>{ const all=(window.ALLSECTIONS||[]).concat(typeof SECTIONS!=='undefined'?SECTIONS:[]); const ids=new Set(['initiatives']); all.forEach(x=>{ if(x&&/شهاد/.test(x.t||'')) ids.add(x.id) }); return [...ids] };
+  const st=document.createElement('style'); document.head.appendChild(st);
+  const _r=window.render;
+  window.render=function(){
+    if(vip()){ st.textContent=''; return _r.apply(this,arguments) }
+    const hide=hiddenIds(); st.textContent=hide.map(id=>`a[href="#${id}"]`).join(',')+'{display:none!important}';
+    if(hide.includes(location.hash.slice(1))) history.replaceState(null,'','#home');
+    const all=S.items, sec=SECTIONS.slice(), mine=all.filter(i=>!hide.includes(i.section));
+    S.items=mine; for(let k=SECTIONS.length-1;k>=0;k--) if(hide.includes(SECTIONS[k].id)) SECTIONS.splice(k,1);
+    try{ return _r.apply(this,arguments) }
+    finally{ if(SECTIONS.length!==sec.length){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
+  };
+  window.dlPage=async function(ev,id){
+    if(ev){ev.preventDefault();ev.stopPropagation()}
+    const i=(S.items||[]).find(x=>x.id===id); if(!i||!i.links||!i.links.length) return;
+    const raw=i.links[0]; const u=typeof raw==='string'?((raw.match(/https?:\/\/[^\s|]+/)||[])[0]):(raw&&raw.u);
+    if(!u) return;
+    const [page,hash]=u.split('#'); const name=String(i.title||'ملف').replace(/[\\/:*?"<>|]/g,'').trim()+'.html';
+    try{ toast('جارٍ تجهيز الملف…') }catch(e){}
+    try{
+      const r=await fetch(page,{cache:'no-cache'}); if(!r.ok) throw 0; let h=await r.text();
+      if(!/<html[\s>]/i.test(h)) throw 0;
+      const dir=page.replace(/[?#].*$/,'').replace(/[^\/]*$/,'');
+      const inj=`<base href="${dir}">`+(hash?`<script>if(!location.hash)location.hash=${JSON.stringify('#'+hash)}<\/script>`:'');
+      h=/<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+inj):inj+h;
+      const b=new Blob([h],{type:'text/html'}), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+      try{ toast('تم التنزيل ✅') }catch(e){}
+    }catch(e){
+      window.open(u,'_blank','noopener');
+      try{ toast('هذا الرابط من موقع آخر لا يسمح بالتنزيل المباشر. فُتح في نافذة جديدة: احفظيه بالضغط على Ctrl+S') }catch(x){ alert('افتحي الرابط ثم احفظيه بالضغط على Ctrl+S') }
+    }
   };
   try{ window.render() }catch(e){}
 })();
