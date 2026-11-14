@@ -155,7 +155,14 @@ main{padding:22px 0 30px;min-height:50vh}
 .cover{aspect-ratio:4/3;background:var(--chip);display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;padding:0;width:100%;overflow:hidden}
 .grid.list .cover{width:180px;flex:0 0 180px;aspect-ratio:auto}
 .cover img[src^="data:image/svg+xml"]{background:linear-gradient(180deg,var(--brand-2),var(--brand-3))}
-.card:has(.cover img[src^="data:image/svg+xml"]) :is(.intro,.cheer,.lhint){display:none}
+.card:not(.imgc):has(.cover img[src^="data:image/svg+xml"]) :is(.intro,.cheer,.lhint){display:none}
+.card.imgc .lhint,.card.imgc .links{display:none!important}
+.card.imgc .intro{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:4.6em;line-height:1.55}
+.card.imgc h3{min-height:2.6em}
+.card.imgc .acts{border-top:1px dashed var(--line);padding-top:10px}
+.grid.list .card.imgc .intro,.grid.list .card.imgc h3{min-height:0}
+.card.imgc .acts a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.card.imgc .acts>.btn.gold,.card.imgc .acts>.btn:not(.ghost){flex:1 1 40%}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 .cover svg{width:52px;height:52px;color:var(--tc)}
 .cbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
@@ -974,22 +981,26 @@ const INTRO={"أجزاء الحاسوب": "تعرّف على الشاشة ولو
 const SECINTRO={lessons:'دروس تفاعلية تشاهدها وتتفاعل معها، وتجمع بها النجوم.',presentations:'عروض الحصص الصفية بصورها وأنشطتها، جاهزة للمراجعة في أي وقت.',videos:'مقاطع قصيرة مصنوعة بالذكاء الاصطناعي تبسّط الدروس.',images:'بطاقات مصوّرة لكل درس، امسح الرمز أو افتح الرابط وابدأ.',homework:'واجبات ومسابقات ممتعة تختبر فيها ما تعلّمته وتنافس زملاءك.',assessments:'أنشطة قصيرة تقيس تقدّمك وتساعدك على المراجعة.',harvest:'خلاصة كل وحدة في مكان واحد للمراجعة قبل الاختبار.',assistive:'أدوات تساعد على إدارة الصف ومتابعة الطلبة.',workshops:'ورش تدريبية للمعلمات والمعلمين والمشرفات والمشرفين لتطوير المهارات الرقمية.',initiatives:'مبادرات للإثراء الرقمي والاستخدام الآمن للتقنية.',students:'مساحة نفخر فيها بإبداعات طلبتنا.'};
 const SECAUTO={lessons:'درس تفاعلي: شاهد واستكشف ثم أجب عن الأسئلة.',presentations:'عرض الحصة مع صور وأنشطة الدرس.',videos:'مقطع قصير يشرح الدرس بطريقة ممتعة.',images:'بطاقة الدرس المصوّرة مع رابطه التفاعلي.',homework:'مسابقات تفاعلية لكل درس من دروس الوحدة.',assessments:'نشاط قصير لقياس ما تعلّمته.',harvest:'مراجعة شاملة لدروس الوحدة.',assistive:'أداة تساعد على متابعة الطلبة وتنظيم الصف.',workshops:'ورشة تدريبية تفاعلية.',initiatives:'مبادرة لنشر الوعي الرقمي.',students:'عمل مميز من إبداع طلبتنا.'};
 const CHEERS={lessons:['ابدأ الآن واجمع نجمة ★','هيا نتعلّم معًا!','درس ممتع بانتظارك'],homework:['تحدَّ نفسك وفز ★','من الأسرع في الإجابة؟','كل مسابقة نجمة جديدة'],presentations:['راجع الدرس بسهولة','عرض الحصة بين يديك'],videos:['شاهد وتعلّم','دقائق ممتعة من التعلّم'],images:['امسح الرمز وابدأ','صورة تختصر الدرس'],assessments:['أرِنا ما تعلّمت!','قيّم نفسك ★'],harvest:['استعد للاختبار ★','راجع الوحدة كاملة'],assistive:['أداة للمعلمة'],workshops:['طوّر مهاراتك'],initiatives:['كن مواطنًا رقميًا واعيًا'],students:['أبدعت! ★']};
-const introOf=i=>i.desc||INTRO[i.title]||SECAUTO[i.section]||'';
+/* نبذة لكل درس في قسم الصور التفاعلية (حسب الصف ورقم الدرس) */
+const LINTRO={"الصف الأول": {"101": "اكتشف أين نستخدم الحاسوب في البيت والمدرسة والعمل.", "102": "تعرّف على الشاشة ولوحة المفاتيح والفأرة ووحدة النظام.", "103": "تعرّف على الأيقونات وشريط المهام وزر ابدأ.", "104": "تدرّب على النقر بالفأرة والكتابة بلوحة المفاتيح.", "105": "راجع ما تعلّمته في الوحدة بأسئلة سريعة وممتعة.", "106": "طبّق مهاراتك على الحاسوب خطوة بخطوة.", "201": "ارسم بالحاسوب وتعرّف على مزايا الرسم الرقمي.", "202": "ارسم الدائرة والمربع والمثلث ولوّنها بألوان جميلة.", "203": "تدرّب على رسم الأشكال وتلوينها بإتقان.", "204": "اجمع الأشكال البسيطة لترسم صورة جديدة.", "205": "ادمج المربع والمثلث والدائرة لترسم بيتًا جميلًا.", "206": "ارسم بحرية بالقلم والفرشاة والألوان وأبدع رسمتك.", "301": "تعرّف على الإنترنت وما نستطيع فعله به.", "302": "نستمتع بالفيديو والأناشيد والألعاب التعليمية الآمنة.", "303": "نتواصل مع الآخرين بالرسائل ومكالمات الفيديو بأمان وأدب.", "304": "نتعلّم كيف نبحث عن الصور والفيديوهات والمعلومات."}, "الصف الثالث": {"101": "اكتشف أجهزة الإدخال والإخراج وكيف نتواصل مع الحاسوب.", "102": "أنشئ المجلدات ورتّب ملفاتك بطريقة صحيحة.", "103": "تعرّف على الطابعة والكاميرا والماسح الضوئي واستخداماتها.", "201": "غيّر نوع الخط ولونه وحجمه ومحاذاته ليصبح نصك أجمل.", "202": "أضف الصور إلى المستند وغيّر حجمها وموضعها.", "203": "أنشئ قوائم نقطية ومرقّمة ومتعددة المستويات.", "204": "ننشئ مستندًا عن ترشيد استهلاك المياه بمهارات التنسيق والصور والقوائم.", "301": "تعلّم كيف تحمي نفسك ومعلوماتك على الإنترنت.", "302": "استخدم محرّك البحث لتجد المعلومات بسرعة ودقة.", "303": "احترم الآخرين وخصوصيتهم وحقوق الملكية الفكرية.", "304": "ميّز المعلومة الصحيحة واعثر على ما تحتاجه.", "305": "ابحث في موسوعة ويكيبيديا واستفد من مقالاتها."}};
+const lintroOf=i=>{ try{ const n=window.lessonNoOf&&lessonNoOf(i); return n&&LINTRO[i.grade]&&LINTRO[i.grade][n]||'' }catch(e){ return '' } };
+const introOf=i=>i.desc||INTRO[i.title]||(i.section==='images'?lintroOf(i):'')||SECAUTO[i.section]||'';
 const cheerOf=(i,k)=>{const c=CHEERS[i.section]||[]; return c.length?c[k%c.length]:''};
 function cardsHtml(items){
   const cc=id=>S.comments.filter(c=>c.itemId===id).length;
   return `<div class="grid ${S.view==='list'?'list':''}">${items.map((i,k)=>{const s=SECTIONS.find(x=>x.id===i.section)||SECTIONS[0];const un=unitName(i.grade,i.u);const ch=cheerOf(i,k);return `
-    <article class="card">
+    <article class="card${i.section==='images'?' imgc':''}">
       <button class="cover" onclick="openItem('${i.id}')" aria-label="عرض ${esc(i.title)}">${coverHtml(i)}</button>
       <div class="cbody">
         <div class="tags">${i.grade?`<span class="tag g">${esc(i.grade==='عام'?'كل الصفوف':i.grade)}</span>`:''}${un?`<span class="tag">${esc(un)}</span>`:''}${S.seen['i:'+i.id]?'<span class="tag">✓ شاهدتُه</span>':''}</div>
         <h3>${esc(i.title)}</h3>
         <div class="intro">${esc(introOf(i))}</div>
-        ${ch?`<span class="cheer">${esc(ch)}</span>`:''}
+        ${i.section==='images'?`<span class="cheer">${(i.links&&i.links.length)?'📱 امسح الرمز أو افتح الدرس ★':'🖼️ صورة تختصر الدرس'}</span>`:(ch?`<span class="cheer">${esc(ch)}</span>`:'')}
         ${(i.links&&i.links.length)?`<span class="lhint">${i.section==='homework'?'اختر مسابقتك:':i.section==='lessons'?'ادخل إلى الدرس:':'افتح الرابط:'}</span>`:''}
         ${linksHtml(i)}
         <div class="acts">
-          <button class="btn sm" onclick="openItem('${i.id}')">عرض</button>
+          ${i.section==='images'&&i.links&&i.links[0]?`<a class="btn sm gold" href="${esc(i.links[0])}" target="_blank" rel="noopener">افتح الدرس ↗</a>`:''}
+          <button class="btn sm" onclick="openItem('${i.id}')">${i.section==='images'?'عرض الصورة':'عرض'}</button>
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${i.sheet?`<button class="btn sm gold" onclick="sheetDl('${i.id}')">⬇ تحميل</button><button class="btn sm ghost" onclick="sheetPrint('${i.id}')">🖨️ طباعة</button>`:''}
           ${(()=>{const u=(i.links||[]).find(x=>/story2\.html\?d=/.test(x)); return u&&window.dlStory?`<button class="btn sm ghost" title="تنزيل القصة لتعمل دون إنترنت" onclick="dlStory(event,'${esc(u)}','${esc(String(i.title||'').replace(/\s*—.*$/,'').replace(/^الدرس\s*/,''))}')">⬇ تحميل</button>`:''})()}
