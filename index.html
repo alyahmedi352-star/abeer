@@ -368,6 +368,23 @@ textarea.in{min-height:96px;resize:vertical}
 .res{max-height:200px;overflow:auto}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--brand-3);color:#fff;padding:10px 18px;border-radius:14px;font-weight:800;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.25)}
 @media (max-width:760px){.hrow{flex-wrap:wrap}.logo-ring{width:104px;height:104px}.ctrls{width:100%}.row2{grid-template-columns:1fr}.grid.list .card{flex-direction:column}.grid.list .cover{width:100%;flex:auto;aspect-ratio:4/3}.bubble{left:16px;bottom:calc(108px + env(safe-area-inset-bottom,0px))}}
+
+/* ===== فيديوهات Ai: غلاف شريط الفيلم ===== */
+.vfilm{position:relative;display:flex;width:100%;height:100%;box-sizing:border-box;padding:22px 9px;background-color:var(--brand-3,#0F2C3C);
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='22'%3E%3Crect x='7' y='6' width='12' height='10' rx='2.5' fill='%23F5EBD6'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='22'%3E%3Crect x='7' y='6' width='12' height='10' rx='2.5' fill='%23F5EBD6'/%3E%3C/svg%3E"),linear-gradient(180deg,var(--brand-2,#225C78),var(--brand-3,#0F2C3C));
+ background-repeat:repeat-x,repeat-x,no-repeat;background-position:0 0,0 100%,0 0;background-size:26px 22px,26px 22px,100% 100%;animation:vfRun 2.4s linear infinite}
+@keyframes vfRun{to{background-position:-26px 0,26px 100%,0 0}}
+.vfilm .vf-in{position:relative;flex:1;min-width:0;border-radius:7px;overflow:hidden;box-shadow:0 0 0 2px #F2CF8A,0 0 14px rgba(242,207,138,.45)}
+.vfilm .vf-in img{width:100%;height:100%;object-fit:cover;display:block}
+.vfilm .vf-sh{position:absolute;inset:0;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);animation:vfSh 4.5s ease-in-out infinite;pointer-events:none}
+@keyframes vfSh{0%,55%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.vfilm .vf-play{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:rgba(15,25,35,.55);border:2.5px solid #F2CF8A;box-shadow:0 4px 14px rgba(0,0,0,.35);backdrop-filter:blur(2px);animation:vfPl 2.2s ease-in-out infinite}
+.vfilm .vf-play::before{content:"";position:absolute;left:50%;top:50%;margin:-11px 0 0 -6px;border-style:solid;border-width:11px 0 11px 18px;border-color:transparent transparent transparent #fff}
+.vfilm .vf-play::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid #F2CF8A;animation:vfRg 2.2s ease-out infinite}
+@keyframes vfPl{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes vfRg{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.7);opacity:0}}
+.cover:hover .vfilm .vf-play{background:rgba(217,166,78,.85)}
+.grid.list .vfilm{padding:18px 7px;background-size:22px 18px,22px 18px,100% 100%}
 </style>
 <style id="ub-head">/* شبكة النقاط الذهبية في الواجهة */
 .hnet{position:absolute;left:0;top:0;width:min(62%,720px);height:100%;pointer-events:none;z-index:0;-webkit-mask-image:linear-gradient(to left,transparent,#000 35%);mask-image:linear-gradient(to left,transparent,#000 35%)}
@@ -629,6 +646,12 @@ function renderHome(){
   </section>`;
 }
 function coverHtml(i){
+  const h=_coverInner(i);
+  /* فيديوهات Ai: نمط شريط الفيلم */
+  if(i.section==='videos'&&h.startsWith('<img')) return `<span class="vfilm"><span class="vf-in">${h}<span class="vf-sh"></span></span><span class="vf-play"></span></span>`;
+  return h;
+}
+function _coverInner(i){
   if(i.coverArt) return `<img src="${i.coverArt}" alt="" loading="lazy">`;
   if(i.coverData) return `<img src="${i.coverData}" alt="" loading="lazy">`;
   if(i.design) return `<div class="dcov"><span class="di">${svg(i.design.i||'clip')}</span><b>${esc(i.design.t)}</b><small>${esc(i.design.s||'')}</small></div>`;
