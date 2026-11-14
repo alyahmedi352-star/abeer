@@ -41,8 +41,28 @@ function btn(parent,label,fn,primary,pressed){const n=document.createElement('bu
 const P=()=>D.pages[step-1];
 function ready(){const p=P();return !p||!p.groups||p.groups.every(g=>S[g.key]===g.need)}
 function go(n){step=n;render();el('title').focus()}
+/* أدوات الرسم H لملفات المغامرات التي تستخدم paint(c,s,st,H) */
+function mkH(){let o='',gi=0;const q=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const F="font-family=\"Tajawal,Tahoma,Arial,sans-serif\" font-weight=\"800\"";
+ const H={
+  bg(a,b){const id='bg'+(gi++);o+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b||a}"/></linearGradient></defs><rect width="720" height="480" fill="url(#${id})"/>`},
+  rect(x,y,w,h,f,r,st,sw){o+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r||0}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
+  circ(x,y,r,f,st,sw){o+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
+  ellipse(x,y,rx,ry,f,st,sw){o+=`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
+  line(x1,y1,x2,y2,st,sw){o+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st||'#15284b'}" stroke-width="${sw||3}" stroke-linecap="round"/>`},
+  path(d,f,st,sw){o+=`<path d="${d}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
+  poly(pts,f,st,sw){const p=Array.isArray(pts)?pts.map(x=>Array.isArray(x)?x.join(','):x).join(' '):pts;o+=`<polygon points="${p}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
+  emoji(e,x,y,s){o+=`<text x="${x}" y="${y}" font-size="${s||40}" text-anchor="middle" dominant-baseline="central">${q(e)}</text>`},
+  text(t,x,y,s,c){o+=`<text x="${x}" y="${y}" font-size="${s||22}" fill="${c||'#15284b'}" text-anchor="middle" dominant-baseline="central" ${F}>${q(t)}</text>`},
+  kid(w,x,y,s){s=s||160;const id='k'+(gi++),r=s*.14;o+=`<defs><clipPath id="${id}"><rect x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" rx="${r}"/></clipPath></defs><rect x="${x-s/2-4}" y="${y-s/2-4}" width="${s+8}" height="${s+8}" rx="${r+4}" fill="#fff" stroke="#ffcf65" stroke-width="5"/><image href="${IMG[w]||IMG.boy}" x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>`},
+  mark(x,y,r,ok){r=r||40;o+=`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${ok?'#2f8a57':'#e8574b'}" stroke-width="6" stroke-dasharray="${ok?'none':'10 8'}"/><circle cx="${x+r*.72}" cy="${y-r*.72}" r="16" fill="${ok?'#2f8a57':'#e8574b'}"/><text x="${x+r*.72}" y="${y-r*.72}" font-size="20" fill="#fff" text-anchor="middle" dominant-baseline="central" ${F}>${ok?'✓':'✗'}</text>`},
+  bubble(t,x,y,s){s=s||20;const w=Math.max(80,String(t).length*s*.62+30),h=s*2.1;o+=`<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="${h/2}" fill="#fff" stroke="#15284b" stroke-width="2.5"/><path d="M${x-10} ${y+h/2-1} L${x-2} ${y+h/2+14} L${x+10} ${y+h/2-1}Z" fill="#fff" stroke="#15284b" stroke-width="2.5" stroke-linejoin="round"/><rect x="${x-12}" y="${y+h/2-4}" width="24" height="5" fill="#fff"/><text x="${x}" y="${y}" font-size="${s}" fill="#15284b" text-anchor="middle" dominant-baseline="central" ${F}>${q(t)}</text>`},
+  raw(svg){o+=svg},svg(svg){o+=svg},
+  get out(){return o}};
+ return new Proxy(H,{get(t,k){if(k in t)return t[k];return function(){console.warn('أداة رسم غير معروفة: H.'+String(k))}}})}
+function drawSVG(){try{if(typeof D.paint==='function'){const H=mkH();D.paint({},S,step,H);return H.out}return D.draw?D.draw(S,step,IMG):''}catch(e){console.warn(e);return ''}}
 function art(){const a=el('art');a.querySelectorAll('svg').forEach(x=>x.remove());el('cover').hidden=step!==0;if(step===0)return;
- a.insertAdjacentHTML('beforeend',`<svg id="pic" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="${(P()||{}).title||D.end.title}">${D.draw(S,step,IMG)}</svg>`)}
+ a.insertAdjacentHTML('beforeend',`<svg id="pic" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="${(P()||{}).title||D.end.title}">${drawSVG()}</svg>`)}
 function render(){
  const last=step>D.pages.length, p=P();
  el('lsn').textContent=D.lesson;
