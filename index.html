@@ -610,6 +610,7 @@ function renderHome(){
   </section>`;
 }
 function coverHtml(i){
+  if(i.coverArt) return `<img src="${i.coverArt}" alt="" loading="lazy">`;
   if(i.coverData) return `<img src="${i.coverData}" alt="" loading="lazy">`;
   if(i.design) return `<div class="dcov"><span class="di">${svg(i.design.i||'clip')}</span><b>${esc(i.design.t)}</b><small>${esc(i.design.s||'')}</small></div>`;
   if(i.thumb&&THUMBS[i.thumb]) return `<img src="${THUMBS[i.thumb]}" alt="" loading="lazy">`;
@@ -916,7 +917,7 @@ async function saveItem(id){
   const btn=$('#fSave'); btn.disabled=true; btn.textContent='جارٍ الحفظ…';
   try{
     if(f){ if(S.assets) await putFile(f,data); else if(/^image\//.test(f.type)){data.coverData=await shrink(f); data.thumb=''} else {err.textContent='رفع هذا النوع من الملفات غير متاح هنا. ضعي رابط الملف (Drive أو يوتيوب) في خانة الروابط.';btn.disabled=false;btn.textContent=id?'حفظ التعديلات':'إضافة الملف';return} }
-    if(cv){ if(S.assets){const r=await upload(cv); data.cover=r.id} else data.coverData=await shrink(cv); data.thumb='' }
+    if(cv){ if(S.assets){const r=await upload(cv); data.cover=r.id} else data.coverData=await shrink(cv); data.thumb=''; data.coverArt='' }
     if(!id && !data.assetId && !data.pp && !data.coverData && !links.length){err.textContent='أرفقي ملفًا أو ضعي رابطًا واحدًا على الأقل.';btn.disabled=false;btn.textContent='إضافة الملف';return}
     if(id) await S.db.doc('items/'+id).update(data);
     else await S.db.collection('items').add({...data,createdAt:Date.now(),createdBy:S.uid,order:Date.now()});
