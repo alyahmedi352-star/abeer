@@ -573,8 +573,20 @@ tick(); setInterval(tick,1000);
 function owlSay(m,ms=6000){const b=$('#bubble');b.textContent=m;b.classList.add('on');clearTimeout(b._h);b._h=setTimeout(()=>b.classList.remove('on'),ms)}
 const OWL=['أنا بومة المنصة! اختاري قسمًا من الأقسام لنبدأ.','هل جربتِ تغيير الألوان من زر لوحة الألوان؟','يمكنك تكبير الخط من زر أ+','تذكّري: نستخدم الإنترنت بأمان دائمًا.'];
 let owlK=0;
-$('#owl').onclick=()=>{sfx.hoot(); owlSay(owlK===0?`${greetWord()} أستاذة عبير! أهلًا بك في منصتك.`:OWL[(owlK-1)%OWL.length]); owlK++};
-setTimeout(()=>{owlSay(`${greetWord()} أستاذة عبير! أهلًا بك في منصتك.`,7000); owlK=1},900);
+const SUPS=()=>{ try{ return [SUP,...SUPS_EXTRA] }catch(e){ return [] } };
+function whoAmI(){ let r='viewer'; try{ r=role() }catch(e){} if(r==='viewer'&&SUPS().includes((S.email||'').toLowerCase())) r='supervisor';
+  if(r==='owner'||r==='supervisor') return r; if(S.member&&S.member.gid==='tch') return 'teacher'; if(S.member&&/^g\d/.test(S.member.gid||'')) return 'student'; return 'guest'; }
+function whoGreet(){ const w=whoAmI(), g=greetWord(), portal=location.hash==='#portal';
+  if(w==='owner') return portal?`${g} أستاذة عبير! بوابة المُلهِمات جاهزة: الملفات والتقارير ودفتر التحضير بين يديك 🗂️`:`${g} أستاذة عبير! أهلًا بك في منصتك 🌷`;
+  if(w==='supervisor') return portal?`${g} مشرفينا ومشرفاتنا الكرام! أهلًا بكم في بوابة المُلهِمات، التقارير ودفتر التحضير وكل ما في المنصة متاح لمتابعتكم 📋`:`${g}! أهلًا بالمشرف الكريم والمشرفة الفاضلة! سعداء بزيارتكم ومتابعتكم للمنصة 🌟`;
+  if(w==='teacher') return portal?`${g} معلماتنا ومعلمينا المُلهِمين! أهلًا بكم في بوابة المُلهِمات 💡`:`${g}! أهلًا بالمعلمة المبدعة والمعلم المبدع! المنصة مفتوحة لكم بكل صفوفها ✨`;
+  if(w==='student') return `${g} يا بطل ${S.member.group}! أنا بومة المنصة 🦉 هيا نتعلم ونستكشف ونلعب معًا 🚀`;
+  return portal?`${g}! أهلًا بك في بوابة المُلهِمات 🔐 سجّل الدخول لتبدأ.`:`${g}! أهلًا بك في منصة أ. عبير اليحمدية! أنا بومة المنصة 🦉 اختر قسمًا لنبدأ.`; }
+let owlLast='';
+function owlHello(){ const k=whoAmI()+(location.hash==='#portal'?'|p':''); if(k===owlLast) return; owlLast=k; owlSay(whoGreet(),8000); }
+$('#owl').onclick=()=>{sfx.hoot(); owlSay(owlK===0?whoGreet():OWL[(owlK-1)%OWL.length]); owlK++};
+setTimeout(()=>{ let n=0; const t=setInterval(()=>{ n++; if(S.authReady||n>20){ clearInterval(t); owlHello(); owlK=1 } },300) },900);
+addEventListener('hashchange',()=>setTimeout(()=>{ if(S.authReady) owlHello() },500));
 addEventListener('scroll',()=>{$('#up').classList.toggle('on',scrollY>300); const m=document.documentElement.scrollHeight-innerHeight; const p=m>0?Math.min(1,scrollY/m):0; $('#ringfg').style.strokeDashoffset=(138.2*(1-p)).toFixed(1)},{passive:true});
 $('#up').onclick=()=>{scrollTo({top:0,behavior:'smooth'}); sfx.click()};
 $('#flinks').innerHTML=SECTIONS.map(s=>`<a class="chip" href="#${s.id}">${s.t}</a>`).join('');
@@ -1125,6 +1137,8 @@ dlg.addEventListener('close',()=>{S._openId=null});
 if(!window.firebase){console.warn('firebase not loaded');return}
 const CFG={apiKey:"AIzaSyAaHsbkUOcYi1cAI2A1UG46XS38sdoOdz0",authDomain:"abeer-platform-cf812.firebaseapp.com",projectId:"abeer-platform-cf812",storageBucket:"abeer-platform-cf812.firebasestorage.app",messagingSenderId:"941687915468",appId:"1:941687915468:web:90eb0930af29e5adf79369"};
 const OWNER='alyahmedi.352@gmail.com', SUP='muniraalharasi567@gmail.com';
+/* ===== المشرفون والمشرفات الإضافيون: اكتبي البريد بين علامتي تنصيص، وافصلي بينها بفاصلة ===== */
+const SUPS_EXTRA=[ 'sooon1002003000@gmail.com' ].map(e=>e.trim().toLowerCase());
 const GROUPS=[['g1','الصف الأول'],['g2','الصف الثاني'],['g3','الصف الثالث'],['g4','الصف الرابع'],['tch','المعلمات']];
 const GNAME=Object.fromEntries([...GROUPS,['vis','زوار']]);
 firebase.initializeApp(CFG);
@@ -1135,7 +1149,7 @@ if(!(seed.items||[]).length) S.items=[];
 const BASE=SECTIONS.map(x=>({...x}));
 const busy=()=>{const a=document.activeElement; return a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.id!=='q'};
 const rerender=()=>{ if(!busy()) render(); };
-window.role=function(){ const e=(S.email||'').toLowerCase(); if(e===OWNER) return 'owner'; if(e===SUP) return 'supervisor'; return 'viewer'; };
+window.role=function(){ const e=(S.email||'').toLowerCase(); if(e===OWNER) return 'owner'; if(e===SUP||SUPS_EXTRA.includes(e)) return 'supervisor'; return 'viewer'; };
 function mergePosts(){ S.posts=[...S.pubPosts,...S.notes.map(n=>({...n,kind:'supervisor',_note:1}))]; }
 function pick(o){const r={}; ['t','d','c','i','hidden'].forEach(k=>{if(o[k]!==undefined&&o[k]!=='') r[k]=o[k]}); return r}
 function rebuildSections(){
@@ -1200,7 +1214,7 @@ fauth.onAuthStateChanged(async u=>{
   if(r!=='viewer'){ S.names[S.uid]=r==='owner'?'أ. عبير اليحمدية':'المشرفة';
     try{await fdb.doc('people/'+S.uid).set({name:S.names[S.uid],role:r,email:S.email})}catch(e){}
     staffOn(); } else { staffOff(); await loadMember(); applyMemberGrade(); }
-  S.authReady=true; subPublic(); render(); visit();
+  S.authReady=true; subPublic(); render(); visit(); try{ owlHello() }catch(e){}
 });
 function applyMemberGrade(){ if(S.member&&/^الصف/.test(S.member.group)&&!S._gradeSet){ S.grade=S.member.group; S._gradeSet=1; } }
 /* ---- gate (class codes) ---- */
@@ -1211,7 +1225,7 @@ window.joinCode=async function(){
   if(!/^[A-Za-z0-9\u0600-\u06FF_-]{3,30}$/.test(code)){er.textContent='الرمز غير صحيح';sfx.no&&sfx.no();return}
   er.textContent='لحظة…';
   for(const [gid,gname] of GROUPS){
-    try{ await fdb.doc('members/'+S.uid).set({code,group:gname,gid,at:Date.now()}); S.member={code,group:gname,gid}; S.denied=false; S._gradeSet=0; applyMemberGrade(); subPublic(); sfx.ok(); toast('أهلًا بك! 🌟'); location.hash='home'; render(); visit(true); return; }catch(e){}
+    try{ await fdb.doc('members/'+S.uid).set({code,group:gname,gid,at:Date.now()}); S.member={code,group:gname,gid}; S.denied=false; S._gradeSet=0; applyMemberGrade(); subPublic(); sfx.ok(); toast('أهلًا بك! 🌟'); location.hash='home'; render(); visit(true); try{ owlHello() }catch(e){} return; }catch(e){}
   }
   er.textContent='الرمز غير صحيح، تأكد منه واسأل معلمتك'; try{sfx.no()}catch(e){}
 };
@@ -1329,7 +1343,7 @@ window.exportResults=function(){ const rows=resFiltered();
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='نتائج-الطلبة.csv'; document.body.appendChild(a); a.click(); a.remove(); };
 
 /* ---- bulk import of cards ---- */
-const normT=t=>String(t||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();
+const normT=t=>String(t||'').replace(/[\u0654\u0655\u0670\u200B-\u200F\u00A0]/g,m=>m==='\u00A0'?' ':'').replace(/ی/g,'ي').replace(/ک/g,'ك').replace(/ٱ/g,'ا').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s+/g,' ').trim();
 window.renderImport=function(head){ S._impHead=head;
   const L=S._imp; const secT=id=>(window.ALLSECTIONS||SECTIONS).find(x=>x.id===id)?.t||id;
   let body='';
@@ -1340,7 +1354,7 @@ window.renderImport=function(head){ S._impHead=head;
     <div class="stwrap"><table class="stt"><thead><tr><th></th><th>البطاقة</th><th>القسم</th><th>الصف</th><th>الوحدة</th><th>الحالة</th></tr></thead><tbody>
     ${L.map((x,k)=>`<tr><td><input type="checkbox" ${x._on?'checked':''} onchange="S._imp[${k}]._on=this.checked;renderImport(S._impHead)" aria-label="تحديد"></td>
       <td style="text-align:right">${(x.coverData||(x.set&&x.set.coverData))?`<img src="${x.coverData||x.set.coverData}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-left:8px">`:''}<b>${esc(x.title)}</b></td>
-      <td>${esc(secT(x.section))}</td><td>${esc(x.grade||'')}</td><td>${x.u||'—'}</td><td>${x._clr?'<span style="color:#C8443B;font-weight:800">حذف '+S.items.filter(i=>i.section===x.section).length+' بطاقة</span>':x._upd?(x._id?'<span style="color:#2F6FB3;font-weight:800">تحديث '+esc(x.what||'')+'</span>':'<span style="color:#C8443B;font-weight:800">غير موجودة</span>'):(x._dup?'<span style="color:#B07A2A;font-weight:800">موجودة مسبقًا</span>':'<span style="color:#2F8A57;font-weight:800">جديدة</span>')}</td></tr>`).join('')}</tbody></table></div>`;
+      <td>${esc(secT(x.section))}</td><td>${esc(x.grade||'')}</td><td>${x.u||'—'}</td><td>${x._del?(x._id?'<span style="color:#C8443B;font-weight:800">حذف هذه البطاقة'+(x._ids.length>1?' ('+x._ids.length+')':'')+'</span>':'<span style="color:#C8443B;font-weight:800">غير موجودة</span>'):x._clr?'<span style="color:#C8443B;font-weight:800">حذف '+S.items.filter(i=>i.section===x.section).length+' بطاقة</span>':x._upd?(x._id?'<span style="color:#2F6FB3;font-weight:800">تحديث '+esc(x.what||'')+(x._ids&&x._ids.length>1?' ('+x._ids.length+' بطاقات)':'')+'</span>':'<span style="color:#C8443B;font-weight:800">غير موجودة</span>'):(x._dup?'<span style="color:#B07A2A;font-weight:800">موجودة مسبقًا</span>':'<span style="color:#2F8A57;font-weight:800">جديدة</span>')}</td></tr>`).join('')}</tbody></table></div>`;
   }
   $('#view').innerHTML=head+`<section class="block"><h2>📥 استيراد بطاقات دفعة واحدة</h2>
    <p class="muted" style="margin:0">اختاري ملف الاستيراد (‎.json) الذي يُرسل لك، فتظهر البطاقات هنا لتراجعيها، ثم تُضاف كلها بضغطة. البطاقات الموجودة مسبقًا بنفس العنوان لا تُحدَّد تلقائيًا حتى لا تتكرر.</p>
@@ -1353,7 +1367,8 @@ window.readImport=async function(f){ if(!f) return; let d; try{ d=JSON.parse(awa
   const loose=x=>{ const m=S.items.filter(i=>i.section===x.section&&normT(i.title)===normT(x.title)); return m.length===1?m[0].id:null };
   S._imp=d.items.map(x=>{ const id=ex[key(x)]||(x.op==='update'?loose(x):null);
     if(x.op==='clear') return {...x,title:x.title||'حذف المحتويات السابقة',_clr:1,_on:true};
-    if(x.op==='update') return {...x,_upd:1,_id:id||null,_dup:!id,_on:!!id};
+    if(x.op==='delete'){ const ids=S.items.filter(i=>i.section===x.section&&(!x.grade||i.grade===x.grade)&&normT(i.title)===normT(x.title)).map(i=>i.id); return {...x,_del:1,_ids:ids,_id:ids[0]||null,_on:!!ids.length}; }
+    if(x.op==='update'){ let ids=(x.lesson&&window.lessonNoOf)?S.items.filter(i=>i.section===x.section&&(!x.grade||i.grade===x.grade)&&lessonNoOf(i)===x.lesson).map(i=>i.id):[]; if(!ids.length&&id) ids=[id]; return {...x,_upd:1,_ids:ids,_id:ids[0]||null,_dup:!ids.length,_on:!!ids.length}; }
     return {...x,_dup:!!id,_on:!id} });
   renderImport(S._impHead); };
 window.doImport=async function(){ const L=(S._imp||[]).filter(x=>x._on); if(!L.length) return;
@@ -1362,7 +1377,7 @@ window.doImport=async function(){ const L=(S._imp||[]).filter(x=>x._on); if(!L.l
   try{ for(const c of L.filter(x=>x._clr)){ const ids=S.items.filter(i=>i.section===c.section).map(i=>i.id); for(let i=0;i<ids.length;i+=8){ const b=fdb.batch(); ids.slice(i,i+8).forEach(id=>b.delete(fdb.doc('items/'+id))); await b.commit(); if(msg()) msg().textContent='جارٍ حذف المحتويات السابقة… '+Math.min(i+8,ids.length)+' من '+ids.length; } }
     const L2=L.filter(x=>!x._clr); L.length=0; L.push(...L2);
     for(let i=0;i<L.length;i+=8){ const b=fdb.batch();
-      L.slice(i,i+8).forEach((x,k)=>{ if(x._upd){ if(x._id) b.update(fdb.doc('items/'+x._id),x.set||{}); return; } const {_on,_dup,_upd,_id,...d}=x; d.createdAt=t0+i+k; b.set(fdb.collection('items').doc(),d) });
+      L.slice(i,i+8).forEach((x,k)=>{ if(x._del){ (x._ids||[]).forEach(id=>b.delete(fdb.doc('items/'+id))); return; } if(x._upd){ (x._ids&&x._ids.length?x._ids:(x._id?[x._id]:[])).forEach(id=>b.update(fdb.doc('items/'+id),x.set||{})); return; } const {_on,_dup,_upd,_id,_ids,_del,...d}=x; d.createdAt=t0+i+k; b.set(fdb.collection('items').doc(),d) });
       await b.commit(); n+=Math.min(8,L.length-i); if(msg()) msg().textContent='جارٍ الإضافة… '+n+' من '+L.length; }
     sfx.ok(); toast('أُضيفت '+n+' بطاقة ✅'); S._imp=null; renderImport(S._impHead); const m=msg(); if(m) m.textContent='✅ أُضيفت '+n+' بطاقة. تجدينها في أقسامها.';
   }catch(e){ console.warn(e); toast('تعذّر إكمال الإضافة بعد '+n+' بطاقة'); } };
@@ -1527,7 +1542,7 @@ const CAT={
 const HARV={'الصف الأول':{1:'g1u1',2:'g1u2',3:'g1u3'},'الصف الثالث':{1:'g3u1',2:'g3u2',3:'g3u3'}};
 const GSLUG={'الصف الأول':'g1','الصف الثالث':'g3'}, SLUGG={g1:'الصف الأول',g3:'الصف الثالث'};
 const BASE='https://alyahmedi352-star.github.io/abeer/';
-const nrm=t=>String(t||'').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[«»"']/g,'').replace(/\s+/g,' ').trim();
+const nrm=t=>String(t||'').replace(/[\u0654\u0655\u0670\u200B-\u200F\u00A0]/g,m=>m==='\u00A0'?' ':'').replace(/ی/g,'ي').replace(/ک/g,'ك').replace(/ٱ/g,'ا').replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/[«»"']/g,'').replace(/\s+/g,' ').trim();
 const LS2={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const UNIT_SECS=['homework','harvest'];
 function lessons(g){ return (CAT[g]||[]).map(([u,n,name,al,key])=>({g,u,n,name,al,key,id:GSLUG[g]+'-'+u+'-'+n})) }
@@ -1538,6 +1553,7 @@ function matchItem(i,g){
   let best=null,bl=0; const prac=/تدرب/.test(t); L.forEach(l=>{ if(i.u&&l.u!==i.u) return; if(prac!==/تدرب/.test(nrm(l.name))&&L.some(x=>/تدرب/.test(nrm(x.name))&&x.u===l.u)) return; [l.name,...l.al].forEach(a=>{ const na=nrm(a); if(na.length>bl&&t.includes(na)){best=l;bl=na.length} }) });
   return best;
 }
+window.lessonNoOf=function(i){ const l=matchItem(i,i.grade); return l?l.u*100+l.n:null };
 function gather(g){
   const map={}; lessons(g).forEach(l=>map[l.id]={l,items:[]});
   S.items.forEach(i=>{ if(UNIT_SECS.includes(i.section)) return; const l=matchItem(i,g); if(l) map[l.id].items.push(i) });
@@ -2396,7 +2412,7 @@ if(typeof window.groupHtml==='function'){
     const real=['الصف الأول','الصف الثاني','الصف الثالث','الصف الرابع'];
     const gs=S.grade==='all'?real:[S.grade]; let h='';
     for(const g of gs){ const l=items.filter(i=>i.grade===g); if(!l.length) continue;
-      const units=[]; for(let u=1;u<=4;u++){ const ul=l.filter(i=>i.u===u); if(ul.length) units.push([u,ul]) }
+      const units=[]; for(let u=1;u<=4;u++){ const ul=l.filter(i=>i.u===u); if(S.sort!=='abc'&&window.lessonNoOf){ const ln=i=>{const v=lessonNoOf(i); return v==null?9999:v}; ul.sort((a,b)=>ln(a)-ln(b)||(b.createdAt||0)-(a.createdAt||0)) } if(ul.length) units.push([u,ul]) }
       const rest=l.filter(i=>!(i.u>=1&&i.u<=4));
       if(S.grade==='all') h+=`<div class="ug-grade"><span class="b">${GN[g]||'•'}</span><h2>${g}</h2><small>${l.length} ${l.length===1?'عنصر':'عناصر'}</small></div>`;
       h+='<div class="ug-units">'+units.map(([u,ul])=>{ const k=(MAP[GK[g]]||{})[u]; const nm=unitName(g,u), kk='الوحدة '+ORD[u]; return panel(nm,nm===kk?g:kk,ul,k?scene(k):SEC.generic()) }).join('')
@@ -2484,7 +2500,7 @@ body.sec-ws #view .grid:not(.list) .acts{margin-top:8px}
 body.sec-ws #view .card .links{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important}
 body.sec-ws #view .card .links a{display:inline-block!important;width:auto!important;margin:0!important}
 @media (max-width:640px){body.sec-ws #view .grid:not(.list){grid-template-columns:1fr}}
-#bmTk{display:flex;align-items:center;max-width:1180px;margin:10px auto 0;width:calc(100% - 32px);background:linear-gradient(90deg,#2B2148,#4A3B78);color:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(43,33,72,.18);font-family:inherit}
+#bmTk{display:flex;align-items:center;max-width:1180px;margin:10px auto 0;width:calc(100% - 32px);background:linear-gradient(90deg,var(--brand-3),var(--brand-2));color:#fff;border-radius:14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.18);font-family:inherit}
 #bmTk .l{flex:none;background:linear-gradient(180deg,#F2CF8A,#D9A64E);color:#3A2A0C;font-weight:900;padding:9px 14px;display:flex;gap:6px;align-items:center}
 #bmTk .l i{font-style:normal;display:inline-block;animation:bmRing 1.6s ease-in-out infinite}
 @keyframes bmRing{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(-14deg)}20%,40%{transform:rotate(14deg)}}
@@ -2494,7 +2510,7 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
 @keyframes bmMq{from{transform:translateX(0)}to{transform:translateX(100%)}}
 #bmTk .m b,#bmTk .cd b{color:#F2CF8A}
 #bmTk .cd{flex:none;margin-inline-start:8px;background:#ffffff1f;border:1px solid #ffffff40;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13.5px;white-space:nowrap}
-#bmTk .go{flex:none;margin:0 8px;font:inherit;font-weight:900;font-size:13.5px;border:0;border-radius:999px;padding:6px 14px;background:#fff;color:#2B2148;cursor:pointer;animation:bmPulse 2s ease-in-out infinite}
+#bmTk .go{flex:none;margin:0 8px;font:inherit;font-weight:900;font-size:13.5px;border:0;border-radius:999px;padding:6px 14px;background:#fff;color:var(--brand);cursor:pointer;animation:bmPulse 2s ease-in-out infinite}
 @keyframes bmPulse{50%{box-shadow:0 0 0 6px rgba(255,255,255,.18)}}
 @media (max-width:640px){#bmTk .cd{display:none}}
 .bmv{--p1:#2B2148;--p2:#4A3B78;--gd:#D9A64E;--gd2:#F2CF8A;--rd:#C8102E;--gr:#0E7A3E;--ln:#E2DFEC;--mu:#6B6585}
