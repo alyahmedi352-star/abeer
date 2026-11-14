@@ -664,7 +664,7 @@ function cardsHtml(items){
   const cc=id=>S.comments.filter(c=>c.itemId===id).length;
   return `<div class="grid ${S.view==='list'?'list':''}">${items.map(i=>{const s=SECTIONS.find(x=>x.id===i.section)||SECTIONS[0];return `
     <article class="card" style="--tc:${s.c}">
-      <button class="cover" onclick="openItem('${i.id}')" aria-label="عرض ${esc(i.title)}">${coverHtml(i)}</button>
+      <button class="cover" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}" aria-label="${i.section==='presentations'?'ابدأ العرض':'عرض'} ${esc(i.title)}">${coverHtml(i)}</button>
       <div class="cbody">
         <div class="tags">${i.grade?`<span class="tag g">${esc(i.grade==='عام'?'كل الصفوف':i.grade)}</span>`:''}${i.unit?`<span class="tag">${esc(i.unit)}</span>`:''}</div>
         <h3>${esc(i.title)}</h3>
@@ -878,7 +878,7 @@ function cardsHtml(items){
   const cc=id=>S.comments.filter(c=>c.itemId===id).length;
   return `<div class="grid ${S.view==='list'?'list':''}">${items.map(i=>{const s=SECTIONS.find(x=>x.id===i.section)||SECTIONS[0];const un=unitName(i.grade,i.u);return `
     <article class="card" style="--tc:${s.c}">
-      <button class="cover" onclick="openItem('${i.id}')" aria-label="عرض ${esc(i.title)}">${coverHtml(i)}</button>
+      <button class="cover" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}" aria-label="${i.section==='presentations'?'ابدأ العرض':'عرض'} ${esc(i.title)}">${coverHtml(i)}</button>
       <div class="cbody">
         <div class="tags">${i.grade?`<span class="tag g">${esc(i.grade==='عام'?'كل الصفوف':i.grade)}</span>`:''}${un?`<span class="tag">${esc(un)}</span>`:''}</div>
         <h3>${esc(i.title)}</h3>
@@ -1013,7 +1013,7 @@ function cardsHtml(items){
   const cc=id=>S.comments.filter(c=>c.itemId===id).length;
   return `<div class="grid ${S.view==='list'?'list':''}">${items.map((i,k)=>{const s=SECTIONS.find(x=>x.id===i.section)||SECTIONS[0];const un=unitName(i.grade,i.u);const ch=cheerOf(i,k);return `
     <article class="card${i.section==='images'?' imgc':''}">
-      <button class="cover" onclick="openItem('${i.id}')" aria-label="عرض ${esc(i.title)}">${coverHtml(i)}</button>
+      <button class="cover" onclick="${i.section==='presentations'&&window.startItem?`startItem('${i.id}')`:`openItem('${i.id}')`}" aria-label="${i.section==='presentations'?'ابدأ العرض':'عرض'} ${esc(i.title)}">${coverHtml(i)}</button>
       <div class="cbody">
         <div class="tags">${i.grade?`<span class="tag g">${esc(i.grade==='عام'?'كل الصفوف':i.grade)}</span>`:''}${un?`<span class="tag">${esc(un)}</span>`:''}${S.seen['i:'+i.id]?'<span class="tag">✓ شاهدتُه</span>':''}</div>
         <h3>${esc(i.title)}</h3>
@@ -2688,6 +2688,13 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     S.items=mine; for(let k=SECTIONS.length-1;k>=0;k--) if(hide.includes(SECTIONS[k].id)) SECTIONS.splice(k,1);
     try{ return _r.apply(this,arguments) }
     finally{ if(SECTIONS.length!==sec.length){ SECTIONS.length=0; sec.forEach(x=>SECTIONS.push(x)) } if(S.items===mine) S.items=all; }
+  };
+  window.startItem=function(id){
+    const i=(S.items||[]).find(x=>x.id===id); if(!i) return;
+    const raw=i.links&&i.links[0]; const u=raw?(typeof raw==='string'?((raw.match(/https?:\/\/[^\s|]+/)||[])[0]):raw.u):'';
+    if(!u) return openItem(id);
+    try{ if(S.seen&&!S.seen['i:'+id]){ S.seen['i:'+id]=1; try{LS.set('seen',S.seen)}catch(e){} } }catch(e){}
+    const w=window.open(u,'_blank','noopener'); if(!w) location.href=u;
   };
   window.dlPage=async function(ev,id){
     if(ev){ev.preventDefault();ev.stopPropagation()}
