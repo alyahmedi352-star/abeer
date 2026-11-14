@@ -11,7 +11,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:10px;pa
 .book{display:grid;grid-template-columns:.88fr 1.12fr;background:#fff;border:1px solid #e6ded2;border-radius:28px;overflow:hidden;box-shadow:0 14px 45px #35245017}
 .story{padding:clamp(22px,4vw,46px);display:flex;flex-direction:column;justify-content:center;min-width:0}
 .art{min-width:0;background:#173253;display:grid;align-items:center;position:relative}
-.art img{width:100%;height:100%;object-fit:cover;display:block}.art svg{width:100%;display:block;padding:12px}
+.art img{width:100%;height:100%;object-fit:cover;display:block}.art svg,.art canvas{width:100%;height:auto;display:block;padding:12px;box-sizing:border-box}
 h1{font-size:clamp(1.65rem,4vw,2.7rem);line-height:1.3;margin:.2em 0;font-weight:900}p{margin:8px 0}small{color:#805111;font-weight:800}
 .buttons,.nav{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.grp{margin-top:6px}
 button,a.btn{font:inherit;font-weight:800;color:#15284b;border:1px solid #c5d5e4;background:#eef5fc;border-radius:14px;padding:9px 16px;cursor:pointer;text-decoration:none}
@@ -39,30 +39,39 @@ let D,step=0,S={};
 function tone(f,d,t=0){try{const a=window._ac||(window._ac=new(window.AudioContext||window.webkitAudioContext)());const o=a.createOscillator(),g=a.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.12,a.currentTime+t);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+t+d);o.connect(g);g.connect(a.destination);o.start(a.currentTime+t);o.stop(a.currentTime+t+d)}catch(e){}}
 function btn(parent,label,fn,primary,pressed){const n=document.createElement('button');n.type='button';n.textContent=label;if(primary)n.className='primary';if(pressed!==undefined)n.setAttribute('aria-pressed',pressed);n.onclick=fn;parent.append(n);return n}
 const P=()=>D.pages[step-1];
-function ready(){const p=P();return !p||!p.groups||p.groups.every(g=>S[g.key]===g.need)}
+function ready(){const p=P();return !p||!p.groups||p.groups.every(g=>g.need==='*'?S[g.key]!==undefined:S[g.key]===g.need)}
 function go(n){step=n;render();el('title').focus()}
-/* أدوات الرسم H لملفات المغامرات التي تستخدم paint(c,s,st,H) */
-function mkH(){let o='',gi=0;const q=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
- const F="font-family=\"Tajawal,Tahoma,Arial,sans-serif\" font-weight=\"800\"";
- const H={
-  bg(a,b){const id='bg'+(gi++);o+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b||a}"/></linearGradient></defs><rect width="720" height="480" fill="url(#${id})"/>`},
-  rect(x,y,w,h,f,r,st,sw){o+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r||0}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
-  circ(x,y,r,f,st,sw){o+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
-  ellipse(x,y,rx,ry,f,st,sw){o+=`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
-  line(x1,y1,x2,y2,st,sw){o+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${st||'#15284b'}" stroke-width="${sw||3}" stroke-linecap="round"/>`},
-  path(d,f,st,sw){o+=`<path d="${d}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
-  poly(pts,f,st,sw){const p=Array.isArray(pts)?pts.map(x=>Array.isArray(x)?x.join(','):x).join(' '):pts;o+=`<polygon points="${p}" fill="${f||'none'}"${st?` stroke="${st}" stroke-width="${sw||2}"`:''}/>`},
-  emoji(e,x,y,s){o+=`<text x="${x}" y="${y}" font-size="${s||40}" text-anchor="middle" dominant-baseline="central">${q(e)}</text>`},
-  text(t,x,y,s,c){o+=`<text x="${x}" y="${y}" font-size="${s||22}" fill="${c||'#15284b'}" text-anchor="middle" dominant-baseline="central" ${F}>${q(t)}</text>`},
-  kid(w,x,y,s){s=s||160;const id='k'+(gi++),r=s*.14;o+=`<defs><clipPath id="${id}"><rect x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" rx="${r}"/></clipPath></defs><rect x="${x-s/2-4}" y="${y-s/2-4}" width="${s+8}" height="${s+8}" rx="${r+4}" fill="#fff" stroke="#ffcf65" stroke-width="5"/><image href="${IMG[w]||IMG.boy}" x="${x-s/2}" y="${y-s/2}" width="${s}" height="${s}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>`},
-  mark(x,y,r,ok){r=r||40;o+=`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${ok?'#2f8a57':'#e8574b'}" stroke-width="6" stroke-dasharray="${ok?'none':'10 8'}"/><circle cx="${x+r*.72}" cy="${y-r*.72}" r="16" fill="${ok?'#2f8a57':'#e8574b'}"/><text x="${x+r*.72}" y="${y-r*.72}" font-size="20" fill="#fff" text-anchor="middle" dominant-baseline="central" ${F}>${ok?'✓':'✗'}</text>`},
-  bubble(t,x,y,s){s=s||20;const w=Math.max(80,String(t).length*s*.62+30),h=s*2.1;o+=`<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="${h/2}" fill="#fff" stroke="#15284b" stroke-width="2.5"/><path d="M${x-10} ${y+h/2-1} L${x-2} ${y+h/2+14} L${x+10} ${y+h/2-1}Z" fill="#fff" stroke="#15284b" stroke-width="2.5" stroke-linejoin="round"/><rect x="${x-12}" y="${y+h/2-4}" width="24" height="5" fill="#fff"/><text x="${x}" y="${y}" font-size="${s}" fill="#15284b" text-anchor="middle" dominant-baseline="central" ${F}>${q(t)}</text>`},
-  raw(svg){o+=svg},svg(svg){o+=svg},
-  get out(){return o}};
- return new Proxy(H,{get(t,k){if(k in t)return t[k];return function(){console.warn('أداة رسم غير معروفة: H.'+String(k))}}})}
-function drawSVG(){try{if(typeof D.paint==='function'){const H=mkH();D.paint({},S,step,H);return H.out}return D.draw?D.draw(S,step,IMG):''}catch(e){console.warn(e);return ''}}
-function art(){const a=el('art');a.querySelectorAll('svg').forEach(x=>x.remove());el('cover').hidden=step!==0;if(step===0)return;
- a.insertAdjacentHTML('beforeend',`<svg id="pic" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="${(P()||{}).title||D.end.title}">${drawSVG()}</svg>`)}
+/* أدوات الرسم H للمغامرات: ترسم على لوحة canvas بمقاس 720×480 — paint(c,s,st,H) */
+const KIMG={};function kimg(w){if(KIMG[w])return KIMG[w];const im=new Image();im.onload=()=>{if(step)art()};im.src=IMG[w]||IMG.boy;return KIMG[w]=im}
+const FONT='Tajawal,Tahoma,Arial,sans-serif';
+function rr(c,x,y,w,h,r){r=Math.max(0,Math.min(r||0,Math.abs(w)/2,Math.abs(h)/2));c.beginPath();if(c.roundRect){c.roundRect(x,y,w,h,r)}else{c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}}
+function paintOut(c,f,st,sw){if(f){c.fillStyle=f;c.fill()}if(st){c.strokeStyle=st;c.lineWidth=sw||2;c.stroke()}}
+function mkH(c){return {
+ bg(a,b){const g=c.createLinearGradient(0,0,0,480);g.addColorStop(0,a);g.addColorStop(1,b||a);c.fillStyle=g;c.fillRect(0,0,720,480)},
+ rect(x,y,w,h,f,r,st,sw){c.save();rr(c,x,y,w,h,r);paintOut(c,f,st,sw);c.restore()},
+ circ(x,y,r,f,st,sw){c.save();c.beginPath();c.arc(x,y,Math.max(0,r),0,Math.PI*2);paintOut(c,f,st,sw);c.restore()},
+ ellipse(x,y,rx,ry,f,st,sw){c.save();c.beginPath();c.ellipse(x,y,Math.abs(rx),Math.abs(ry),0,0,Math.PI*2);paintOut(c,f,st,sw);c.restore()},
+ line(x1,y1,x2,y2,st,sw){c.save();c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=st||'#15284b';c.lineWidth=sw||3;c.lineCap='round';c.stroke();c.restore()},
+ curve(x1,y1,cx,cy,x2,y2,st,sw){c.save();c.beginPath();c.moveTo(x1,y1);c.quadraticCurveTo(cx,cy,x2,y2);c.strokeStyle=st||'#15284b';c.lineWidth=sw||3;c.lineCap='round';c.stroke();c.restore()},
+ emoji(e,x,y,sz){c.save();c.font=`${sz||40}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillStyle='#000';c.fillText(e,x,y);c.restore()},
+ text(t,x,y,sz,col){c.save();c.font=`800 ${sz||22}px ${FONT}`;c.direction='rtl';c.textAlign='center';c.textBaseline='middle';c.fillStyle=col||'#15284b';c.fillText(String(t),x,y);c.restore()},
+ kid(w,x,y,sz){const im=kimg(w);sz=sz||160;const ar=im.naturalWidth&&im.naturalHeight?im.naturalWidth/im.naturalHeight:.8;const h=sz,wd=sz*ar,r=wd*.14;
+  c.save();rr(c,x-4,y-4,wd+8,h+8,r+4);c.fillStyle='#fff';c.fill();c.strokeStyle='#ffcf65';c.lineWidth=5;c.stroke();
+  if(im.complete&&im.naturalWidth){rr(c,x,y,wd,h,r);c.clip();c.drawImage(im,x,y,wd,h)}c.restore()},
+ mark(x,y,r,ok){r=r||40;c.save();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle=ok?'#2f8a57':'#e8574b';c.lineWidth=6;if(!ok)c.setLineDash([10,8]);c.stroke();c.setLineDash([]);
+  const bx=x+r*.72,by=y-r*.72;c.beginPath();c.arc(bx,by,16,0,Math.PI*2);c.fillStyle=ok?'#2f8a57':'#e8574b';c.fill();c.fillStyle='#fff';c.font=`900 20px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(ok?'✓':'✗',bx,by+1);c.restore()},
+ bubble(t,x,y,sz){sz=sz||20;c.save();c.font=`800 ${sz}px ${FONT}`;c.direction='rtl';const w=Math.max(80,c.measureText(String(t)).width+34),h=sz*2.1;
+  rr(c,x-w/2,y-h/2,w,h,h/2);c.fillStyle='#fff';c.fill();c.strokeStyle='#15284b';c.lineWidth=2.5;c.stroke();
+  c.beginPath();c.moveTo(x-10,y+h/2-1);c.lineTo(x-2,y+h/2+14);c.lineTo(x+10,y+h/2-1);c.fillStyle='#fff';c.fill();c.stroke();c.fillRect(x-12,y+h/2-4,24,5);
+  c.fillStyle='#15284b';c.textAlign='center';c.textBaseline='middle';c.fillText(String(t),x,y+1);c.restore()},
+ poly(pts,f,st,sw){if(!pts||!pts.length)return;c.save();c.beginPath();pts.forEach((p,k)=>k?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();paintOut(c,f,st,sw);c.restore()}
+}}
+function drawPic(cv){const c=cv.getContext('2d');c.setTransform(cv.width/720,0,0,cv.height/480,0,0);c.clearRect(0,0,720,480);
+ try{if(typeof D.paint==='function'){c.save();D.paint(c,S,step,new Proxy(mkH(c),{get(t,k){return k in t?t[k]:function(){console.warn('أداة رسم غير معروفة: H.'+String(k))}}}));c.restore()}}catch(e){console.warn(e);try{c.restore()}catch(x){}}}
+function art(){const a=el('art');a.querySelectorAll('svg,canvas').forEach(x=>x.remove());el('cover').hidden=step!==0;if(step===0)return;
+ if(typeof D.paint!=='function'&&D.draw){a.insertAdjacentHTML('beforeend',`<svg id="pic" viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="${(P()||{}).title||D.end.title}">${D.draw(S,step,IMG)}</svg>`);return}
+ const cv=document.createElement('canvas');cv.id='pic';cv.width=1440;cv.height=960;cv.setAttribute('role','img');cv.setAttribute('aria-label',(P()||{}).title||D.end.title);a.append(cv);drawPic(cv)}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(typeof D!=='undefined'&&D&&step)art()});
 function render(){
  const last=step>D.pages.length, p=P();
  el('lsn').textContent=D.lesson;
@@ -72,7 +81,7 @@ function render(){
  el('choices').replaceChildren();el('nav').replaceChildren();el('feedback').textContent='';
  if(p&&!last)(p.groups||[]).forEach(g=>{const box=document.createElement('div');box.className='buttons grp';el('choices').append(box);
   g.options.forEach(([v,label,msg])=>{btn(box,label,ev=>{S[g.key]=v;[...box.children].forEach(c=>c.setAttribute('aria-pressed',c===ev.currentTarget));
-   el('feedback').textContent=msg;art();v===g.need?(tone(660,.15),tone(880,.2,.1)):tone(330,.18);navs()},false,S[g.key]===v)})});
+   el('feedback').textContent=msg;art();(v===g.need||g.need==='*')?(tone(660,.15),tone(880,.2,.1)):tone(330,.18);navs()},false,S[g.key]===v)})});
  navs();art();
 }
 function navs(){const n=el('nav'),last=step>D.pages.length;n.replaceChildren();
@@ -82,9 +91,11 @@ function navs(){const n=el('nav'),last=step>D.pages.length;n.replaceChildren();
  if(ready())btn(n,step===D.pages.length?'شاهد النهاية ←':'تابع القصة ←',()=>go(step+1),true).classList.add('pop');
  btn(n,'السابق',()=>go(step-1));
 }
-function save(){const svg=el('pic');if(!svg)return;const xml=new XMLSerializer().serializeToString(svg);const im=new Image();
- im.onload=()=>{const c=document.createElement('canvas');c.width=1440;c.height=960;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1440,960);x.drawImage(im,0,0,1440,960);
-  c.toBlob(b=>{if(!b){el('feedback').textContent='تعذّر تجهيز الصورة. جرّب مرة أخرى.';return}const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=(D.file||'lohati')+'.png';l.click();setTimeout(()=>URL.revokeObjectURL(l.href),3000);el('feedback').textContent='صورة اللوحة جاهزة للتنزيل.'})};
+function save(){const pic=el('pic');if(!pic)return;
+ const done=b=>{if(!b){el('feedback').textContent='تعذّر تجهيز الصورة. جرّب مرة أخرى.';return}const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=(D.file||'lohati')+'.png';l.click();setTimeout(()=>URL.revokeObjectURL(l.href),3000);el('feedback').textContent='صورة اللوحة جاهزة للتنزيل.'};
+ if(pic.tagName==='CANVAS'){const c=document.createElement('canvas');c.width=1440;c.height=960;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1440,960);x.drawImage(pic,0,0,1440,960);c.toBlob(done);return}
+ const xml=new XMLSerializer().serializeToString(pic);const im=new Image();
+ im.onload=()=>{const c=document.createElement('canvas');c.width=1440;c.height=960;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,1440,960);x.drawImage(im,0,0,1440,960);c.toBlob(done)};
  im.onerror=()=>el('feedback').textContent='تعذّر تجهيز الصورة في هذا المتصفّح.';
  im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml)}
 window.STORY2=d=>{D=d;document.title=d.title+' | مغامرات مختبر الحاسوب';S={};render()};
