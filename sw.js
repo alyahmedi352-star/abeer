@@ -1,5 +1,5 @@
-/* منصة أ. عبير — خدمة العمل دون إنترنت (الإصدار 4: حفظ تلقائي خفيف للطلبة) */
-const C = 'abeer-v4';
+/* منصة أ. عبير — خدمة العمل دون إنترنت (الإصدار 5: التحقق من التحديثات مع كل فتح للصفحات والملفات البرمجية) */
+const C = 'abeer-v5';
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'devices.js'];
 const SKIP = /(firestore\.googleapis\.com|firebaseio\.com|firebasestorage|identitytoolkit|securetoken|googleapis\.com\/identity|google-analytics|googletagmanager|api\.github\.com)/;
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => Promise.all(CORE.map(u => c.add(u).catch(() => {})))).then(() => self.skipWaiting())); });
@@ -9,14 +9,14 @@ self.addEventListener('fetch', e => {
   const r = e.request; if (r.method !== 'GET' || SKIP.test(r.url) || r.headers.has('range') || /\.mp4(\?|$)/i.test(r.url)) return;
   const page = r.mode === 'navigate';
   if (page) { // الصفحات: الإنترنت أولًا، ثم النسخة المحفوظة
-    e.respondWith(fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(clean(r.url), cp)); } return res; })
+    e.respondWith(fetch(r.url, { cache: 'no-cache', credentials: 'same-origin' }).catch(() => fetch(r)).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(clean(r.url), cp)); } return res; })
       .catch(() => caches.match(clean(r.url), { ignoreSearch: true }).then(m => m || caches.match('./'))));
     return;
   }
   // ملفات البرمجة والبيانات (js/css/json/html): الإنترنت أولًا لتصل التحديثات فورًا
   const u = new URL(r.url);
   if (u.origin === location.origin && /\.(js|css|json|html?)$/i.test(u.pathname)) {
-    e.respondWith(fetch(r).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })
+    e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => { if (res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put(r, cp)); } return res; })
       .catch(() => caches.match(r, { ignoreSearch: true })));
     return;
   }
