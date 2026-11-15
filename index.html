@@ -1306,8 +1306,8 @@ window.addPost=async function(kind){
 window.delPost=async function(id){ if(!confirm('حذف هذا المنشور؟')) return; const isNote=S.notes.some(n=>n.id===id);
   try{ await fdb.doc((isNote?'notes/':'posts/')+id).delete(); toast('حُذف') }catch(e){toast('تعذّر الحذف')} };
 /* ---- portal ---- */
-const _rp0=window.renderPortal; const XTABS=[['results','نتائج الطلبة'],['import','📥 استيراد بطاقات'],['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
-const tabsFor=()=>role()==='owner'?XTABS:XTABS.filter(t=>t[0]==='results');
+const _rp0=window.renderPortal; const XTABS=[['results','نتائج الطلبة'],['timetable','📅 جدولي المدرسي'],['import','📥 استيراد بطاقات'],['sections','إدارة الأقسام'],['lock','الرموز والحماية'],['stats','الإحصاءات']];
+const tabsFor=()=>role()==='owner'?XTABS:XTABS.filter(t=>t[0]==='results'||(t[0]==='timetable'&&role()==='supervisor'));
 window.renderPortal=function(){
   if(!S.authUser){
     $('#view').innerHTML=`<h1 style="margin-bottom:12px">بوابة المُلهِمات</h1>
@@ -1328,7 +1328,7 @@ window.renderPortal=function(){
     tabs.insertAdjacentHTML('beforeend',`<span style="flex:1"></span><span class="muted" style="font-weight:700">${esc(S.email)}</span><button class="btn sm ghost" onclick="fbLogout()">تسجيل الخروج</button>`);
     tabs.style.display='flex'; tabs.style.flexWrap='wrap'; tabs.style.gap='8px'; tabs.style.alignItems='center'; }
   if(want){ const head=`<h1 style="margin-bottom:6px">بوابة المُلهِمات</h1>`+document.querySelector('.ptabs').outerHTML;
-    if(want==='results') renderResults(head); else if(want==='import') renderImport(head); else if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
+    if(want==='results') renderResults(head); else if(want==='timetable') renderTT(head); else if(want==='import') renderImport(head); else if(want==='sections') renderSecMgr(head); else if(want==='lock') renderLock(head); else renderStats(head); }
 };
 window.fbLogin=async function(){ const e=$('#lgE').value.trim(), p=$('#lgP').value; const er=$('#lgErr');
   if(!e||!p){er.textContent='اكتبي البريد وكلمة المرور';return} er.textContent='جارٍ الدخول…';
@@ -1338,7 +1338,7 @@ window.fbReset=async function(){ const e=$('#lgE').value.trim(); if(!e){$('#lgEr
 window.fbLogout=async function(){ await fauth.signOut(); S.ptab=null; toast('تم تسجيل الخروج'); location.hash='home'; };
 
 /* ---- student results ---- */
-S.rf={gid:'',type:'',title:'',q:'',view:'list'};
+S.rf={gid:'',cls:'',type:'',title:'',q:'',view:'list'};
 window.renderResults=async function(head){
   $('#view').innerHTML=head+`<section class="block"><p class="muted">جارٍ تحميل النتائج…</p></section>`;
   try{ const q=await fdb.collection('results').get(); S._res=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); try{ const h=await fdb.doc('settings/homework').get(); S._hwAtt=h.exists?(+h.data().attempts||0):0 }catch(e){ S._hwAtt=0 } }
@@ -1346,7 +1346,7 @@ window.renderResults=async function(head){
   S._resHead=head; drawResults();
 };
 const RG=[['','كل الفئات'],['g1','الصف الأول'],['g2','الصف الثاني'],['g3','الصف الثالث'],['g4','الصف الرابع'],['tch','المعلمات'],['vis','زوار'],['staff','تجربة المعلمة']];
-function resFiltered(){ const f=S.rf, q=f.q.trim(); return (S._res||[]).filter(r=>(!f.gid||r.gid===f.gid)&&(!f.type||r.type===f.type)&&(!f.title||r.title===f.title)&&(!q||(r.name||'').includes(q)||(r.cls||'').includes(q))); }
+function resFiltered(){ const f=S.rf, q=f.q.trim(); return (S._res||[]).filter(r=>(!f.gid||r.gid===f.gid)&&(!f.cls||(r.cls||'')===f.cls)&&(!f.type||r.type===f.type)&&(!f.title||r.title===f.title)&&(!q||(r.name||'').includes(q)||(r.cls||'').includes(q))); }
 const fmtD=t=>t?new Date(t).toLocaleDateString('ar-OM',{day:'numeric',month:'short'})+' '+new Date(t).toLocaleTimeString('ar-OM',{hour:'2-digit',minute:'2-digit'}):'';
 const pctColor=p=>p>=90?'#2F8A57':p>=60?'#B07A2A':'#C8443B';
 function drawResults(){
@@ -1354,8 +1354,17 @@ function drawResults(){
   const titles=[...new Set(all.filter(r=>(!f.gid||r.gid===f.gid)&&(!f.type||r.type===f.type)).map(r=>r.title))].sort();
   const avg=rows.length?Math.round(rows.reduce((a,r)=>a+(r.pct||0),0)/rows.length):0;
   const students=new Set(rows.map(r=>(r.name||'')+'|'+(r.cls||'')+'|'+r.gid)).size;
+  const CLS=[...new Set(all.filter(r=>!f.gid||r.gid===f.gid).map(r=>r.cls||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar',{numeric:true}));
   let body='';
-  if(f.view==='list'){
+  if(f.view==='cls'){
+    const by={}; rows.forEach(r=>{(by[r.cls||'بدون شعبة']=by[r.cls||'بدون شعبة']||[]).push(r)});
+    const keys=Object.keys(by).sort((a,b)=>a.localeCompare(b,'ar',{numeric:true}));
+    body=keys.map(k=>{const rs=by[k]; const m={}; rs.forEach(r=>{const n=r.name||'';(m[n]=m[n]||{name:n,acts:{},n:0,sum:0,last:0});const x=m[n];x.n++;x.sum+=(r.pct||0);x.last=Math.max(x.last,r.at||0);x.acts[r.title]=Math.max(x.acts[r.title]||0,r.pct||0)});
+      const st=Object.values(m).sort((a,b)=>a.name.localeCompare(b.name,'ar')); const av=Math.round(rs.reduce((a,r)=>a+(r.pct||0),0)/rs.length);
+      return `<details class="clsbox" open><summary><b>🏫 الشعبة ${esc(k)}</b><span class="clskp">👤 ${st.length} طالب/ة</span><span class="clskp">📝 ${rs.length} محاولة</span><span class="clskp" style="color:${pctColor(av)}">📊 متوسط ${av}%</span></summary>
+      <div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الواجبات المحلولة</th><th>المتوسط</th><th>آخر نشاط</th><th>نتيجة كل واجب (أفضل محاولة)</th></tr></thead><tbody>
+      ${st.map(x=>{const a=Math.round(x.sum/x.n);return `<tr><td><b>${esc(x.name)}</b></td><td>${Object.keys(x.acts).length}</td><td style="color:${pctColor(a)};font-weight:900">${a}%</td><td style="white-space:nowrap">${fmtD(x.last)}</td><td>${Object.entries(x.acts).map(([t,p])=>`<span class="actchip" style="border-color:${pctColor(p)}">${esc(t)} <b style="color:${pctColor(p)}">${p}%</b></span>`).join(' ')}</td></tr>`}).join('')}</tbody></table></div></details>`}).join('')||'<p class="muted">لا توجد نتائج بعد.</p>';
+  } else if(f.view==='list'){
     body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>المحاولة</th><th>النجوم</th><th>الوقت</th>${role()==='owner'?'<th></th>':''}</tr></thead><tbody>
     ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(r.cls||'—')}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${r.attempt||'—'}</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
   } else {
@@ -1369,12 +1378,13 @@ function drawResults(){
    ${role()==='owner'?`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--chip);border-radius:14px;padding:10px 14px;margin-bottom:10px"><b>📌 عدد محاولات الطالب في كل واجب:</b>${[[1,'محاولة واحدة'],[2,'محاولتان'],[3,'3 محاولات'],[0,'دون حد']].map(([n,t])=>`<button class="chip" aria-pressed="${(S._hwAtt||0)===n}" onclick="setHwAtt(${n})">${t}</button>`).join('')}<span class="muted" style="font-size:.85rem">يُحسب على جهاز الطالب.</span></div>`:''}
    <div class="kpis"><div class="kpi"><b>${rows.length}</b>محاولة</div><div class="kpi"><b>${students}</b>طالب/ة</div><div class="kpi"><b style="color:${pctColor(avg)}">${avg}%</b>متوسط النتائج</div></div>
    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0">
-    <select class="in" onchange="S.rf.gid=this.value;S.rf.title='';drawResults()">${RG.map(([k,t])=>`<option value="${k}" ${f.gid===k?'selected':''}>${t}</option>`).join('')}</select>
+    <select class="in" onchange="S.rf.gid=this.value;S.rf.cls='';S.rf.title='';drawResults()">${RG.map(([k,t])=>`<option value="${k}" ${f.gid===k?'selected':''}>${t}</option>`).join('')}</select>
+    <select class="in" onchange="S.rf.cls=this.value;drawResults()"><option value="">كل الشعب</option>${CLS.map(c=>`<option ${f.cls===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <select class="in" onchange="S.rf.type=this.value;S.rf.title='';drawResults()">${[['','كل الأنواع'],['واجب','الواجبات'],['حصاد','الحصاد']].map(([k,t])=>`<option value="${k}" ${f.type===k?'selected':''}>${t}</option>`).join('')}</select>
     <select class="in" onchange="S.rf.title=this.value;drawResults()"><option value="">كل الأنشطة</option>${titles.map(t=>`<option ${f.title===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
     <input class="in" placeholder="ابحثي باسم الطالب أو الشعبة" value="${esc(f.q)}" oninput="S.rf.q=this.value;clearTimeout(S._rq);S._rq=setTimeout(()=>{drawResults();const i=document.querySelector('[data-rq]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)" data-rq>
    </div>
-   <div class="chips" style="margin-bottom:8px"><button class="chip" aria-pressed="${f.view==='list'}" onclick="S.rf.view='list';drawResults()">كل المحاولات</button><button class="chip" aria-pressed="${f.view==='student'}" onclick="S.rf.view='student';drawResults()">حسب الطالب</button>
+   <div class="chips" style="margin-bottom:8px"><button class="chip" aria-pressed="${f.view==='list'}" onclick="S.rf.view='list';drawResults()">كل المحاولات</button><button class="chip" aria-pressed="${f.view==='student'}" onclick="S.rf.view='student';drawResults()">حسب الطالب</button><button class="chip" aria-pressed="${f.view==='cls'}" onclick="S.rf.view='cls';drawResults()">🏫 حسب الشعبة</button>
     <span style="flex:1"></span><button class="btn sm ghost" onclick="renderResults(S._resHead)">🔄 تحديث</button><button class="btn sm" onclick="exportResults()">⬇️ تصدير إلى Excel</button></div>
    ${body}</section>`;
 }
@@ -2775,6 +2785,74 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     p.onclick=ev=>{ev.stopPropagation(); const b=ev.target.closest('button'); if(!b) return; LS.set('pal',b.dataset.k); applyPrefs(); try{sfx.click()}catch(x){} try{toast((PALS.find(x=>x[0]===b.dataset.k)||[])[1]||'')}catch(x){} p.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
   };
   document.addEventListener('click',()=>{const p=document.getElementById('palPick'); if(p) p.remove()});
+})();
+</script>
+<style>
+.clsbox{background:var(--chip);border-radius:16px;margin:10px 0;padding:6px 10px}
+.clsbox summary{cursor:pointer;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:6px 2px;font-size:1.02rem}
+.clskp{background:var(--paper);border-radius:99px;padding:2px 10px;font-weight:800;font-size:.85rem}
+.actchip{display:inline-block;border:2px solid;border-radius:99px;padding:0 8px;margin:2px;font-size:.78rem;background:var(--paper);white-space:nowrap}
+.tt{width:100%;border-collapse:separate;border-spacing:6px;table-layout:fixed}
+.tt th{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:12px;padding:8px 4px;font-size:.9rem}
+.tt th small{display:block;color:var(--gold-2,#F2CF8A);font-weight:700;font-size:.72rem}
+.tt td{background:var(--paper);border:2px solid var(--line);border-radius:12px;height:62px;text-align:center;vertical-align:middle;padding:4px;font-weight:900;font-size:.95rem;position:relative}
+.tt td small{display:block;font-weight:700;color:var(--muted);font-size:.72rem}
+.tt td.day{background:var(--chip);color:var(--text);width:92px}
+.tt td.g1{background:#E7F1FB;border-color:#9CC3EA;color:#14456F}.tt td.g3{background:#FBF1DD;border-color:#E6C27E;color:#6A4710}.tt td.oth{background:#EFEAF8;border-color:#C6B8E6;color:#4A3A7A}
+.tt tr.today td{box-shadow:0 0 0 2px var(--gold) inset}.tt tr.today td.day{background:var(--gold);color:#2A1C05}
+.tt td.now{animation:ttNow 1.6s ease-in-out infinite;border-color:var(--gold)!important}
+@keyframes ttNow{50%{box-shadow:0 0 0 5px rgba(217,166,78,.35)}}
+.tt select,.tt input{width:100%;font:inherit;font-size:.82rem;border:1px solid var(--line);border-radius:8px;padding:3px;background:var(--paper);color:var(--text)}
+.tt th input{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3);text-align:center}
+.ttnow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-radius:16px;padding:12px 16px;margin:8px 0 12px;font-weight:800}
+.ttnow b{color:var(--gold-2,#F2CF8A);font-size:1.15rem}
+@media print{body *{visibility:hidden}#ttPrint,#ttPrint *{visibility:visible}#ttPrint{position:absolute;inset:0}.noprint{display:none!important}}
+</style>
+<script>
+/* ---- جدولي المدرسي (بوابة المُلهِمات) ---- */
+(function(){
+  const DAYS=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+  const CLASSES=['أول/1','أول/2','أول/3','أول/4','أول/5','ثالث/1','ثالث/2','ثالث/3','ثالث/4','ثالث/5'];
+  const OTHER=['مناوبة','اجتماع','حصة انتظار','نشاط'];
+  const blank=()=>({n:8,times:['','','','','','','','','',''],cells:{}});
+  let TT=null, EDIT=false;
+  const loadLocal=()=>{try{return JSON.parse(localStorage.getItem('abeer.timetable')||'null')}catch(e){return null}};
+  const saveLocal=d=>{try{localStorage.setItem('abeer.timetable',JSON.stringify(d))}catch(e){}};
+  const cls=v=>!v?'':/^أول/.test(v)?'g1':/^ثالث/.test(v)?'g3':'oth';
+  const toMin=t=>{const m=String(t||'').match(/(\d{1,2})[:.](\d{2})/);if(!m)return null;let h=+m[1];if(h<6)h+=12;return h*60+(+m[2])};
+  function nowInfo(){const d=new Date(),day=d.getDay(); if(day>4) return {day:-1,p:-1}; const mins=d.getHours()*60+d.getMinutes(); let p=-1;
+    for(let k=0;k<TT.n;k++){const t=TT.times[k]||'';const parts=t.split(/[-–]/);const a=toMin(parts[0]),b=toMin(parts[1]);if(a!=null&&b!=null&&mins>=a&&mins<b){p=k;break}}
+    return {day,p}}
+  function draw(head){
+    const canEdit=role()==='owner', ni=nowInfo(); let nowTxt='';
+    if(ni.day>=0&&ni.p>=0){const c=TT.cells[ni.day+'-'+ni.p]||{};nowTxt=`⏰ الآن: الحصة ${ni.p+1} — <b>${esc(c.v||'فراغ')}</b>${c.note?' · '+esc(c.note):''}`}
+    else if(ni.day>=0){const today=[];for(let k=0;k<TT.n;k++){const c=TT.cells[ni.day+'-'+k];if(c&&c.v)today.push(c.v)}nowTxt=`📅 اليوم ${DAYS[ni.day]}: ${today.length?'<b>'+today.length+'</b> حصص — '+today.map(esc).join('، '):'لا حصص مسجّلة'}`}
+    else nowTxt='🌴 عطلة نهاية الأسبوع';
+    let cnt={};Object.values(TT.cells).forEach(c=>{if(c&&c.v)cnt[c.v]=(cnt[c.v]||0)+1});const total=Object.values(cnt).reduce((a,b)=>a+b,0);
+    const opt=(v)=>`<option value="">— فراغ —</option><optgroup label="الصف الأول">${CLASSES.slice(0,5).map(c=>`<option ${v===c?'selected':''}>${c}</option>`).join('')}</optgroup><optgroup label="الصف الثالث">${CLASSES.slice(5).map(c=>`<option ${v===c?'selected':''}>${c}</option>`).join('')}</optgroup><optgroup label="أخرى">${OTHER.map(c=>`<option ${v===c?'selected':''}>${c}</option>`).join('')}</optgroup>`;
+    const th=Array.from({length:TT.n},(_,k)=>`<th>الحصة ${k+1}${EDIT?`<input data-t="${k}" value="${esc(TT.times[k]||'')}" placeholder="7:00-7:35" dir="ltr">`:(TT.times[k]?`<small dir="ltr">${esc(TT.times[k])}</small>`:'')}</th>`).join('');
+    const rows=DAYS.map((d,i)=>`<tr class="${ni.day===i?'today':''}"><td class="day">${d}</td>${Array.from({length:TT.n},(_,k)=>{const c=TT.cells[i+'-'+k]||{};
+      return EDIT?`<td><select data-c="${i}-${k}">${opt(c.v||'')}</select><input data-n="${i}-${k}" value="${esc(c.note||'')}" placeholder="ملاحظة" style="margin-top:3px"></td>`
+      :`<td class="${cls(c.v)} ${ni.day===i&&ni.p===k?'now':''}">${esc(c.v||'')}${c.note?`<small>${esc(c.note)}</small>`:''}</td>`}).join('')}</tr>`).join('');
+    $('#view').innerHTML=head+`<section class="block" id="ttPrint"><h2>📅 جدولي المدرسي</h2>
+      <div class="ttnow">${nowTxt}</div>
+      <div class="noprint" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+        ${canEdit?(EDIT?`<label style="font-weight:800">عدد الحصص: <select class="in" style="width:auto;display:inline-block" onchange="ttSetN(this.value)">${[5,6,7,8,9,10].map(n=>`<option ${TT.n===n?'selected':''}>${n}</option>`).join('')}</select></label><button class="btn" onclick="ttSave()">💾 حفظ الجدول</button><button class="btn ghost" onclick="ttEdit(false)">إلغاء</button>`:`<button class="btn" onclick="ttEdit(true)">✏️ تعديل الجدول</button>`):''}
+        <span style="flex:1"></span>${!EDIT?`<span class="muted" style="font-weight:700">مجموع حصصي: ${total} في الأسبوع</span><button class="btn sm ghost" onclick="window.print()">🖨️ طباعة</button>`:''}
+      </div>
+      <div class="stwrap" style="max-height:none"><table class="tt"><thead><tr><th style="width:92px">اليوم</th>${th}</tr></thead><tbody>${rows}</tbody></table></div>
+      ${!EDIT&&total?`<div class="noprint" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">${Object.entries(cnt).sort((a,b)=>a[0].localeCompare(b[0],'ar',{numeric:true})).map(([k,v])=>`<span class="actchip" style="border-color:var(--line)">${esc(k)}: <b>${v}</b></span>`).join('')}</div>`:''}
+      ${canEdit&&!total&&!EDIT?'<p class="muted">اضغطي «تعديل الجدول» لإدخال حصصك من الأحد إلى الخميس.</p>':''}
+    </section>`;
+  }
+  function collect(){document.querySelectorAll('.tt [data-t]').forEach(i=>TT.times[+i.dataset.t]=i.value.trim());
+    document.querySelectorAll('.tt [data-c]').forEach(sl=>{const k=sl.dataset.c,n=document.querySelector(`.tt [data-n="${k}"]`);const v=sl.value,note=(n&&n.value.trim())||'';if(v||note)TT.cells[k]={v,note};else delete TT.cells[k]})}
+  window.ttEdit=on=>{EDIT=on;if(!on){const l=loadLocal();if(l)TT=l}draw(S._ttHead)};
+  window.ttSetN=n=>{collect();TT.n=+n;draw(S._ttHead)};
+  window.ttSave=async()=>{collect();Object.keys(TT.cells).forEach(k=>{if(+k.split('-')[1]>=TT.n)delete TT.cells[k]});TT.at=Date.now();saveLocal(TT);EDIT=false;draw(S._ttHead);
+    try{await fdb.doc('settings/timetable').set(TT);toast('حُفظ الجدول ✅')}catch(e){toast('حُفظ على هذا الجهاز فقط — تعذّر الحفظ في المنصة')}};
+  window.renderTT=async function(head){S._ttHead=head;TT=loadLocal()||blank();draw(head);
+    try{const d=await fdb.doc('settings/timetable').get();if(d.exists){const x=d.data();if(!TT.at||(x.at||0)>=(TT.at||0)){TT=Object.assign(blank(),x);saveLocal(TT)}}if(!EDIT)draw(head)}catch(e){}};
 })();
 </script>
 </body>
