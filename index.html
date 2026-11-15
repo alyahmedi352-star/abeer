@@ -2850,9 +2850,9 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
   window.ttEdit=on=>{EDIT=on;if(!on){const l=loadLocal();if(l)TT=l}draw(S._ttHead)};
   window.ttSetN=n=>{collect();TT.n=+n;draw(S._ttHead)};
   window.ttSave=async()=>{collect();Object.keys(TT.cells).forEach(k=>{if(+k.split('-')[1]>=TT.n)delete TT.cells[k]});TT.at=Date.now();saveLocal(TT);EDIT=false;draw(S._ttHead);
-    try{await fdb.doc('settings/timetable').set(TT);toast('حُفظ الجدول ✅')}catch(e){toast('حُفظ على هذا الجهاز فقط — تعذّر الحفظ في المنصة')}};
+    try{await firebase.firestore().doc('settings/timetable').set(TT);toast('حُفظ الجدول ✅')}catch(e){console.warn(e);toast('حُفظ على هذا الجهاز فقط — تعذّر الحفظ في المنصة')}};
   window.renderTT=async function(head){S._ttHead=head;TT=loadLocal()||blank();draw(head);
-    try{const d=await fdb.doc('settings/timetable').get();if(d.exists){const x=d.data();if(!TT.at||(x.at||0)>=(TT.at||0)){TT=Object.assign(blank(),x);saveLocal(TT)}}if(!EDIT)draw(head)}catch(e){}};
+    try{const d=await firebase.firestore().doc('settings/timetable').get();if(d.exists){const x=d.data();if(!TT.at||(x.at||0)>=(TT.at||0)){TT=Object.assign(blank(),x);saveLocal(TT)}}if(!EDIT)draw(head)}catch(e){}};
 })();
 </script>
 </body>
