@@ -1339,6 +1339,14 @@ window.fbLogout=async function(){ await fauth.signOut(); S.ptab=null; toast('ت�
 
 /* ---- student results ---- */
 S.rf={gid:'',cls:'',type:'',title:'',q:'',view:'list'};
+/* توحيد كتابة الشعبة: 1 / ١ / 1/2 / ٢/١ … ← أول/2 أو ثالث/2 حسب صف الطالب */
+const GRN={g1:['أول',1],g2:['ثاني',2],g3:['ثالث',3],g4:['رابع',4]};
+function nCls(r){ const raw=String(r.cls||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)); const g=GRN[r.gid];
+  if(!g) return raw.trim()||'غير محددة';
+  let d=(raw.match(/\d+/g)||[]).map(Number);
+  if(d.length>=2){ const k=d.indexOf(g[1]); if(k>=0) d.splice(k,1); }
+  const n=d[0]; return (n>=1&&n<=9)?g[0]+'/'+n:'غير محددة'; }
+const CLS_ORDER=c=>{const m=String(c).match(/^(أول|ثاني|ثالث|رابع)\/(\d)/);return m?(['أول','ثاني','ثالث','رابع'].indexOf(m[1])*10+(+m[2])):999};
 window.renderResults=async function(head){
   $('#view').innerHTML=head+`<section class="block"><p class="muted">جارٍ تحميل النتائج…</p></section>`;
   try{ const q=await fdb.collection('results').get(); S._res=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at||0)-(a.at||0)); try{ const h=await fdb.doc('settings/homework').get(); S._hwAtt=h.exists?(+h.data().attempts||0):0 }catch(e){ S._hwAtt=0 } }
@@ -1346,29 +1354,30 @@ window.renderResults=async function(head){
   S._resHead=head; drawResults();
 };
 const RG=[['','كل الفئات'],['g1','الصف الأول'],['g2','الصف الثاني'],['g3','الصف الثالث'],['g4','الصف الرابع'],['tch','المعلمات'],['vis','زوار'],['staff','تجربة المعلمة']];
-function resFiltered(){ const f=S.rf, q=f.q.trim(); return (S._res||[]).filter(r=>(!f.gid||r.gid===f.gid)&&(!f.cls||(r.cls||'')===f.cls)&&(!f.type||r.type===f.type)&&(!f.title||r.title===f.title)&&(!q||(r.name||'').includes(q)||(r.cls||'').includes(q))); }
+function resFiltered(){ const f=S.rf, q=f.q.trim(); return (S._res||[]).filter(r=>(!f.gid||r.gid===f.gid)&&(!f.cls||nCls(r)===f.cls)&&(!f.type||r.type===f.type)&&(!f.title||r.title===f.title)&&(!q||(r.name||'').includes(q)||(r.cls||'').includes(q))); }
 const fmtD=t=>t?new Date(t).toLocaleDateString('ar-OM',{day:'numeric',month:'short'})+' '+new Date(t).toLocaleTimeString('ar-OM',{hour:'2-digit',minute:'2-digit'}):'';
 const pctColor=p=>p>=90?'#2F8A57':p>=60?'#B07A2A':'#C8443B';
 function drawResults(){
   const head=S._resHead, all=S._res||[], f=S.rf, rows=resFiltered();
   const titles=[...new Set(all.filter(r=>(!f.gid||r.gid===f.gid)&&(!f.type||r.type===f.type)).map(r=>r.title))].sort();
   const avg=rows.length?Math.round(rows.reduce((a,r)=>a+(r.pct||0),0)/rows.length):0;
-  const students=new Set(rows.map(r=>(r.name||'')+'|'+(r.cls||'')+'|'+r.gid)).size;
-  const CLS=[...new Set(all.filter(r=>!f.gid||r.gid===f.gid).map(r=>r.cls||'').filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar',{numeric:true}));
+  const students=new Set(rows.map(r=>(r.name||'').trim()+'|'+nCls(r)+'|'+r.gid)).size;
+  const base=f.gid==='g1'?['أول']:f.gid==='g3'?['ثالث']:f.gid?[]:['أول','ثالث'];
+  const CLS=[...base.flatMap(g=>[1,2,3,4,5].map(n=>g+'/'+n)),...new Set(all.filter(r=>!f.gid||r.gid===f.gid).map(nCls))].filter((c,i,a)=>a.indexOf(c)===i).sort((a,b)=>CLS_ORDER(a)-CLS_ORDER(b));
   let body='';
   if(f.view==='cls'){
-    const by={}; rows.forEach(r=>{(by[r.cls||'بدون شعبة']=by[r.cls||'بدون شعبة']||[]).push(r)});
-    const keys=Object.keys(by).sort((a,b)=>a.localeCompare(b,'ar',{numeric:true}));
-    body=keys.map(k=>{const rs=by[k]; const m={}; rs.forEach(r=>{const n=r.name||'';(m[n]=m[n]||{name:n,acts:{},n:0,sum:0,last:0});const x=m[n];x.n++;x.sum+=(r.pct||0);x.last=Math.max(x.last,r.at||0);x.acts[r.title]=Math.max(x.acts[r.title]||0,r.pct||0)});
+    const by={}; rows.forEach(r=>{const k=nCls(r);(by[k]=by[k]||[]).push(r)});
+    const keys=Object.keys(by).sort((a,b)=>CLS_ORDER(a)-CLS_ORDER(b));
+    body=keys.map(k=>{const rs=by[k]; const m={}; rs.forEach(r=>{const n=(r.name||'').trim();(m[n]=m[n]||{name:n,acts:{},n:0,sum:0,last:0});const x=m[n];x.n++;x.sum+=(r.pct||0);x.last=Math.max(x.last,r.at||0);x.acts[r.title]=Math.max(x.acts[r.title]||0,r.pct||0)});
       const st=Object.values(m).sort((a,b)=>a.name.localeCompare(b.name,'ar')); const av=Math.round(rs.reduce((a,r)=>a+(r.pct||0),0)/rs.length);
       return `<details class="clsbox" open><summary><b>🏫 الشعبة ${esc(k)}</b><span class="clskp">👤 ${st.length} طالب/ة</span><span class="clskp">📝 ${rs.length} محاولة</span><span class="clskp" style="color:${pctColor(av)}">📊 متوسط ${av}%</span></summary>
       <div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الواجبات المحلولة</th><th>المتوسط</th><th>آخر نشاط</th><th>نتيجة كل واجب (أفضل محاولة)</th></tr></thead><tbody>
       ${st.map(x=>{const a=Math.round(x.sum/x.n);return `<tr><td><b>${esc(x.name)}</b></td><td>${Object.keys(x.acts).length}</td><td style="color:${pctColor(a)};font-weight:900">${a}%</td><td style="white-space:nowrap">${fmtD(x.last)}</td><td>${Object.entries(x.acts).map(([t,p])=>`<span class="actchip" style="border-color:${pctColor(p)}">${esc(t)} <b style="color:${pctColor(p)}">${p}%</b></span>`).join(' ')}</td></tr>`}).join('')}</tbody></table></div></details>`}).join('')||'<p class="muted">لا توجد نتائج بعد.</p>';
   } else if(f.view==='list'){
     body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>النشاط</th><th>النتيجة</th><th>النسبة</th><th>المحاولة</th><th>النجوم</th><th>الوقت</th>${role()==='owner'?'<th></th>':''}</tr></thead><tbody>
-    ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(r.cls||'—')}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${r.attempt||'—'}</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
+    ${rows.map(r=>`<tr><td><b>${esc(r.name||'')}</b></td><td>${esc(nCls(r))}</td><td>${esc(r.group||'')}</td><td>${esc(r.type||'')}: ${esc(r.title||'')}</td><td>${r.score} / ${r.total}</td><td style="color:${pctColor(r.pct||0)};font-weight:900">${r.pct||0}%</td><td>${r.attempt||'—'}</td><td>${'⭐'.repeat(r.stars||0)||'—'}</td><td style="white-space:nowrap">${fmtD(r.at)}</td>${role()==='owner'?`<td><button class="btn sm ghost" onclick="delResult('${r.id}')" title="حذف">🗑</button></td>`:''}</tr>`).join('')||`<tr><td colspan="9" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
   } else {
-    const m={}; rows.forEach(r=>{const k=(r.name||'')+'|'+(r.cls||'')+'|'+r.gid; (m[k]=m[k]||{name:r.name,cls:r.cls,group:r.group,n:0,sum:0,best:0,last:0,acts:new Set()}); const x=m[k]; x.n++; x.sum+=(r.pct||0); x.best=Math.max(x.best,r.pct||0); x.last=Math.max(x.last,r.at||0); x.acts.add(r.title)});
+    const m={}; rows.forEach(r=>{const k=(r.name||'').trim()+'|'+nCls(r)+'|'+r.gid; (m[k]=m[k]||{name:r.name,cls:nCls(r),group:r.group,n:0,sum:0,best:0,last:0,acts:new Set()}); const x=m[k]; x.n++; x.sum+=(r.pct||0); x.best=Math.max(x.best,r.pct||0); x.last=Math.max(x.last,r.at||0); x.acts.add(r.title)});
     const list=Object.values(m).sort((a,b)=>b.sum/b.n-a.sum/a.n);
     body=`<div class="stwrap"><table class="stt"><thead><tr><th>الاسم</th><th>الشعبة</th><th>الفئة</th><th>عدد المحاولات</th><th>الأنشطة المختلفة</th><th>المتوسط</th><th>أعلى نتيجة</th><th>آخر نشاط</th></tr></thead><tbody>
     ${list.map(x=>{const a=Math.round(x.sum/x.n); return `<tr><td><b>${esc(x.name||'')}</b></td><td>${esc(x.cls||'—')}</td><td>${esc(x.group||'')}</td><td>${x.n}</td><td>${x.acts.size}</td><td style="color:${pctColor(a)};font-weight:900">${a}%</td><td>${x.best}%</td><td style="white-space:nowrap">${fmtD(x.last)}</td></tr>`}).join('')||`<tr><td colspan="8" class="muted">لا توجد نتائج بعد.</td></tr>`}</tbody></table></div>`;
@@ -1379,7 +1388,7 @@ function drawResults(){
    <div class="kpis"><div class="kpi"><b>${rows.length}</b>محاولة</div><div class="kpi"><b>${students}</b>طالب/ة</div><div class="kpi"><b style="color:${pctColor(avg)}">${avg}%</b>متوسط النتائج</div></div>
    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:10px 0">
     <select class="in" onchange="S.rf.gid=this.value;S.rf.cls='';S.rf.title='';drawResults()">${RG.map(([k,t])=>`<option value="${k}" ${f.gid===k?'selected':''}>${t}</option>`).join('')}</select>
-    <select class="in" onchange="S.rf.cls=this.value;drawResults()"><option value="">كل الشعب</option>${CLS.map(c=>`<option ${f.cls===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+    <select class="in" onchange="S.rf.cls=this.value;if(this.value)S.rf.view='cls';drawResults()"><option value="">كل الشعب</option>${CLS.map(c=>`<option value="${esc(c)}" ${f.cls===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <select class="in" onchange="S.rf.type=this.value;S.rf.title='';drawResults()">${[['','كل الأنواع'],['واجب','الواجبات'],['حصاد','الحصاد']].map(([k,t])=>`<option value="${k}" ${f.type===k?'selected':''}>${t}</option>`).join('')}</select>
     <select class="in" onchange="S.rf.title=this.value;drawResults()"><option value="">كل الأنشطة</option>${titles.map(t=>`<option ${f.title===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
     <input class="in" placeholder="ابحثي باسم الطالب أو الشعبة" value="${esc(f.q)}" oninput="S.rf.q=this.value;clearTimeout(S._rq);S._rq=setTimeout(()=>{drawResults();const i=document.querySelector('[data-rq]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},350)" data-rq>
