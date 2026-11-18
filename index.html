@@ -1998,12 +1998,13 @@ const RPCSS=`
 @media (max-width:620px){.rp2 .kpis{grid-template-columns:repeat(2,1fr)}.rp2 .ub{grid-template-columns:1fr}.rp2 .side{flex-direction:row;flex-wrap:wrap;justify-content:center}}
 @media print{.rp2 *{-webkit-print-color-adjust:exact;print-color-adjust:exact;animation:none!important}.rp2 .ring .fgc{stroke-dashoffset:var(--off)}.rp2 .prog .t i{width:var(--w)}.rp2 .sheet{box-shadow:none}}`;
 function report(){
-  if(!document.getElementById('rp2css')) document.head.insertAdjacentHTML('beforeend','<style id="rp2css">'+RPCSS+'</style>');
+  if(!document.getElementById('rp2css')) document.head.insertAdjacentHTML('beforeend','<style id="rp2css">'+RPCSS+'</style>');if(!document.getElementById('rpswcss')) document.head.insertAdjacentHTML('beforeend','<style id="rpswcss">.rpsw{display:inline-flex;gap:4px;background:#fff;border:1.5px solid #D9A64E;border-radius:999px;padding:3px;margin-inline-start:auto}.rpsw button{font:inherit;font-weight:800;font-size:.82rem;border:0;border-radius:999px;padding:5px 12px;background:transparent;color:#173F55;cursor:pointer}.rpsw button[aria-pressed="true"]{background:#173F55;color:#F2CF8A}</style>');
   const AR=n=>Number(n).toLocaleString('ar-EG'), ORD=['','الأولى','الثانية','الثالثة','الرابعة'];
   const name=LSg('abeer.name')||'';
   const mg=(S.member&&S.member.group)||'';
   let gks=/الثالث/.test(mg)?['g3']:/الأول/.test(mg)?['g1']:['g1','g3'].filter(g=>Object.keys(HWU).some(uk=>uk.startsWith(g)&&(HWU[uk].some(k=>LSg('abeer.hw.'+k))||LSg('abeer.hv.'+uk))));
   if(!gks.length) gks=[myG()];
+  const rpO=(typeof role==='function'&&role()==='owner'); let rpG=null; try{rpG=localStorage.getItem('abeer.rpG')}catch(e){} if(rpO&&(rpG==='g1'||rpG==='g3')) gks=[rpG];
   const sc=v=>{const m=String(v||'').match(/(\d+)\D+(\d+)/);return m?[+m[1],+m[2]]:null};
   const stars=v=>{const x=sc(v);if(!x)return'';const p=x[0]/x[1];const n=p>=.9?3:p>=.6?2:1;return '★'.repeat(n)+'☆'.repeat(3-n)};
   const B=window.__bag; let medal=null, ubOf=()=>null, gen=[], earned=[];
@@ -2021,7 +2022,7 @@ function report(){
     <div class="ub"><div class="prog"><span>${AR(x.d)} من ${AR(t)} واجبات</span><span class="t"><i style="--w:${w}%"></i></span><span>${AR(w)}٪</span></div>
     <ul class="ls">${x.ks.map(k=>{const v=LSg('abeer.hw.'+k);return `<li class="${v?'d':'p'}"><span class="i">${v?'✓':''}</span>${esc(HWN[k]||k)}<span class="sc">${v?`${esc(String(v).replace('/',' من '))} <em>${stars(v)}</em>`:'لم يُحل بعد'}</span></li>`}).join('')}</ul>
     <div class="side"><div class="hv">🌾 الحصاد${x.h?`<b>${esc(String(x.h).replace('/',' من '))}</b>`:'<b style="color:#9AA8AF;font-size:1rem">لم يُؤدَّ</b>'}</div>${ub&&medal?medal(ub,full,74):''}<small>${full?'شارة الوحدة 🏅':'شارة الوحدة مقفلة'}</small></div></div></section>`};
-  $('#view').innerHTML=`<div class="hb"><div class="hb-gr noprint"><a href="#bag">← حقيبة إنجازاتي</a><a href="#" onclick="print();return false">🖨️ طباعة أو حفظ PDF</a></div>
+  $('#view').innerHTML=`<div class="hb"><div class="hb-gr noprint"><a href="#bag">← حقيبة إنجازاتي</a><a href="#" onclick="print();return false">🖨️ طباعة أو حفظ PDF</a>${rpO?`<span class="rpsw">${[['g1','الصف الأول'],['g3','الصف الثالث'],['all','تلقائي']].map(([k,l])=>`<button type="button" aria-pressed="${(k==='all'?!(rpG==='g1'||rpG==='g3'):rpG===k)}" onclick="try{localStorage.setItem('abeer.rpG','${k}')}catch(e){};report()">${l}</button>`).join('')}</span>`:''}</div>
   <div class="rp rp2"><article class="sheet">
    <header class="top"><div class="bl"><span>منصة أ. عبير اليحمدية · تقنية المعلومات</span><span>مدرسة مزن المعرفة (١–٤)</span></div>
     <div class="who"><div class="ring" style="--off:${100-pct}"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52"/><circle class="fgc" cx="60" cy="60" r="52" pathLength="100"/></svg><b>${AR(pct)}٪<small>نسبة الإنجاز</small></b></div>
