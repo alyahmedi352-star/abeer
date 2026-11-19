@@ -1635,7 +1635,7 @@ window.dlStory=async function(ev,u,name){if(ev){ev.preventDefault();ev.stopPropa
    const out=h.replace(/\/\*LOADER\*\/[\s\S]*?\/\*END\*\//,()=>j.replace(/<\/script/gi,'<\\/script'));
    const b=new Blob([out],{type:'text/html'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(v==='3'?'قضية ':'قصة ')+(name||('الدرس '+d.replace('-','.')))+'.html';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
   }catch(e){alert('تعذّر تنزيل القصة. تأكّد من الاتصال بالإنترنت ثم حاول مرة أخرى.')}};
-function posterOf(e){ const it=pick(e.items,'images')||pick(e.items,'lessons')||pick(e.items,'presentations')||e.items[0]; return it?coverHtml(it):'' }
+function posterOf(e){ const hasPic=i=>i&&(i.coverArt||i.coverData||i.thumb); const it=e.items.find(i=>i.section==='lessons'&&hasPic(i))||e.items.find(i=>i.section==='presentations'&&hasPic(i))||pick(e.items,'images')||pick(e.items,'lessons')||pick(e.items,'presentations')||e.items[0]; return it?coverHtml(it):'' }
 function doneOf(l){ return l.key&&LS2.get('abeer.hw.'+l.key) }
 function seenOf(l){ return LS2.get('abeer.seen.'+l.id) }
 function unitTitle(g,u){ try{ return unitName(g,u) }catch(e){ return 'الوحدة '+u } }
