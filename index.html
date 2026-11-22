@@ -414,6 +414,38 @@ html body .sidenav .sn-foot .sn-col{grid-column:1/-1}
 html body.sn-mini .sidenav .sn-foot{grid-template-columns:1fr}
 </style>
 <style id="abr-fonts">h1,h2,h3,.cbody h3,.hb-entry b{font-family:"Baloo Bhaijaan 2","Cairo","Tajawal",Tahoma,sans-serif!important;letter-spacing:0}h1.site-title,h1.site-title a{font-family:"Tajawal","Cairo",Tahoma,sans-serif!important;font-weight:900!important}</style>
+<style id="athar-fx">
+/* ===== حركات إضافية مستوحاة من «أثر معلمة» ===== */
+#abfx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+#abfx .p{position:absolute;bottom:-24px;color:var(--c);font-size:var(--s);text-shadow:0 0 10px var(--c);opacity:0;line-height:1}
+#abfx .p.dot{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);font-size:0}
+main{position:relative;z-index:1}
+.fx-rv{opacity:0;transform:translateY(24px)}
+.fx-rv.fx-in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--dl,0s)}
+.portal-btn,.install{position:relative;overflow:hidden}
+.portal-btn::after,.install::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);pointer-events:none}
+.tile::after,.hb-entry a::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(120%);transition:transform .8s;pointer-events:none;border-radius:inherit}
+.hb-entry a{position:relative;overflow:hidden}
+.tile:hover::after,.hb-entry a:hover::after{transform:translateX(-120%)}
+.tile,.hb-entry a,.lcard{transition:transform .25s,box-shadow .25s,filter .25s}
+.tile:hover,.hb-entry a:hover{transform:translateY(-4px)}
+.lcard:hover{transform:translateY(-3px)}
+.hb-entry a:hover .i,.tile:hover .ti{animation:fxPop .5s}
+@keyframes fxPop{0%{transform:scale(1)}45%{transform:scale(1.22) rotate(-8deg)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:no-preference){
+  #abfx .p{animation:fxRise var(--d,18s) linear infinite;animation-delay:var(--dl2,0s)}
+  .portal-btn::after,.install::after{animation:fxSweep 3.8s ease-in-out infinite}
+  .install::after{animation-delay:1.9s}
+  .portal-btn{animation:fxGlow 2.8s ease-in-out infinite}
+  .wk{animation:fxWk 3.2s ease-in-out infinite}
+}
+@keyframes fxRise{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:.5}50%{transform:translate(var(--x,30px),-55vh) rotate(180deg)}90%{opacity:.4}100%{transform:translate(calc(var(--x,30px) * -1),-110vh) rotate(360deg);opacity:0}}
+@keyframes fxSweep{0%,55%{left:-60%}100%{left:130%}}
+@keyframes fxGlow{0%,100%{box-shadow:0 0 0 0 rgba(217,166,78,.55)}50%{box-shadow:0 0 0 8px rgba(217,166,78,0)}}
+@keyframes fxWk{0%,100%{box-shadow:0 8px 22px rgba(23,63,85,.08),0 0 0 0 rgba(217,166,78,.0)}50%{box-shadow:0 8px 22px rgba(23,63,85,.08),0 0 18px 2px rgba(217,166,78,.35)}}
+@media (prefers-reduced-motion:reduce){.fx-rv{opacity:1!important;transform:none!important}#abfx{display:none}}
+@media print{#abfx{display:none}}
+</style>
 </head>
 <body>
 <header class="hero" id="top">
@@ -2863,6 +2895,25 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     try{await firebase.firestore().doc('settings/timetable').set(TT);toast('حُفظ الجدول ✅')}catch(e){console.warn(e);toast('حُفظ على هذا الجهاز فقط — تعذّر الحفظ في المنصة')}};
   window.renderTT=async function(head){S._ttHead=head;TT=loadLocal()||blank();draw(head);
     try{const d=await firebase.firestore().doc('settings/timetable').get();if(d.exists){const x=d.data();if(!TT.at||(x.at||0)>=(TT.at||0)){TT=Object.assign(blank(),x);saveLocal(TT)}}if(!EDIT)draw(head)}catch(e){}};
+})();
+</script>
+<script id="athar-fx-js">
+/* حركات إضافية: نجوم صاعدة في الخلفية، وظهور البطاقات عند التمرير */
+(function(){
+  try{
+    var fx=document.createElement("div");fx.id="abfx";fx.setAttribute("aria-hidden","true");
+    var cols=["#D9A64E","#F2CF8A","#7cc8da","#ffffff"],sym=["✦","✧","⋆"],N=innerWidth<700?8:16;
+    for(var i=0;i<N;i++){var p=document.createElement("span"),star=i%2===0;p.className="p"+(star?"":" dot");p.textContent=star?sym[i%3]:"";
+      p.style.cssText="left:"+(Math.random()*100).toFixed(1)+"%;--s:"+(star?(10+Math.random()*10).toFixed(0)+"px":(3+Math.random()*4).toFixed(1)+"px")+";--d:"+(15+Math.random()*15).toFixed(1)+"s;--dl2:-"+(Math.random()*20).toFixed(1)+"s;--x:"+(Math.random()*80-40).toFixed(0)+"px;--c:"+cols[i%4];
+      fx.appendChild(p);}
+    document.body.prepend(fx);
+    var view=document.getElementById("view");if(!view)return;
+    var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("fx-in");io.unobserve(e.target);}});},{threshold:.06}):null;
+    var SEL=".hb-entry > a, .wk, .live > *, .tiles > *, #view > section.block";
+    function prep(){var k=0;view.querySelectorAll(SEL).forEach(function(el){if(el.classList.contains("fx-rv"))return;el.classList.add("fx-rv");el.style.setProperty("--dl",(Math.min(k++,8)*0.06).toFixed(2)+"s");if(io)io.observe(el);else el.classList.add("fx-in");});
+      setTimeout(function(){view.querySelectorAll(".fx-rv:not(.fx-in)").forEach(function(el){var r=el.getBoundingClientRect();if(r.top<innerHeight+40)el.classList.add("fx-in");});},1600);}
+    prep();new MutationObserver(function(){prep();}).observe(view,{childList:true});
+  }catch(e){}
 })();
 </script>
 </body>
