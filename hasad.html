@@ -114,14 +114,18 @@ function end(){ const st=starsOf(); sfx.win(); if(st>=2) confetti();
   $('#app').innerHTML=`<div class="end"><h1>انتهى التحدي!</h1><div class="stars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div>
   <p style="font-size:1.2rem;font-weight:900;margin:0">${msg}</p>
   <div class="stats"><div class="stat"><b>${S.right}/${S.qs.length}</b>إجابات صحيحة</div><div class="stat"><b>${S.score}</b>نقطة</div><div class="stat"><b>${st}</b>نجوم</div></div>
-  <div class="noprint"><label style="font-weight:800">اكتب اسمك لتحصل على الشهادة:</label><br><input class="in" id="nm" placeholder="اسمك هنا" maxlength="40" value="${esc(localStorage.getItem('abeer.name')||'')}"><br><input class="in" id="cls" placeholder="الشعبة (مثل: 1/2) — اختياري" maxlength="10" style="margin-top:8px" value="${esc(localStorage.getItem('abeer.cls')||'')}"><div class="acts" style="justify-content:center"><button class="btn gold" onclick="cert()">احصل على الشهادة 🏅</button><button class="btn ghost" onclick="start(S.key)">أعد المحاولة</button><button class="btn ghost" onclick="location.hash=''">مسابقة أخرى</button></div></div>
+  <div class="noprint"><label style="font-weight:800">اكتب اسمك لتحصل على الشهادة:</label><br><input class="in" id="nm" placeholder="اسمك هنا" maxlength="40" value="${esc(localStorage.getItem('abeer.name')||'')}"><br>${clsSel(S.u.grade)}<div class="acts" style="justify-content:center"><button class="btn gold" onclick="cert()">احصل على الشهادة 🏅</button><button class="btn ghost" onclick="start(S.key)">أعد المحاولة</button><button class="btn ghost" onclick="location.hash=''">مسابقة أخرى</button></div></div>
   <div id="cert"></div></div>`; }
 
 function sendRes(){ const m=document.getElementById('sendmsg'); if(m){m.style.color='#5E7079'; m.innerHTML='⏳ جارٍ إرسال نتيجتك إلى معلمتك…'}
   saveResult(S._rec).then(r=>{ const m=document.getElementById('sendmsg'); if(!m) return;
     if(r===true){ m.style.color='#2F8A57'; m.innerHTML='✅ وصلت نتيجتك إلى معلمتك'; }
     else { m.style.color='#C8443B'; m.innerHTML=`⚠️ لم تصل النتيجة بعد. تأكد من اتصال الإنترنت ثم <button class="btn sm" onclick="sendRes()">أعد الإرسال</button><br><small style="color:#5E7079">(${r})</small>`; } }); }
-function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();return} sfx.win(); confetti();
+function clsSel(g){g=String(g||'');const gs=/الأول/.test(g)?[['أول','الأول']]:/الثالث/.test(g)?[['ثالث','الثالث']]:[['أول','الأول'],['ثالث','الثالث']];let sv='';try{sv=localStorage.getItem('abeer.cls')||''}catch(e){}
+let o='<option value="">— اختر صفّك وشعبتك —</option>';gs.forEach(([k,n])=>{for(let i=1;i<=5;i++){const v=k+'/'+i;o+='<option value="'+v+'"'+(sv===v?' selected':'')+'>الصف '+n+'/'+i+'</option>'}});
+return '<select class="in" id="cls" style="margin-top:8px;font-weight:800;cursor:pointer" onchange="this.style.outline=\'\'">'+o+'</select>'}
+function clsNeed(){const c=$('#cls');if(c&&!c.value){c.style.outline='3px solid #C8443B';c.focus();try{c.scrollIntoView({block:'center'})}catch(e){}let w=document.getElementById('clsw');if(!w){w=document.createElement('div');w.id='clsw';w.style.cssText='color:#C8443B;font-weight:800;margin-top:6px';w.textContent='اختر صفّك وشعبتك أولًا 👆';c.after(w)}return true}return false}
+function cert(){ const n=($('#nm').value||'').trim(); if(!n){$('#nm').focus();return} if(clsNeed()) return; sfx.win(); confetti();
   const cls=(($('#cls')||{}).value||'').trim(); try{localStorage.setItem('abeer.name',n);localStorage.setItem('abeer.cls',cls)}catch(e){}
   try{localStorage.setItem('abeer.hv.'+S.key,S.right+' من '+S.qs.length)}catch(e){}
   if(!S._sent){ S._sent=1; S._rec={name:n,cls,type:'حصاد',key:S.key,title:'حصاد '+S.u.unit,grade:S.u.grade,score:S.right,total:S.qs.length,points:S.score,pct:Math.round(S.right/S.qs.length*100),stars:starsOf()}; sendRes(); }
