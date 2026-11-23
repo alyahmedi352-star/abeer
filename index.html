@@ -414,38 +414,25 @@ html body .sidenav .sn-foot .sn-col{grid-column:1/-1}
 html body.sn-mini .sidenav .sn-foot{grid-template-columns:1fr}
 </style>
 <style id="abr-fonts">h1,h2,h3,.cbody h3,.hb-entry b{font-family:"Baloo Bhaijaan 2","Cairo","Tajawal",Tahoma,sans-serif!important;letter-spacing:0}h1.site-title,h1.site-title a{font-family:"Tajawal","Cairo",Tahoma,sans-serif!important;font-weight:900!important}</style>
-<style id="athar-fx">
-/* ===== حركات إضافية مستوحاة من «أثر معلمة» ===== */
-#abfx{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-#abfx .p{position:absolute;bottom:-24px;color:var(--c);font-size:var(--s);text-shadow:0 0 10px var(--c);opacity:0;line-height:1}
-#abfx .p.dot{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);font-size:0}
-main{position:relative;z-index:1}
-.fx-rv{opacity:0;transform:translateY(24px)}
-.fx-rv.fx-in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--dl,0s)}
-.portal-btn,.install{position:relative;overflow:hidden}
-.portal-btn::after,.install::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);pointer-events:none}
-.tile::after,.hb-entry a::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(120%);transition:transform .8s;pointer-events:none;border-radius:inherit}
-.hb-entry a{position:relative;overflow:hidden}
-.tile:hover::after,.hb-entry a:hover::after{transform:translateX(-120%)}
-.tile,.hb-entry a,.lcard{transition:transform .25s,box-shadow .25s,filter .25s}
-.tile:hover,.hb-entry a:hover{transform:translateY(-4px)}
-.lcard:hover{transform:translateY(-3px)}
-.hb-entry a:hover .i,.tile:hover .ti{animation:fxPop .5s}
-@keyframes fxPop{0%{transform:scale(1)}45%{transform:scale(1.22) rotate(-8deg)}100%{transform:scale(1)}}
-@media (prefers-reduced-motion:no-preference){
-  #abfx .p{animation:fxRise var(--d,18s) linear infinite;animation-delay:var(--dl2,0s)}
-  .portal-btn::after,.install::after{animation:fxSweep 3.8s ease-in-out infinite}
-  .install::after{animation-delay:1.9s}
-  .portal-btn{animation:fxGlow 2.8s ease-in-out infinite}
-  .wk{animation:fxWk 3.2s ease-in-out infinite}
-}
-@keyframes fxRise{0%{transform:translate(0,0) rotate(0);opacity:0}10%{opacity:.5}50%{transform:translate(var(--x,30px),-55vh) rotate(180deg)}90%{opacity:.4}100%{transform:translate(calc(var(--x,30px) * -1),-110vh) rotate(360deg);opacity:0}}
-@keyframes fxSweep{0%,55%{left:-60%}100%{left:130%}}
-@keyframes fxGlow{0%,100%{box-shadow:0 0 0 0 rgba(217,166,78,.55)}50%{box-shadow:0 0 0 8px rgba(217,166,78,0)}}
-@keyframes fxWk{0%,100%{box-shadow:0 8px 22px rgba(23,63,85,.08),0 0 0 0 rgba(217,166,78,.0)}50%{box-shadow:0 8px 22px rgba(23,63,85,.08),0 0 18px 2px rgba(217,166,78,.35)}}
-@media (prefers-reduced-motion:reduce){.fx-rv{opacity:1!important;transform:none!important}#abfx{display:none}}
-@media print{#abfx{display:none}}
-</style>
+<style id="alogo-css">.al-tw{transform-box:fill-box;transform-origin:center;animation:altw 2.8s ease-in-out infinite}@keyframes altw{0%,100%{opacity:.35;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+.al-float{animation:alfl 3.6s ease-in-out infinite}@keyframes alfl{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+.al-shine{animation:alsh 5s ease-in-out infinite}@keyframes alsh{0%,55%{transform:translateX(0)}85%,100%{transform:translateX(130px)}}
+.sidenav .sn-logo{width:48px;height:48px;flex:0 0 auto;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}.sidenav .sn-logo svg{width:100%;height:100%;display:block;overflow:visible}
+.sidenav .sn-tt{display:flex;flex-direction:column;min-width:0}.sidenav .sn-tt small{font-size:.72rem;font-weight:800;color:#F2CF8A;letter-spacing:.2px;margin-top:1px;white-space:nowrap}
+body.sn-mini .sidenav .sn-tt{display:none}@media (max-width:1099px){body.sn-mini .sidenav .sn-tt{display:flex}}</style>
+
+<script>
+(function(){
+let n=0;const A="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 120\"><defs><linearGradient id=\"bg_ID\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" style=\"stop-color:var(--brand-2)\"/><stop offset=\"1\" style=\"stop-color:var(--brand-3)\"/></linearGradient><linearGradient id=\"sc_ID\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" style=\"stop-color:var(--brand-2)\"/><stop offset=\"1\" style=\"stop-color:var(--brand-3)\"/></linearGradient><radialGradient id=\"hl_ID\" cx=\".5\" cy=\"0\" r=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".35\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\"0\"/></radialGradient><linearGradient id=\"bz_ID\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".55\" stop-color=\"#E6ECEF\"/><stop offset=\"1\" stop-color=\"#B9C6CC\"/></linearGradient><linearGradient id=\"gd_ID\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFF1CC\"/><stop offset=\".5\" stop-color=\"#F2CF8A\"/><stop offset=\"1\" stop-color=\"#C9933A\"/></linearGradient><linearGradient id=\"st_ID\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#9FB0B8\"/><stop offset=\".5\" stop-color=\"#F4F7F8\"/><stop offset=\"1\" stop-color=\"#9FB0B8\"/></linearGradient><radialGradient id=\"sh_ID\"><stop offset=\"0\" stop-color=\"#000\" stop-opacity=\".45\"/><stop offset=\"1\" stop-color=\"#000\" stop-opacity=\"0\"/></radialGradient><clipPath id=\"cp_ID\"><rect x=\"27\" y=\"29\" width=\"66\" height=\"42\" rx=\"4\"/></clipPath><filter id=\"ds_ID\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"150%\"><feDropShadow dx=\"0\" dy=\"3\" stdDeviation=\"2.5\" flood-color=\"#000\" flood-opacity=\".35\"/></filter></defs><rect x=\"4\" y=\"4\" width=\"112\" height=\"112\" rx=\"28\" fill=\"url(#bg_ID)\"/><rect x=\"4\" y=\"4\" width=\"112\" height=\"112\" rx=\"28\" fill=\"url(#hl_ID)\"/><rect x=\"4.8\" y=\"4.8\" width=\"110.4\" height=\"110.4\" rx=\"27.2\" fill=\"none\" stroke=\"#F2CF8A\" stroke-opacity=\".55\" stroke-width=\"1.2\"/><ellipse cx=\"60\" cy=\"99\" rx=\"34\" ry=\"5\" fill=\"url(#sh_ID)\"/><g class=\"al-float\"><g filter=\"url(#ds_ID)\"><path d=\"M52 77h16l3 14H49z\" fill=\"url(#st_ID)\"/><rect x=\"40\" y=\"90\" width=\"40\" height=\"6\" rx=\"3\" fill=\"url(#st_ID)\"/><rect x=\"40\" y=\"90\" width=\"40\" height=\"2\" rx=\"1\" fill=\"#fff\" opacity=\".8\"/><rect x=\"21\" y=\"23\" width=\"78\" height=\"56\" rx=\"8\" fill=\"url(#bz_ID)\"/><rect x=\"21\" y=\"23\" width=\"78\" height=\"2.5\" rx=\"1.2\" fill=\"#fff\"/><rect x=\"27\" y=\"29\" width=\"66\" height=\"42\" rx=\"4\" fill=\"url(#sc_ID)\"/><rect x=\"25.6\" y=\"27.6\" width=\"68.8\" height=\"44.8\" rx=\"5\" fill=\"none\" stroke=\"url(#gd_ID)\" stroke-width=\"1.6\"/><g clip-path=\"url(#cp_ID)\"><circle cx=\"60\" cy=\"50\" r=\"20\" fill=\"#F2CF8A\" opacity=\".18\"/><path d=\"M27 29h40L47 71H27z\" fill=\"#fff\" opacity=\".1\"/><path class=\"al-shine\" d=\"M0 20h10L-10 90h-10z\" fill=\"#fff\" opacity=\".3\"/></g><path transform=\"translate(49.36 53.01) scale(0.0338 -0.0338)\" d=\"M215 194Q262 212 314.5 222.5Q367 233 426 233Q470 233 496.5 211.0Q523 189 523 136Q523 123 522.0 114.0Q521 105 518 90Q388 90 314.5 68.0Q241 46 211.0 10.0Q181 -26 181 -68Q181 -125 225.5 -154.5Q270 -184 349 -184Q414 -184 462.5 -167.5Q511 -151 555 -119Q575 -138 590.0 -160.0Q605 -182 605 -219Q605 -254 582.0 -279.5Q559 -305 520.5 -322.0Q482 -339 435.5 -347.0Q389 -355 342 -355Q238 -355 167.5 -321.0Q97 -287 61.0 -225.0Q25 -163 25 -79Q25 5 68.5 73.0Q112 141 197 172ZM201 110Q142 149 114.0 201.0Q86 253 86 313Q86 382 116.0 431.5Q146 481 199.0 507.0Q252 533 319 533Q371 533 409.0 519.0Q447 505 468.5 479.5Q490 454 490 418Q490 387 478.0 366.0Q466 345 452 332Q438 346 411.0 358.0Q384 370 345 370Q298 370 271.0 348.0Q244 326 245 287Q246 254 269.5 232.5Q293 211 324 200Z\" fill=\"url(#gd_ID)\"/><circle cx=\"60\" cy=\"75.5\" r=\"1.4\" fill=\"url(#gd_ID)\"/></g></g><path class=\"al-tw\" style=\"animation-delay:0s\" transform=\"translate(100 17) scale(0.75)\" d=\"M0-6C.6-1.4 1.4-.6 6 0 1.4.6.6 1.4 0 6-.6 1.4-1.4.6-6 0-1.4-.6-.6-1.4 0-6Z\" fill=\"#FFF1CC\"/><path class=\"al-tw\" style=\"animation-delay:1s\" transform=\"translate(15 30) scale(0.5)\" d=\"M0-6C.6-1.4 1.4-.6 6 0 1.4.6.6 1.4 0 6-.6 1.4-1.4.6-6 0-1.4-.6-.6-1.4 0-6Z\" fill=\"#FFF1CC\"/><path class=\"al-tw\" style=\"animation-delay:1.8s\" transform=\"translate(104 52) scale(0.4)\" d=\"M0-6C.6-1.4 1.4-.6 6 0 1.4.6.6 1.4 0 6-.6 1.4-1.4.6-6 0-1.4-.6-.6-1.4 0-6Z\" fill=\"#FFF1CC\"/></svg>";
+window.ALOGO=function(){n++;return A.split('_ID').join('_al'+n)};
+const S="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 120 120\"><defs><linearGradient id=\"bg_x\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" style=\"stop-color:#225C78\"/><stop offset=\"1\" style=\"stop-color:#0F2C3C\"/></linearGradient><linearGradient id=\"sc_x\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" style=\"stop-color:#225C78\"/><stop offset=\"1\" style=\"stop-color:#0F2C3C\"/></linearGradient><radialGradient id=\"hl_x\" cx=\".5\" cy=\"0\" r=\"1\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".35\"/><stop offset=\".5\" stop-color=\"#fff\" stop-opacity=\"0\"/></radialGradient><linearGradient id=\"bz_x\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\".55\" stop-color=\"#E6ECEF\"/><stop offset=\"1\" stop-color=\"#B9C6CC\"/></linearGradient><linearGradient id=\"gd_x\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#FFF1CC\"/><stop offset=\".5\" stop-color=\"#F2CF8A\"/><stop offset=\"1\" stop-color=\"#C9933A\"/></linearGradient><linearGradient id=\"st_x\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#9FB0B8\"/><stop offset=\".5\" stop-color=\"#F4F7F8\"/><stop offset=\"1\" stop-color=\"#9FB0B8\"/></linearGradient><radialGradient id=\"sh_x\"><stop offset=\"0\" stop-color=\"#000\" stop-opacity=\".45\"/><stop offset=\"1\" stop-color=\"#000\" stop-opacity=\"0\"/></radialGradient><clipPath id=\"cp_x\"><rect x=\"27\" y=\"29\" width=\"66\" height=\"42\" rx=\"4\"/></clipPath><filter id=\"ds_x\" x=\"-20%\" y=\"-20%\" width=\"140%\" height=\"150%\"><feDropShadow dx=\"0\" dy=\"3\" stdDeviation=\"2.5\" flood-color=\"#000\" flood-opacity=\".35\"/></filter></defs><rect x=\"4\" y=\"4\" width=\"112\" height=\"112\" rx=\"28\" fill=\"url(#bg_x)\"/><rect x=\"4\" y=\"4\" width=\"112\" height=\"112\" rx=\"28\" fill=\"url(#hl_x)\"/><rect x=\"4.8\" y=\"4.8\" width=\"110.4\" height=\"110.4\" rx=\"27.2\" fill=\"none\" stroke=\"#F2CF8A\" stroke-opacity=\".55\" stroke-width=\"1.2\"/><ellipse cx=\"60\" cy=\"99\" rx=\"34\" ry=\"5\" fill=\"url(#sh_x)\"/><g class=\"al-float\"><g filter=\"url(#ds_x)\"><path d=\"M52 77h16l3 14H49z\" fill=\"url(#st_x)\"/><rect x=\"40\" y=\"90\" width=\"40\" height=\"6\" rx=\"3\" fill=\"url(#st_x)\"/><rect x=\"40\" y=\"90\" width=\"40\" height=\"2\" rx=\"1\" fill=\"#fff\" opacity=\".8\"/><rect x=\"21\" y=\"23\" width=\"78\" height=\"56\" rx=\"8\" fill=\"url(#bz_x)\"/><rect x=\"21\" y=\"23\" width=\"78\" height=\"2.5\" rx=\"1.2\" fill=\"#fff\"/><rect x=\"27\" y=\"29\" width=\"66\" height=\"42\" rx=\"4\" fill=\"url(#sc_x)\"/><rect x=\"25.6\" y=\"27.6\" width=\"68.8\" height=\"44.8\" rx=\"5\" fill=\"none\" stroke=\"url(#gd_x)\" stroke-width=\"1.6\"/><g clip-path=\"url(#cp_x)\"><circle cx=\"60\" cy=\"50\" r=\"20\" fill=\"#F2CF8A\" opacity=\".18\"/><path d=\"M27 29h40L47 71H27z\" fill=\"#fff\" opacity=\".1\"/></g><path transform=\"translate(49.36 53.01) scale(0.0338 -0.0338)\" d=\"M215 194Q262 212 314.5 222.5Q367 233 426 233Q470 233 496.5 211.0Q523 189 523 136Q523 123 522.0 114.0Q521 105 518 90Q388 90 314.5 68.0Q241 46 211.0 10.0Q181 -26 181 -68Q181 -125 225.5 -154.5Q270 -184 349 -184Q414 -184 462.5 -167.5Q511 -151 555 -119Q575 -138 590.0 -160.0Q605 -182 605 -219Q605 -254 582.0 -279.5Q559 -305 520.5 -322.0Q482 -339 435.5 -347.0Q389 -355 342 -355Q238 -355 167.5 -321.0Q97 -287 61.0 -225.0Q25 -163 25 -79Q25 5 68.5 73.0Q112 141 197 172ZM201 110Q142 149 114.0 201.0Q86 253 86 313Q86 382 116.0 431.5Q146 481 199.0 507.0Q252 533 319 533Q371 533 409.0 519.0Q447 505 468.5 479.5Q490 454 490 418Q490 387 478.0 366.0Q466 345 452 332Q438 346 411.0 358.0Q384 370 345 370Q298 370 271.0 348.0Q244 326 245 287Q246 254 269.5 232.5Q293 211 324 200Z\" fill=\"url(#gd_x)\"/><circle cx=\"60\" cy=\"75.5\" r=\"1.4\" fill=\"url(#gd_x)\"/></g></g><path transform=\"translate(100 17) scale(.9)\" d=\"M0-6C.6-1.4 1.4-.6 6 0 1.4.6.6 1.4 0 6-.6 1.4-1.4.6-6 0-1.4-.6-.6-1.4 0-6Z\" fill=\"#FFF1CC\"/></svg>";
+function setFav(){try{const cs=getComputedStyle(document.documentElement);const b2=(cs.getPropertyValue('--brand-2')||'#225C78').trim(),b3=(cs.getPropertyValue('--brand-3')||'#0F2C3C').trim();
+const svg=S.split('#225C78').join(b2).split('#0F2C3C').join(b3);const href='data:image/svg+xml,'+encodeURIComponent(svg);
+let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.append(l)}l.type='image/svg+xml';l.href=href;
+const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=(cs.getPropertyValue('--brand')||'#173F55').trim()}catch(e){}}
+setFav();new MutationObserver(setFav).observe(document.documentElement,{attributes:true,attributeFilter:['data-palette','data-theme']});
+})();
+</script>
 </head>
 <body>
 <header class="hero" id="top">
@@ -1611,7 +1598,7 @@ body.sn-mini .sidenav a.sn{justify-content:center}
   window.buildSide=function(){
     const nav=document.querySelector('.sidenav'); if(!nav) return; const v=location.hash.slice(1)||'home';
     const logo=(document.querySelector('header img, .logo img, img[alt*="شعار"]')||{}).src||'';
-    nav.innerHTML=`<div class="sn-head">${logo?`<img src="${logo}" alt="">`:''}<b>منصة أ. عبير اليحمدية</b></div>
+    nav.innerHTML=`<div class="sn-head"><span class="sn-logo">${window.ALOGO?ALOGO():(logo?`<img src="${logo}" alt="">`:'')}</span><span class="sn-tt"><b>منصة أ. عبير اليحمدية</b><small>تقنية المعلومات</small></span></div>
     <div class="sn-list"><a class="sn ${v==='home'?'on':''}" href="#home" title="الرئيسية"><span class="si" style="--sc:#2F6FB3">${HOME_IC}</span><span class="st">الرئيسية</span></a>
     <a class="sn ${v==='g1'||/^d\/g1/.test(v)?'on':''}" href="#g1" title="دروس الصف الأول"><span class="si" style="--sc:#D9A64E;position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg><b style="position:absolute;bottom:-4px;left:-4px;background:#fff;color:#173F55;border-radius:50%;width:16px;height:16px;font-size:11px;line-height:16px;text-align:center;font-weight:900">1</b></span><span class="st">دروس الصف الأول</span></a><a class="sn ${v==='g3'||/^d\/g3/.test(v)?'on':''}" href="#g3" title="دروس الصف الثالث"><span class="si" style="--sc:#D9A64E;position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg><b style="position:absolute;bottom:-4px;left:-4px;background:#fff;color:#173F55;border-radius:50%;width:16px;height:16px;font-size:11px;line-height:16px;text-align:center;font-weight:900">3</b></span><span class="st">دروس الصف الثالث</span></a><a class="sn ${v==='bag'?'on':''}" href="#bag" title="حقيبة إنجازاتي"><span class="si" style="--sc:#B07A2A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg></span><span class="st">حقيبة إنجازاتي</span></a>
     ${SECTIONS.map(x=>`<a class="sn ${v===x.id?'on':''}" href="#${x.id}" title="${x.t}"><span class="si" style="--sc:${x.c}">${svg(x.i)}</span><span class="st">${x.t}</span><span class="sc">${cnt(x.id)}</span></a>`).join('')}</div>
@@ -2895,25 +2882,6 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
     try{await firebase.firestore().doc('settings/timetable').set(TT);toast('حُفظ الجدول ✅')}catch(e){console.warn(e);toast('حُفظ على هذا الجهاز فقط — تعذّر الحفظ في المنصة')}};
   window.renderTT=async function(head){S._ttHead=head;TT=loadLocal()||blank();draw(head);
     try{const d=await firebase.firestore().doc('settings/timetable').get();if(d.exists){const x=d.data();if(!TT.at||(x.at||0)>=(TT.at||0)){TT=Object.assign(blank(),x);saveLocal(TT)}}if(!EDIT)draw(head)}catch(e){}};
-})();
-</script>
-<script id="athar-fx-js">
-/* حركات إضافية: نجوم صاعدة في الخلفية، وظهور البطاقات عند التمرير */
-(function(){
-  try{
-    var fx=document.createElement("div");fx.id="abfx";fx.setAttribute("aria-hidden","true");
-    var cols=["#D9A64E","#F2CF8A","#7cc8da","#ffffff"],sym=["✦","✧","⋆"],N=innerWidth<700?8:16;
-    for(var i=0;i<N;i++){var p=document.createElement("span"),star=i%2===0;p.className="p"+(star?"":" dot");p.textContent=star?sym[i%3]:"";
-      p.style.cssText="left:"+(Math.random()*100).toFixed(1)+"%;--s:"+(star?(10+Math.random()*10).toFixed(0)+"px":(3+Math.random()*4).toFixed(1)+"px")+";--d:"+(15+Math.random()*15).toFixed(1)+"s;--dl2:-"+(Math.random()*20).toFixed(1)+"s;--x:"+(Math.random()*80-40).toFixed(0)+"px;--c:"+cols[i%4];
-      fx.appendChild(p);}
-    document.body.prepend(fx);
-    var view=document.getElementById("view");if(!view)return;
-    var io="IntersectionObserver" in window?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("fx-in");io.unobserve(e.target);}});},{threshold:.06}):null;
-    var SEL=".hb-entry > a, .wk, .live > *, .tiles > *, #view > section.block";
-    function prep(){var k=0;view.querySelectorAll(SEL).forEach(function(el){if(el.classList.contains("fx-rv"))return;el.classList.add("fx-rv");el.style.setProperty("--dl",(Math.min(k++,8)*0.06).toFixed(2)+"s");if(io)io.observe(el);else el.classList.add("fx-in");});
-      setTimeout(function(){view.querySelectorAll(".fx-rv:not(.fx-in)").forEach(function(el){var r=el.getBoundingClientRect();if(r.top<innerHeight+40)el.classList.add("fx-in");});},1600);}
-    prep();new MutationObserver(function(){prep();}).observe(view,{childList:true});
-  }catch(e){}
 })();
 </script>
 </body>
