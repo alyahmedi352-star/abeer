@@ -652,7 +652,8 @@ $('#q').addEventListener('input',e=>{S.q=e.target.value.trim(); if(S.q&&!SECTION
 function gradeOk(i){return S.grade==='all'||i.grade===S.grade||i.grade==='عام'||!i.grade}
 function qOk(i){if(!S.q) return true; const q=S.q.toLowerCase(); return [i.title,i.desc,i.grade,i.unit].some(v=>String(v||'').toLowerCase().includes(q))}
 function renderGrades(){
-  const gs=[['الصف الأول'],['الصف الثاني'],['الصف الثالث'],['الصف الرابع']];
+  const gs=[['الصف الأول'],['الصف الثالث']];
+  if(S.grade==='الصف الثاني'||S.grade==='الصف الرابع'){S.grade='all';try{LS.set('grade','all')}catch(e){}}
   $('#grades').innerHTML=gs.map(([g])=>`<button class="gr" aria-pressed="${S.grade===g}" data-g="${g}"><i style="background:${GDOT[g]}"></i>${g}</button>`).join('')+`<button class="gr" aria-pressed="${S.grade==='all'}" data-g="all"><i style="background:var(--gold)"></i>الكل</button>`;
   document.querySelectorAll('.gr').forEach(b=>b.onclick=()=>{S.grade=b.dataset.g;S.unit=0; LS.set('grade',S.grade); sfx.click(); render(); flyIn()});
 }
@@ -1950,11 +1951,15 @@ function words(id){ const [gs,u]=id.split('-'); const L=GLOS[id]; if(!L) return 
 /* --- weekly challenge --- */
 const WEEK=Math.floor((Date.now()/864e5+3)/7);
 function myG(){ const g=(S.member&&S.member.group)||''; return /الثالث/.test(g)?'g3':/الأول/.test(g)?'g1':(['g1','g3'][WEEK%2]); }
-function weekQ(){ const gs=myG(); const pool=Object.keys(GLOS).filter(k=>k.startsWith(gs)).flatMap(k=>GLOS[k]); const r=n=>{let x=Math.sin(WEEK*97+n)*1e4;return x-Math.floor(x)};
-  const c=pool[Math.floor(r(1)*pool.length)]; const others=pool.filter(p=>p[1]!==c[1]); const o1=others[Math.floor(r(2)*others.length)], o2=others.filter(p=>p!==o1)[Math.floor(r(3)*(others.length-1))];
+function wkG(){ const g=(S.member&&S.member.group)||''; if(/الثالث/.test(g)) return 'g3'; if(/الأول/.test(g)) return 'g1'; const sv=LSg('abeer.wkg'); if(sv==='g1'||sv==='g3') return sv; if(sv==='ask') return null; if(S.grade==='الصف الأول') return 'g1'; if(S.grade==='الصف الثالث') return 'g3'; return null; }
+window.wkPick=function(g){ LSs('abeer.wkg',g); const w=$('#wk'); if(w) w.outerHTML=weekHtml(); };
+function weekQ(){ const gs=wkG()||myG(); const pool=Object.keys(GLOS).filter(k=>k.startsWith(gs)).flatMap(k=>GLOS[k]); const r=n=>{let x=Math.sin(WEEK*97+n)*1e4;return x-Math.floor(x)};
+  const c=pool[Math.floor(r(1)*pool.length)]; const others=pool.filter(p=>p[1]!==c[1]); const o1=others[Math.floor(r(2)*others.length)]; const rest=others.filter(p=>p[1]!==o1[1]); const o2=rest[Math.floor(r(3)*rest.length)]||rest[0];
   const opts=[c,o1,o2].sort((a,b)=>r(a[1].length)-r(b[1].length)); return {c,opts}; }
-window.weekHtml=function(){ const {c,opts}=weekQ(); const ans=LSg('abeer.wk.'+WEEK);
-  return `<div class="wk" id="wk"><h3>🏆 تحدّي الأسبوع</h3><div class="muted" style="font-weight:700">أجب صحيحًا لتحصل على شارة «بطل التحدي». سؤال جديد كل أسبوع!</div>
+window.weekHtml=function(){ const ans=LSg('abeer.wk.'+WEEK); const mg=(S.member&&S.member.group)||'';
+  if(!ans&&!wkG()) return `<div class="wk" id="wk"><h3>🏆 تحدّي الأسبوع</h3><div class="muted" style="font-weight:700">اختر صفّك ليظهر لك سؤال من دروسك:</div><div class="op" style="margin-top:10px"><button onclick="wkPick('g1')">الصف الأول</button><button onclick="wkPick('g3')">الصف الثالث</button></div></div>`;
+  const {c,opts}=weekQ(); const chg=(!ans&&!/الأول|الثالث/.test(mg))?`<a href="#" onclick="try{localStorage.setItem('abeer.wkg','ask')}catch(e){};const w=document.getElementById('wk');if(w)w.outerHTML=weekHtml();return false" style="font-size:.85rem;font-weight:800;color:var(--muted);margin-inline-start:8px">(${wkG()==='g1'?'الصف الأول':'الصف الثالث'} · تغيير)</a>`:'';
+  return `<div class="wk" id="wk"><h3>🏆 تحدّي الأسبوع${chg}</h3><div class="muted" style="font-weight:700">أجب صحيحًا لتحصل على شارة «بطل التحدي». سؤال جديد كل أسبوع!</div>
    <div class="q">ما معنى «<span dir="ltr">${esc(c[0])}</span>» ${c[2]}؟</div>
    <div class="op">${opts.map(o=>`<button ${ans?'disabled':''} class="${ans&&o[1]===c[1]?'ok':''}" onclick="wkAns(this,${o[1]===c[1]})">${esc(o[1])}</button>`).join('')}</div>
    ${ans?`<p style="font-weight:800;margin:10px 0 0;color:${ans==='ok'?'#2F6B4A':'#8A2A23'}">${ans==='ok'?'✓ أحسنت! أجبت تحدّي هذا الأسبوع.':'الإجابة الصحيحة: '+esc(c[1])+'. انتظر تحدّي الأسبوع القادم 💪'}</p>`:''}</div>`; };
