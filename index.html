@@ -437,6 +437,17 @@ const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=(cs.ge
 setFav();new MutationObserver(setFav).observe(document.documentElement,{attributes:true,attributeFilter:['data-palette','data-theme']});
 })();
 </script>
+<style>
+.tl-list{display:flex;flex-direction:column;gap:10px}
+.tl-row{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;background:var(--bg,#F4F7F8);border:1px solid var(--line,#DCE6EA);border-radius:16px;padding:8px;transition:transform .2s,box-shadow .2s}
+.tl-row:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.08)}
+.tl-th{flex:0 0 74px;width:74px;height:56px;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:var(--brand-2);font-size:26px}
+.tl-th img,.tl-th svg{width:100%;height:100%;object-fit:cover;display:block}
+.tl-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tl-tx small{font-weight:800;color:var(--muted,#5E7079);font-size:.78rem}
+.tl-tx b{font-weight:900;color:var(--brand);font-size:1rem;line-height:1.35}
+.tl-go{align-self:flex-start;margin-top:3px;background:linear-gradient(180deg,#F2CF8A,#D9A64E);color:#3A2A0C;font-weight:900;font-size:.8rem;border-radius:999px;padding:3px 12px}
+</style>
 </head>
 <body>
 <header class="hero" id="top">
@@ -1078,7 +1089,7 @@ function renderHome(){
   $('#view').innerHTML=(window.hubEntry?hubEntry():'')+`
   <div class="live">
     <section class="lcard"><h3><span class="pulse-dot"></span>درس اليوم</h3>
-      ${sp?`<div class="spot">${sp.cover||sp.thumb||(sp.assetId&&/^image/.test(sp.mime||''))?`<img src="${sp.thumb&&THUMBS[sp.thumb]?THUMBS[sp.thumb]:blobUrl(sp.cover||sp.assetId)}" alt="">`:''}<div><b>${esc(sp.title)}</b><div class="meta">${esc(sp.grade||'')} · ${esc(introOf(sp))}</div><button class="btn sm add" style="margin-top:6px" onclick="openItem('${sp.id}')">ابدأ الآن ★</button></div></div>`:'<p class="muted">لا دروس بعد.</p>'}
+      ${window.todayLessons?todayLessons():(sp?`<div class="spot">${sp.cover||sp.thumb||(sp.assetId&&/^image/.test(sp.mime||''))?`<img src="${sp.thumb&&THUMBS[sp.thumb]?THUMBS[sp.thumb]:blobUrl(sp.cover||sp.assetId)}" alt="">`:''}<div><b>${esc(sp.title)}</b><div class="meta">${esc(sp.grade||'')} · ${esc(introOf(sp))}</div><button class="btn sm add" style="margin-top:6px" onclick="openItem('${sp.id}')">ابدأ الآن ★</button></div></div>`:'<p class="muted">لا دروس بعد.</p>')}
     </section>
     <section class="lcard"><h3>نجومي</h3>
       <div class="big">★ ${S.stars.toLocaleString('ar-EG')}</div>
@@ -1802,6 +1813,23 @@ function lessonPage(id){
   window.scrollTo&&window.scrollTo({top:0,behavior:'smooth'});
   return true;
 }
+
+/* درس اليوم حسب خطة دفتر التحضير (أسابيع الفصل الأول 2026/2027) */
+const PLAN=[["g1-1-1", "2026-09-06", "2026-09-10"], ["g1-1-2", "2026-09-13", "2026-09-17"], ["g1-1-3", "2026-09-20", "2026-09-24"], ["g1-1-4", "2026-09-27", "2026-10-01"], ["g1-1-5", "2026-10-04", "2026-10-08"], ["g1-1-6", "2026-10-11", "2026-10-15"], ["g1-2-1", "2026-10-18", "2026-10-22"], ["g1-2-2", "2026-10-25", "2026-10-29"], ["g1-2-3", "2026-11-01", "2026-11-05"], ["g1-2-4", "2026-11-08", "2026-11-12"], ["g1-2-5", "2026-11-15", "2026-11-19"], ["g1-2-6", "2026-11-22", "2026-11-26"], ["g1-3-1", "2026-11-29", "2026-12-03"], ["g1-3-2", "2026-12-06", "2026-12-10"], ["g1-3-3", "2026-12-13", "2026-12-17"], ["g1-3-4", "2026-12-20", "2026-12-24"], ["g3-1-1", "2026-09-06", "2026-09-10"], ["g3-1-2", "2026-09-13", "2026-09-24"], ["g3-1-3", "2026-09-27", "2026-10-01"], ["g3-2-1", "2026-10-04", "2026-10-15"], ["g3-2-2", "2026-10-11", "2026-10-22"], ["g3-2-3", "2026-10-25", "2026-10-29"], ["g3-2-4", "2026-11-01", "2026-11-05"], ["g3-3-1", "2026-11-08", "2026-11-12"], ["g3-3-2", "2026-11-15", "2026-11-19"], ["g3-3-3", "2026-11-29", "2026-12-03"], ["g3-3-4", "2026-12-06", "2026-12-17"], ["g3-3-5", "2026-12-20", "2026-12-30"]];
+window.todayLessons=function(){
+  const now=new Date(), day=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const D=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+  const gs=S.grade==='الصف الأول'?['الصف الأول']:S.grade==='الصف الثالث'?['الصف الثالث']:['الصف الأول','الصف الثالث'];
+  const rows=gs.map(g=>{ const sl=GSLUG[g]; const P=PLAN.filter(p=>p[0].startsWith(sl+'-'));
+    let cur=P.filter(p=>D(p[1])<=day&&day<=D(p[2])).sort((a,b)=>D(b[1])-D(a[1]))[0], tag='درس هذا الأسبوع';
+    if(!cur){ cur=P.find(p=>D(p[1])>day); tag='الدرس القادم'; }
+    if(!cur){ cur=P[P.length-1]; tag='آخر درس في الخطة'; }
+    if(!cur) return '';
+    const L=lessons(g), l=L.find(x=>x.id===cur[0]); if(!l) return '';
+    let th=''; try{ const e=gather(g)[l.id]; th=e?posterOf(e):'' }catch(x){}
+    return `<a class="tl-row" href="#d/${l.id}"><span class="tl-th">${th||'📘'}</span><span class="tl-tx"><small>${g} · ${tag}</small><b>${l.u}.${l.n} ${esc(l.name)}</b><span class="tl-go">ابدأ الدرس ★</span></span></a>`; }).join('');
+  return rows?`<div class="tl-list">${rows}</div>`:'<p class="muted">لا دروس بعد.</p>';
+};
 window.hubRoute=function(v){ if(v==='g1'||v==='g3') return hub(v); if(v.startsWith('d/')) return lessonPage(v.slice(2)); return false; };
 window.hubEntry=()=>`<div class="hb-entry"><a href="#g1"><span class="i">${ic('play',28)}</span><span><b>دروس الصف الأول</b><small>كل درس في مكان واحد: الدرس والعرض والواجب</small></span></a><a href="#g3"><span class="i">${ic('play',28)}</span><span><b>دروس الصف الثالث</b><small>كل درس في مكان واحد: الدرس والعرض والواجب</small></span></a>${window.bagEntry||''}</div>`;
 })();
