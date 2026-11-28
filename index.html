@@ -2572,7 +2572,9 @@ try{ const v=location.hash.slice(1); if(/^(g1|g3|d\/)/.test(v)&&document.querySe
       {k:'عيد الأضحى',n:'🐑 عيد الأضحى',h:'عيد الأضحى المبارك',s:2,task:'صمّم/ي تهنئة متحركة بعيد الأضحى'}
     ],
     prog:{1:{'الصف الأول':'الرسّام','الصف الثالث':'Word'},2:{'الصف الأول':'سكراتش','الصف الثالث':'سكراتش'}},
-    grades:['الصف الأول','الصف الثالث']
+    grades:['الصف الأول','الصف الثالث'],
+    /* إعلان النتائج: يظهر الشريط حتى تاريخ until (اكتبيه بصيغة سنة-شهر-يوم) */
+    win:[{k:'اليوم الوطني',h:'اليوم الوطني العُماني 56',until:'2026-12-13'}]
   };
   window.BM=BM;
   const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2668,7 +2670,16 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
   /* ---------- الشريط المتحرك ---------- */
   function ticker(show){
     let el=document.getElementById('bmTk'); const o=show&&activeOcc();
-    if(!o){ if(el) el.remove(); return }
+    if(!o){
+      const w=show&&(BM.win||[]).find(x=>Math.ceil((new Date(x.until+'T23:59:59')-new Date())/864e5)>=0);
+      if(!w){ if(el) el.remove(); return }
+      const wk='win|'+w.k; if(el&&el.dataset.k===wk) return;
+      if(!el){ el=document.createElement('div'); el.id='bmTk'; el.setAttribute('role','status'); const m=document.querySelector('main'); if(!m) return; m.parentNode.insertBefore(el,m) }
+      el.dataset.k=wk;
+      el.innerHTML=`<div class="l"><i>🏆</i> النتائج</div><div class="m"><span>🎉 تم إعلان أسماء الفائزين في مسابقة <b>بصمات مبدعة</b> — ${E(w.h)} 🇴🇲 ✦ ألف مبروك للفائزين والفائزات في <b>الصف الأول</b> و<b>الصف الثالث</b> 👑 ✦ شكرًا لكل من شارك بإبداعه 🌟 ✦ شاهدوا النتائج وأعمال زملائكم الآن في المنصة ✨</span></div><button class="go" type="button">شاهد النتائج</button>`;
+      el.querySelector('.go').onclick=()=>{ const k=BM.occ.findIndex(x=>x.k===w.k); if(k>=0) S._bmo=k; location.hash=CR };
+      return;
+    }
     const d=daysLeft(o), key=o.k+'|'+d;
     if(el&&el.dataset.k===key) return;
     const html=`<div class="l"><i>📢</i> مسابقة</div><div class="m"><span>🏆 مسابقة <b>بصمات مبدعة</b> — ${E(o.h)}: ${E(o.task)} ببرنامج <b>${E(progTxt(o))}</b> وشارك/ي بعملك ✦ الجوائز للمراكز الثلاثة الأولى في الصف الأول والثالث ✦ آخر موعد للمشاركة: <b>${E(o.endT||o.end)}</b> ✦ أعمالكم تُعرض في المنصة 🌟</span></div><span class="cd">${d===0?'⏳ <b>اليوم آخر يوم!</b>':`⏳ باقي <b>${d}</b> ${d===1?'يوم':d===2?'يومان':d<=10?'أيام':'يومًا'}`}</span><button class="go" type="button">شارك الآن</button>`;
