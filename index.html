@@ -1071,7 +1071,7 @@ function cardsHtml(items){
           ${(i.pp||i.assetId)?`<button class="btn sm ghost" onclick="download('${i.id}')">${i.pp&&/presentation/.test(i.pp.mime||'')?'تنزيل PowerPoint':'تنزيل'}</button>`:''}
           ${i.sheet?`<button class="btn sm gold" onclick="sheetDl('${i.id}')">⬇ تحميل</button><button class="btn sm ghost" onclick="sheetPrint('${i.id}')">🖨️ طباعة</button>`:''}
           ${(['presentations','harvest'].includes(i.section)&&!(i.pp||i.assetId)&&i.links&&i.links.length&&window.dlPage)?`<button class="btn sm gold" title="تنزيل نسخة على جهازك" onclick="dlPage(event,'${i.id}')">⬇ تنزيل</button>`:''}
-          ${(()=>{const u=(i.links||[]).find(x=>/story[23]\.html\?d=/.test(x)); return u&&window.dlStory?`<button class="btn sm gold" title="تنزيل القصة لتعمل دون إنترنت" onclick="dlStory(event,'${esc(u)}','${esc(String(i.title||'').replace(/\s*—.*$/,'').replace(/^الدرس\s*/,''))}')">⬇ تنزيل</button>`:''})()} ${(()=>{const u=(i.links||[]).find(x=>/map1\.html/.test(x)); return u&&window.dlPage?`<button class="btn sm gold" title="تنزيل نسخة على جهازك" onclick="dlPage(event,'${i.id}')">⬇ تنزيل</button>`:''})()}
+          ${(()=>{const u=(i.links||[]).find(x=>/story[23]\.html\?d=/.test(x)); return u&&window.dlStory?`<button class="btn sm gold" title="تنزيل القصة لتعمل دون إنترنت" onclick="dlStory(event,'${esc(u)}','${esc(String(i.title||'').replace(/\s*—.*$/,'').replace(/^الدرس\s*/,''))}')">⬇ تنزيل</button>`:''})()} ${(i.section==='videos'&&window.dlVideo&&window.vidSrc&&vidSrc(i))?`<button class="btn sm gold" title="تنزيل الفيديو على جهازك" onclick="dlVideo(event,'${i.id}')">⬇ تنزيل</button>`:''} ${(()=>{const u=(i.links||[]).find(x=>/map1\.html/.test(x)); return u&&window.dlPage?`<button class="btn sm gold" title="تنزيل نسخة على جهازك" onclick="dlPage(event,'${i.id}')">⬇ تنزيل</button>`:''})()}
           ${fbBtn(i)}${window.likeBtn?likeBtn(i.id):''}<button class="btn sm ghost ic-btn" onclick="openItem('${i.id}',true)" title="التعليقات" aria-label="التعليقات (${cc(i.id)})"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12z"></path></svg> ${cc(i.id)}</button>
           ${canEditFiles()?`<button class="btn sm ghost" onclick="editItem('${i.id}')">تعديل</button>`:''}
         </div>
@@ -2942,6 +2942,32 @@ body.sec-ws #view .card .links a{display:inline-block!important;width:auto!impor
   const sched=()=>{if(!q){q=1;requestAnimationFrame(apply)}};
   new MutationObserver(sched).observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('hashchange',sched); setInterval(sched,3000); sched();
+})();
+</script>
+<script>
+/* تنزيل الفيديوهات */
+(function(){
+  const url=x=>typeof x==='string'?((x.match(/https?:\/\/[^\s|]+|[^\s|]+\.(?:mp4|webm|mov|m4v)\b[^\s|]*/i)||[])[0]):(x&&x.u);
+  window.vidSrc=function(i){
+    const l=(i.links||[]).map(url).find(u=>u&&/\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u));
+    if(l) return l;
+    try{ if(i.assetId&&/^video/.test(i.mime||'')&&typeof blobUrl==='function') return blobUrl(i.assetId) }catch(e){}
+    return null;
+  };
+  window.dlVideo=async function(ev,id){
+    if(ev){ev.preventDefault();ev.stopPropagation()}
+    const i=(S.items||[]).find(x=>x.id===id); if(!i) return; const u=vidSrc(i); if(!u) return;
+    const ext=((u.match(/\.(mp4|webm|mov|m4v)(\?|#|$)/i)||[])[1]||'mp4').toLowerCase();
+    const name=String(i.title||'فيديو').replace(/[\\/:*?"<>|]/g,'').trim()+'.'+ext;
+    try{ toast('جارٍ تنزيل الفيديو… انتظر قليلًا') }catch(e){}
+    try{
+      let href=u, rev=false;
+      if(!/^blob:/.test(u)){ const r=await fetch(u); if(!r.ok) throw 0; href=URL.createObjectURL(await r.blob()); rev=true; }
+      const a=document.createElement('a'); a.href=href; a.download=name; document.body.append(a); a.click(); a.remove();
+      if(rev) setTimeout(()=>URL.revokeObjectURL(href),8000);
+      try{ toast('تم التنزيل ✅') }catch(e){}
+    }catch(e){ window.open(u,'_blank','noopener'); try{ toast('فُتح الفيديو في نافذة جديدة: احفظه من زر ⋮ ثم «تنزيل»') }catch(x){} }
+  };
 })();
 </script>
 </body>
